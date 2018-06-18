@@ -1,0 +1,11 @@
+<span class="frame">
+    <span class="label" (click)="open = !open">{{label}}</span>
+    <div class="commands">
+        <button class="open" (click)="open = !open"><i class="fas fa-chevron-down"></i></button>
+        <button><i class="fas fa-eye"></i></button>
+        <button><i class="fas fa-plus"></i></button>
+    </div>
+</span>
+<div class="list" *ngIf="open">
+    <ng-content></ng-content>
+</div>

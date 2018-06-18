@@ -1,0 +1,19 @@
+:host() { display: inline-block; vertical-align: inherit; }
+.frame { display: inline-block; position: relative; overflow: hidden; height: 19px; width: 212px; padding: 0 4px; border: 1px solid var(--grey); border-radius: 2px; }
+.label { cursor: default; width: 100%; display: inline-block; height: 100%; }
+.commands { position: absolute; top: -1px; right: 1px; }
+    .commands > button { height: 21px; width: 30px; overflow: hidden; margin: 0 -2px; padding: 0; }
+    .commands > button:focus { outline:0; }
+        .open { border: none; cursor: default !important; }
+        .open:hover { color: inherit !important; background-color: inherit !important; }
+.list { 
+    position: absolute;
+    z-index: 1; 
+    max-height: 300px;
+    min-width: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--grey); 
+    border-top: none; 
+    background-color: var(--light-grey); 
+    cursor: pointer; 
+}

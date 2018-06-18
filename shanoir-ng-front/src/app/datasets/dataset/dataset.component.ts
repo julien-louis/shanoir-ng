@@ -78,7 +78,7 @@ export class DatasetComponent implements OnInit {
 
     private edit(): void {
         this.router.navigate([], {
-            relativeTo: this.route, 
+            relativeTo: this.route,
             queryParams: { id: this.dataset.id, mode: "edit" }
         });
     }

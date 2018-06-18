@@ -198,6 +198,10 @@ li .papaya-menu-slider {
 }
 .papaya-viewer canvas {
   cursor: crosshair;
+  border-radius: 6px 6px 0 0;
+}
+.papaya-display canvas {
+  border-radius: 0 0 6px 6px;
 }
 .preview button {
   display: inline-block !important;
@@ -206,6 +210,7 @@ li .papaya-menu-slider {
   position: relative !important;
   opacity: 1 !important;
   background-color: var(--color-a);
+  margin-bottom: 4px;
 }
 
 .preview button:hover {

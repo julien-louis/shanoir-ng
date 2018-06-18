@@ -66,7 +66,6 @@ export class DropdownMenuComponent {
             this.init = true;
             subscription.unsubscribe();
         });
-
         this.renderer.setElementClass(this.elementRef.nativeElement, this.mode + "-mode", true);
     }
 

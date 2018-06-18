@@ -53,10 +53,11 @@ input[type='date'] { width: 140px; }
 
 .hidden { display: none !important; }
 
-form { color: var(--dark-grey); background-color: var(--lighter-grey); border: 1px solid var(--light-grey); }
+form { color: var(--dark-grey); background-color: var(--very-light-grey); }
   form input:not([type='file']),
   form textarea,
-  form select { border: 1px solid var(--grey) !important; border-radius: 2px !important; }
+  form select { border: 1px solid var(--grey) !important; border-radius: 2px !important; background-color: var(--very-light-grey) }
+    form select.has-buttons { border-radius: 2px 0 0 2px !important; margin-right: -3px; }
   form input[readonly],
   form textarea[readonly],
   form select[readonly] { background-color: var(--light-grey); cursor: default; color : transparent; text-shadow : 0 0 0 var(--greyer);}
@@ -70,18 +71,18 @@ form { color: var(--dark-grey); background-color: var(--lighter-grey); border: 1
   form textarea { resize: vertical; }
   form button { margin: 10px 0; }
   form input:not([type]), input[type='text'], input[type='password'], input[type='email'], textarea, select { width: 220px; }
-  form fieldset { border: 0; padding: 0; margin: 15px; }
+  form fieldset { padding: 12px 12px; margin: 15px 0; border: 1px solid var(--color-b-light); border-radius: 6px; }
     form fieldset.responsive { margin-left: -5px; }
   form fieldset.line { border-top: 1px solid var(--grey); padding-top: 11px; }
     form fieldset fieldset { border: none; margin: 3px 0 0; }
     form fieldset fieldset legend { padding: 0 0 5px; font-weight: normal; }
     form fieldset fieldset label { display: block; width: auto; }
     form fieldset fieldset label { margin-left: 183px; }
-  form legend { padding: 0 10px 0 0; color: var(--color-a); font-size: 14px; margin: 10px 0; color: var(--color-c); width: 100%; border-bottom: 1px solid var(--color-b-light); }
-  form li > label { display: inline-block; vertical-align: sub; width: 250px; }
+  form legend { padding: 0 6px; font-size: 14px; margin: 2px -6px; color: var(--color-c); }
+  form li > label { display: inline-block; vertical-align: -6; width: 250px; }
   form fieldset ol { margin: 0; padding: 0; }
     form fieldset.responsive ol { float: left; padding: 0 50px 0 0; }
-  form fieldset li { list-style: none; padding: 3px 0; margin: 0; min-height: 21px; }
+  form fieldset li { list-style: none; padding: 3px 0; margin: 0; min-height: 23px; }
     form fieldset li input,
     form fieldset li select,
     form fieldset li button { height: 21px; }
@@ -90,12 +91,13 @@ form { color: var(--dark-grey); background-color: var(--lighter-grey); border: 1
   form em { font-weight: bold; font-style: normal; color: var(--color-error); }
   form .header, form .footer { padding: 6px 15px; }
   form .footer { text-align: right; }
-  form .header { font-size: 16px; color: var(--color-b); font-weight: bold; padding-top: 10px; padding-bottom: 10px; }
+  form .header { font-size: 20px; color: var(--color-b); font-weight: bold; padding: 10px; }
   form .required-label:after{ content:" *"; }
   form .form-validation-alert { color: var(--color-error); width: 100%; overflow: hidden; }
-  form .right-col { display: inline-block; vertical-align: top; min-width: 250px; line-height: 20px; }
+  form .right-col { display: inline-block; vertical-align: -6; min-width: 250px; line-height: 20px; }
   form .right-col label { text-align: left; display: block; }
-  form .right-col button { padding: 0 5px; margin: 0; background-color: transparent; border: 1px solid var(--grey); color: var(--very-dark-grey); height: 21px; }
+  form .right-col button { vertical-align: bottom; border-radius: 0; padding: 0 5px; margin: 0 -2px; background-color: transparent; border: 1px solid var(--grey); color: var(--very-dark-grey); height: 21px; }
+    form .right-col button:last-child { border-radius: 0 2px 2px 0; }
     form .right-col button:active { background-color: var(--color-b-light); }
     form .right-col button:disabled { color: var(--grey); }
     form .right-col button img { height: 12px; vertical-align: sub; margin: 0px 5px 2px 0px; }
@@ -136,7 +138,7 @@ form { color: var(--dark-grey); background-color: var(--lighter-grey); border: 1
 
 .main-content { padding: 0 20px 10px 20px; position: relative; }
 .max-content { display: inline-block; }
-.command-zone { background-color: var(--light-grey); }
+.command-zone { }
 
 .error-message label { color: var(--color-error); }
 .error-message li { color: var(--color-error); }

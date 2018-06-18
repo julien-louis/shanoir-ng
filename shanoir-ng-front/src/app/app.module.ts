@@ -65,8 +65,9 @@ import { UserComponent } from './users/user/user.component';
 import { UserListComponent } from './users/user-list/user-list.component';
 import { UserService } from './users/shared/user.service';
 import { DicomArchiveService } from './import/dicom-archive.service';
-import { MsgBoxComponent } from './shared/msg-box/msg-box.component'
-import { MsgBoxService } from './shared/msg-box/msg-box.service'
+import { MsgBoxComponent } from './shared/msg-box/msg-box.component';
+import { MsgBoxService } from './shared/msg-box/msg-box.service';
+import { GlobalService } from './shared/services/global.service';
 
 import '../assets/css/common.css';
 import '../assets/css/papaya.css';
@@ -95,7 +96,8 @@ import { SelectSeriesComponent } from './import/select-series/select-series.comp
 import { DicomUploadComponent } from './import/dicom-upload/dicom-upload.component';
 import { ClinicalContextComponent } from './import/clinical-context/clinical-context.component';
 import { NewExamComponent } from './examinations/examination/new-exam.component';
-
+import { SelectBoxComponent } from './shared/select/select.component';
+import { SelectOptionComponent } from './shared/select/select.option.component';
 
 @NgModule({
     imports: [
@@ -169,7 +171,9 @@ import { NewExamComponent } from './examinations/examination/new-exam.component'
         ProcessedDatasetTypeComponent,
         SelectSeriesComponent,
         DicomUploadComponent,
-        ClinicalContextComponent
+        ClinicalContextComponent,
+        SelectBoxComponent,
+        SelectOptionComponent,
     ],
     entryComponents: [
         ConfirmDialogComponent
@@ -200,6 +204,7 @@ import { NewExamComponent } from './examinations/examination/new-exam.component'
         DicomArchiveService,
         DatasetService,
         MsgBoxService,
+        GlobalService,
         {
             provide: HTTP_INTERCEPTORS,
             useClass: KeycloakHttpInterceptor,
