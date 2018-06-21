@@ -40,11 +40,11 @@
 				.shanoir-table th.status-bar .options span { padding: 0 10px; }
 					.shanoir-table th.status-bar .options span + span { border: 0; border-left: 1px solid var(--grey); }
 	.shanoir-table tr { height: 20px; }
-		.shanoir-table tr.even { background-color: var(--light-grey); }
-		.shanoir-table tr.odd { background-color: var(--lighter-grey); }
+		.shanoir-table tr.even { }
+		.shanoir-table tr.odd { }
 		.shanoir-table tr:hover td:not(.loading):not(.empty) { height: 20px; background-color: var(--color-b-light); cursor: pointer; }
 	.shanoir-table td { padding: 0 5px; border: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
-		.shanoir-table td + td { border-left: 1px dotted var(--grey); }
+		.shanoir-table td + td { border-left: 1px solid var(--grey); }
 		.shanoir-table td.bool { text-align: center; }
 		.shanoir-table td.cell-date { text-align: right; }
 		.shanoir-table td.cell-number { text-align: right; }

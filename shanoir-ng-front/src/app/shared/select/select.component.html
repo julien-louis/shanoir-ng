@@ -6,6 +6,8 @@
         <button><i class="fas fa-plus"></i></button>
     </div>
 </span>
-<div class="list" *ngIf="open">
-    <ng-content></ng-content>
+<div #list class="list" [class.down]="way=='down'" [class.up]="way=='up'">
+    <ng-template *ngIf="open">
+        <ng-content></ng-content>
+    </ng-template>
 </div>

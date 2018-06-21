@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, OnDestroy, OnChanges, SimpleChanges, ContentChildren, QueryList, AfterContentInit} from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, OnDestroy, OnChanges, SimpleChanges, ContentChildren, QueryList, AfterContentInit, ViewChild} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { SelectOptionComponent } from './select.option.component';
 import { GlobalService } from '../services/global.service';
@@ -20,14 +20,15 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     
     @Input() ngModel: any = null;
     @Output() ngModelChange = new EventEmitter();
-    @ContentChildren(forwardRef(() => SelectOptionComponent)) options: QueryList<SelectOptionComponent>;
+    @ContentChildren(forwardRef(() => SelectOptionComponent)) private options: QueryList<SelectOptionComponent>;
+    @ViewChild('list') listElt: ElementRef;
     private selectedOption: SelectOptionComponent;
     private openState: boolean = false;
     private globalClickSubscription: Subscription;
+    private way: 'up' | 'down' = 'down';
 
 
-    constructor(private element: ElementRef, private globalService: GlobalService) { 
-    }
+    constructor(private element: ElementRef, private globalService: GlobalService) {}
 
     ngOnDestroy() {
         this.unsubscribeToGlobalClick();
@@ -77,16 +78,24 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     }
 
     private set open(open: boolean) {
+        console.log(this.listElt.nativeElement.offsetHeight)
         if (open && !this.openState) { //open
             this.subscribeToGlobalClick();
         } else if (!open && this.openState) { //close
             this.unsubscribeToGlobalClick();
         }
         this.openState = open;
+        if (this.open) this.chooseOpeningWay();
     }
 
     private get open(): boolean {
         return this.openState;
+    }
+
+    chooseOpeningWay() {
+        console.log(this.listElt);
+        console.log(this.listElt.nativeElement);
+        console.log(this.listElt.nativeElement.offsetTop);
     }
 
     private subscribeToGlobalClick() {

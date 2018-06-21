@@ -1,4 +1,4 @@
-:host() { display: inline-block; vertical-align: inherit; }
+:host() { display: inline-block; vertical-align: inherit; position: relative; }
 .frame { display: inline-block; position: relative; overflow: hidden; height: 19px; width: 212px; padding: 0 4px; border: 1px solid var(--grey); border-radius: 2px; }
 .label { cursor: default; width: 100%; display: inline-block; height: 100%; }
 .commands { position: absolute; top: -1px; right: 1px; }
@@ -12,8 +12,10 @@
     max-height: 300px;
     min-width: 220px;
     overflow-y: auto;
-    border: 1px solid var(--grey); 
-    border-top: none; 
+    border: 1px solid var(--grey);
     background-color: var(--light-grey); 
-    cursor: pointer; 
+    cursor: pointer;
 }
+
+.list.down { top: 20px; }
+.list.up { bottom: 20px; } 

@@ -1,6 +1,6 @@
-.tree { margin: 0 50px 20px 0; display: inline-block; vertical-align: top; }
+.tree { margin: 0 35px 20px 0; display: inline-block; vertical-align: top; }
 
-.data-preview { display: inline-block; vertical-align: top; background-color: var(--light-grey); margin: 0 0 20px 0; overflow: hidden; }
+.data-preview { display: inline-block; vertical-align: top; overflow: hidden; border-radius: 4px; border: 1px solid var(--color-b-light); }
     .data-preview[hidden] { display: none; }
     .data-preview td { padding: 3px 10px; }
     .data-preview table { margin: 10px; }
