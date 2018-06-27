@@ -118,22 +118,24 @@ public class NIfTIConverterService {
 			int numberOfSeries = series.size();
 			for (Iterator seriesIt = series.iterator(); seriesIt.hasNext();) {
 				Serie serie = (Serie) seriesIt.next();
-				File serieIDFolderFile = createSerieIDFolder(workFolder, seriesFolderFile, serie);
-				boolean serieIdentifiedForNotSeparating;
-				try {
-					serieIdentifiedForNotSeparating = checkSerieForPropertiesString(serie, doNotSeparateDatasetsInSerie);
-					// if the serie is not one of the series, that should not be separated, please separate the series,
-					// otherwise just do not separate the series and keep all images for one nii conversion
-					serie.setDatasets(new ArrayList<Dataset>());
-					constructDicom(serieIDFolderFile, serie, serieIdentifiedForNotSeparating);
-					constructNifti(serieIDFolderFile, serie, numberOfSeries, converterId);
-					++seriesCounter;
-				} catch (NoSuchFieldException | SecurityException e) {
-					LOG.error(e.getMessage());
+				if (serie.getSelected()) {
+					File serieIDFolderFile = createSerieIDFolder(workFolder, seriesFolderFile, serie);
+					boolean serieIdentifiedForNotSeparating;
+					try {
+						serieIdentifiedForNotSeparating = checkSerieForPropertiesString(serie, doNotSeparateDatasetsInSerie);
+						// if the serie is not one of the series, that should not be separated, please separate the series,
+						// otherwise just do not separate the series and keep all images for one nii conversion
+						serie.setDatasets(new ArrayList<Dataset>());
+						constructDicom(serieIDFolderFile, serie, serieIdentifiedForNotSeparating);
+						constructNifti(serieIDFolderFile, serie, numberOfSeries, converterId);
+						++seriesCounter;
+					} catch (NoSuchFieldException | SecurityException e) {
+						LOG.error(e.getMessage());
+					}
+					// as images/non-images are migrated to datasets, clear the list now
+					serie.getImages().clear();
+					serie.getNonImages().clear();
 				}
-				// as images/non-images are migrated to datasets, clear the list now
-				serie.getImages().clear();
-				serie.getNonImages().clear();
 			}
 		}	
 	}
@@ -493,12 +495,14 @@ public class NIfTIConverterService {
 					conversionLogs = "";
 				}
 
+				// TODO ATO : Fix this once nifti conversion process is defined.
+				
 				NIfTIConverter converter;
-				if(isConvertWithClidcm) {
-					 converter = findById(4L);					
-				} else {
-					converter = findById(converterId);
-				}
+//				if(isConvertWithClidcm) {
+					 converter = findById(5L);					
+//				} else {
+//					converter = findById(converterId);
+//				}
 				convertToNiftiExec(converter, directory.getPath(), directory.getPath(), isConvertAs4D);
 				LOG.info("conversionLogs : " + conversionLogs);
 				return converter;

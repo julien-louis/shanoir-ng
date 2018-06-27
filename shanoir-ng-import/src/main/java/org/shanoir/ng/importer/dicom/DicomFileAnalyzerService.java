@@ -217,7 +217,7 @@ public class DicomFileAnalyzerService {
 		
 		if (UID.EnhancedMRImageStorage.equals(sopClassUID)) {
 			MultiframeExtractor emf = new MultiframeExtractor();
-			Attributes firstSequenceAttributes = emf.extract(datasetAttributes, 10);
+			Attributes firstSequenceAttributes = emf.extract(datasetAttributes, 0);
 			
 			if (image.path("acquisitionNumber").isMissingNode()) {
 				String acquisitionNumber = firstSequenceAttributes.getString(Tag.AcquisitionNumber);
@@ -262,11 +262,10 @@ public class DicomFileAnalyzerService {
 			
 			if (image.path("echoNumbers").isMissingNode()) {
 				ArrayNode echoNumbers = mapper.createArrayNode();
-				String echoNumbersArray;
-				int[] echoNumbersArray2 = datasetAttributes.getInts(Tag.EchoNumbers);
-				if (echoNumbersArray2 != null) {
-					for (int i = 0; i < echoNumbersArray2.length; i++) {
-						echoNumbers.add(echoNumbersArray2[i]);		
+				int[] echoNumbersArray = datasetAttributes.getInts(Tag.EchoNumbers);
+				if (echoNumbersArray != null) {
+					for (int i = 0; i < echoNumbersArray.length; i++) {
+						echoNumbers.add(echoNumbersArray[i]);		
 					}
 					((ObjectNode) image).set("echoNumbers", echoNumbers);
 				} else {
