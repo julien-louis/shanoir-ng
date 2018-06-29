@@ -9,3 +9,5 @@ form { border: none !important; background-color: transparent; }
 .last.step { padding: 15px; }
     .last.step button { font-size: 16px; }
     .last.step img { height: 41px; vertical-align: top; margin: 0 20px; }
+
+.tree > node { margin-left: 0; }

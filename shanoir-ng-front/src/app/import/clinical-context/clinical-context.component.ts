@@ -79,6 +79,8 @@ export class ClinicalContextComponent extends AbstractImportStepComponent implem
             .then(studies => {
                 this.studies = studies;
                 this.prepareStudyStudycard(studies);
+            }).catch(() => {
+                this.studies = [];
             });
     }
 

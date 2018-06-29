@@ -98,6 +98,8 @@ import { ClinicalContextComponent } from './import/clinical-context/clinical-con
 import { NewExamComponent } from './examinations/examination/new-exam.component';
 import { SelectBoxComponent } from './shared/select/select.component';
 import { SelectOptionComponent } from './shared/select/select.option.component';
+import { MultiSelectComponent } from './shared/multiselect/multiselect.component';
+import { MultiSelectOptionComponent } from './shared/multiselect/multiselect.option.component';
 
 @NgModule({
     imports: [
@@ -174,6 +176,8 @@ import { SelectOptionComponent } from './shared/select/select.option.component';
         ClinicalContextComponent,
         SelectBoxComponent,
         SelectOptionComponent,
+        MultiSelectComponent,
+        MultiSelectOptionComponent
     ],
     entryComponents: [
         ConfirmDialogComponent
