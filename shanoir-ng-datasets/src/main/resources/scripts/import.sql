@@ -21,9 +21,9 @@ VALUES
 	(4, 1, now(), false, 1, 'examination4', 2, 1, 'examination4');
 
 INSERT INTO mr_protocol_metadata
-	(id, name)
+	(dtype, id, name)
 VALUES
-	(1, 'MRProtocol1');
+	(1, 1, 'MRProtocol1');
 
 INSERT INTO mr_protocol
 	(id, echo_train_length, origin_metadata_id)
