@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, OnDestroy, OnChanges, SimpleChanges, ContentChildren, QueryList, AfterContentInit, ViewChild} from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, QueryList, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { SelectOptionComponent } from './select.option.component';
-import { GlobalService } from '../services/global.service';
 import { Subscription } from 'rxjs';
+
+import { GlobalService } from '../services/global.service';
+import { SelectOptionComponent } from './select.option.component';
 
 @Component({
     selector: 'select-box',
@@ -21,12 +22,19 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     @Input() ngModel: any = null;
     @Output() ngModelChange = new EventEmitter();
     @ContentChildren(forwardRef(() => SelectOptionComponent)) private options: QueryList<SelectOptionComponent>;
-    @ViewChild('list') listElt: ElementRef;
     private selectedOption: SelectOptionComponent;
     private openState: boolean = false;
     private globalClickSubscription: Subscription;
     private way: 'up' | 'down' = 'down';
-
+    private hideToComputeHeight: boolean = false;
+    private disabled: boolean = false;
+    
+    @Input() viewDisabled: boolean;
+    @Input() newDisabled: boolean;
+    @Input() addDisabled: boolean;
+    @Output() onViewClick = new EventEmitter();
+    @Output() onNewClick = new EventEmitter();
+    @Output() onAddClick = new EventEmitter();
 
     constructor(private element: ElementRef, private globalService: GlobalService) {}
 
@@ -71,6 +79,14 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
         this.ngModelChange.emit(option.value);
         this.open = false;
     }
+    
+    public onOptionOver(option: SelectOptionComponent) {
+        let focusIndex = this.getFocusIndex();
+        if (focusIndex != -1) {
+            this.options.toArray()[focusIndex].focus = false;
+        }
+        option.focus = true;
+    }
 
     private get label(): string {
         if (!this.selectedOption) return null;
@@ -78,24 +94,56 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     }
 
     private set open(open: boolean) {
-        console.log(this.listElt.nativeElement.offsetHeight)
         if (open && !this.openState) { //open
             this.subscribeToGlobalClick();
         } else if (!open && this.openState) { //close
             this.unsubscribeToGlobalClick();
         }
         this.openState = open;
-        if (this.open) this.chooseOpeningWay();
+        if (this.openState) {
+            this.chooseOpeningWay();
+            this.scrollToSelectedOption();
+        }
     }
 
     private get open(): boolean {
         return this.openState;
     }
 
+    private scrollToSelectedOption() {
+        if (!this.selectedOption) return;
+        setTimeout(() => {
+            let top: number = this.selectedOption.elt.nativeElement.offsetTop;
+            this.element.nativeElement.querySelector('.list').scrollTop = top;
+        });  
+    }
+
+    private scrollToFocusedOption() {
+        let focusIndex = this.getFocusIndex();
+        if (focusIndex == -1) return;
+        let focusesOption = this.options.toArray()[focusIndex];
+        setTimeout(() => {
+            let top: number = focusesOption.elt.nativeElement.offsetTop;
+            let height: number = focusesOption.elt.nativeElement.offsetHeight;
+            let frameTop: number = this.element.nativeElement.querySelector('.list').scrollTop;
+            let frameHeight: number = this.element.nativeElement.querySelector('.list').offsetHeight;
+            if (top < frameTop) {
+                this.element.nativeElement.querySelector('.list').scrollTop = top;
+            } else if (top > frameTop + frameHeight - height) {
+                this.element.nativeElement.querySelector('.list').scrollTop = frameTop + height ;
+            }
+        });  
+    }
+
     chooseOpeningWay() {
-        console.log(this.listElt);
-        console.log(this.listElt.nativeElement);
-        console.log(this.listElt.nativeElement.offsetTop);
+        this.hideToComputeHeight = true;
+        this.way = 'down'
+        setTimeout(() => {
+            let bottom = this.element.nativeElement.querySelector('.list').getBoundingClientRect().bottom;
+            let docHeight: number = document.body.clientHeight;
+            if (bottom > docHeight) this.way = 'up';
+            this.hideToComputeHeight = false;
+        });
     }
 
     private subscribeToGlobalClick() {
@@ -110,6 +158,50 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
         if (this.globalClickSubscription) this.globalClickSubscription.unsubscribe();
     }
 
+    private onKeyPress(event: any) {
+        if ('ArrowDown' == event.key) {
+            let focusIndex = this.getFocusIndex();
+            if (focusIndex == -1) focusIndex = 0;
+            if (focusIndex < this.options.length - 1) {
+                this.options.toArray()[focusIndex].focus = false;
+                this.options.toArray()[(focusIndex+1)].focus = true;
+                if (!this.open) this.onSelectedOptionChange(this.options.toArray()[(focusIndex+1)]);
+                else this.scrollToFocusedOption();
+            }
+            event.detail.keyboardEvent.preventDefault();
+        } else if ('ArrowUp' == event.key) {
+            let focusIndex = this.getFocusIndex();
+            if (focusIndex >= 1) {
+                this.options.toArray()[focusIndex].focus = false;
+                this.options.toArray()[(focusIndex-1)].focus = true;
+                if (!this.open) this.onSelectedOptionChange(this.options.toArray()[(focusIndex-1)]);
+                else this.scrollToFocusedOption();
+            }
+            event.detail.keyboardEvent.preventDefault();
+        } else if ('Enter' == event.key || 'Space' == event.key) {
+            let focusIndex = this.getFocusIndex();
+            if (focusIndex != -1) {
+                this.onSelectedOptionChange(this.options.toArray()[focusIndex]);
+            }
+            event.detail.keyboardEvent.preventDefault();
+        }
+            
+    }
+
+    private getFocusIndex(): number {
+        let foundedIndex = -1;
+        let selectedIndex = -1;
+            this.options.forEach((option, index) => {
+                if (option.focus) {
+                    foundedIndex = index;
+                    return;
+                }
+                if (option.selected) selectedIndex = index;
+            });
+        if (foundedIndex == -1 && selectedIndex != -1) return selectedIndex;
+        return foundedIndex;
+    }
+
     writeValue(obj: any): void {
         this.ngModel = obj;
         this.updateSelectedOption();
@@ -121,4 +213,19 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     registerOnTouched(fn: any): void {
     }
 
+    setDisabledState(isDisabled: boolean): void {
+        this.disabled = isDisabled;
+    }
+
+    private clickView(): void {
+        if(!this.viewDisabled && this.ngModel) this.onViewClick.emit();
+    }
+
+    private clickNew(): void {
+        if(!this.newDisabled) this.onNewClick.emit();
+    }
+
+    private addView(): void {
+        if(!this.addDisabled) this.onAddClick.emit();
+    }
 }

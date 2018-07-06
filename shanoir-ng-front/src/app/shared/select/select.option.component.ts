@@ -4,11 +4,13 @@ import { SelectBoxComponent } from './select.component';
 @Component({
     selector: 'select-option',
     template: `
-        <div (click)="onClick()" [class.selected]="selected"><ng-content></ng-content></div>
+        <div (click)="select()" (mousemove)="over()" [class.selected]="selected" [class.focus]="focus"><ng-content></ng-content></div>
     `,
     styles: [
+        ':host() { height: 20px; display:block; border: none; }',
         'div { padding: 0 5px; }',
-        'div:hover, div.selected { color: var(--very-light-grey); background-color: var(--color-b-light2); }'
+        'div.focus { background-color: var(--grey); }',
+        'div.selected { background-color: var(--color-b-light); }'
     ]
     
 })
@@ -19,18 +21,23 @@ export class SelectOptionComponent implements AfterViewInit {
     public parent: SelectBoxComponent;
     public label: string;
     public selected: boolean = false;
+    public focus: boolean = false;
 
-    constructor(private elt: ElementRef) { 
+    constructor(public elt: ElementRef) { 
        
     }
 
     ngAfterViewInit() {
         let textNode = this.elt.nativeElement.childNodes[1].childNodes[0];
         this.label = textNode.textContent;
-      }
+    }
 
-    private onClick() {
+    private select() {
         this.parent.onSelectedOptionChange(this);
+    }
+
+    private over() {
+        this.parent.onOptionOver(this);
     }
 
 }
