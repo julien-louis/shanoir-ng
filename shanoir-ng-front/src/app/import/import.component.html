@@ -1,7 +1,8 @@
 <h2>Import from DICOM</h2>
-<form [@preventInitialChildAnimations]>
+<form>
+    <router-outlet (activate)="onActivate($event)"></router-outlet>
 
-    <dicom-upload
+    <!-- <dicom-upload
         class="step-block"
         [open]="opened == 'dicom'"
         [disabled]="false"
@@ -34,14 +35,7 @@
         (validityChange)="contextValid=$event"
         (contextChange)="onContextChange($event)" 
         (headerClick)="toggle('context')">
-    </clinical-context>
+    </clinical-context> -->
 
-    <div class="step-block" [class.active]="true">
-        <div class="header command-zone"[class.disabled]="!isValid()" [class.last-enabled]="lastEnabled == 'final'" (click)="isValid() ? toggle('final') : null">4. Import the data</div>
-        <div *ngIf="isValid() && opened == 'final'" class="step last" [@slideDown]>
-            <button [disabled]="importing" (click)="startImportJob($event)">Import now</button>
-            <span class="progress" *ngIf="importing">Importing in progress<img [src]="ImagesUrlUtil.SMALL_LOADER_IMAGE_PATH"/></span>
-        </div>
-    </div>
 
 </form>

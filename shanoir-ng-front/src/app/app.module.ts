@@ -104,6 +104,8 @@ import { FormFooterComponent } from './shared/components/form-footer/form-footer
 import { ServiceLocator } from './utils/locator.service';
 import { BreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
 import { BreadcrumbsService } from './breadcrumbs/breadcrumbs.service';
+import { ImportRunComponent } from './import/run/run-import.component';
+import { ImportModelService } from './import/import.model.service';
 
 
 @NgModule({
@@ -184,7 +186,8 @@ import { BreadcrumbsService } from './breadcrumbs/breadcrumbs.service';
         TimesPipe,
         FormFooterComponent,
         ModalsComponent,
-        BreadcrumbsComponent
+        BreadcrumbsComponent,
+        ImportRunComponent
     ],
     entryComponents: [
         ConfirmDialogComponent,
@@ -221,7 +224,8 @@ import { BreadcrumbsService } from './breadcrumbs/breadcrumbs.service';
             useClass: KeycloakHttpInterceptor,
             multi: true
         },
-        BreadcrumbsService
+        BreadcrumbsService,
+        ImportModelService
     ],
     bootstrap: [AppComponent],
 })

@@ -1,10 +1,11 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
-import { ImportJob } from '../dicom-data.model';
-import { ImportService } from '../import.service';
-import { DicomArchiveService } from '../dicom-archive.service';
+import { Component } from '@angular/core';
+
 import { ImagesUrlUtil } from '../../shared/utils/images-url.util';
+import { DicomArchiveService } from '../dicom-archive.service';
+import { ImportJob } from '../dicom-data.model';
 import { AbstractImportStepComponent } from '../import-step.abstract';
-import { slideDown } from '../../shared/animations/animations';
+import { ImportModelService } from '../import.model.service';
+import { ImportService } from '../import.service';
 
 
 type Status = 'none' | 'uploading' | 'uploaded' | 'error';
@@ -12,13 +13,9 @@ type Status = 'none' | 'uploading' | 'uploaded' | 'error';
 @Component({
     selector: 'dicom-upload',
     templateUrl: 'dicom-upload.component.html',
-    styleUrls: ['dicom-upload.component.css', '../import.step.css'],
-    animations: [slideDown]
+    styleUrls: ['dicom-upload.component.css', '../import.step.css']
 })
 export class DicomUploadComponent extends AbstractImportStepComponent {
-
-    @Output() inMemoryExtracted = new EventEmitter<any>();
-    @Output() archiveUploaded = new EventEmitter<ImportJob>();
     
     private archiveStatus: Status = 'none';
     private extensionError: boolean;
@@ -27,7 +24,10 @@ export class DicomUploadComponent extends AbstractImportStepComponent {
     private readonly ImagesUrlUtil = ImagesUrlUtil;
 
 
-    constructor(private importService: ImportService, private dicomArchiveService: DicomArchiveService) {
+    constructor(
+            private importService: ImportService, 
+            private dicomArchiveService: DicomArchiveService,
+            private importModelService: ImportModelService) {
         super();
     }
     
@@ -43,7 +43,7 @@ export class DicomUploadComponent extends AbstractImportStepComponent {
             .subscribe(response => {
                 this.dicomArchiveService.extractFileDirectoryStructure()
                 .subscribe(response => {
-                    this.inMemoryExtracted.emit(response);
+                    this.importModelService.extractedSub.next(response);
                 });
             });
     }
@@ -58,7 +58,7 @@ export class DicomUploadComponent extends AbstractImportStepComponent {
         this.importService.uploadFile(formData)
             .subscribe((patientDicomList: ImportJob) => {
                 this.modality = patientDicomList.patients[0].studies[0].series[0].modality.toString();
-                this.archiveUploaded.emit(patientDicomList);
+                this.importModelService.importJobSub.next(patientDicomList);
                 this.setArchiveStatus('uploaded');
             }, (err: String) => {
                 this.setArchiveStatus('error');

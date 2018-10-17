@@ -1,8 +1,7 @@
-import { Component, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Step } from 'src/app/breadcrumbs/breadcrumbs.service';
 
 import { BrowserPaginEntityListComponent } from '../../shared/components/entity/entity-list.browser.component.abstract';
-import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { TableComponent } from '../../shared/components/table/table.component';
 import { DatasetModalityType } from '../../shared/enums/dataset-modality-type';
 import { AcquisitionEquipment } from '../shared/acquisition-equipment.model';
@@ -16,17 +15,9 @@ import { AcquisitionEquipmentService } from '../shared/acquisition-equipment.ser
 export class AcquisitionEquipmentListComponent extends BrowserPaginEntityListComponent<AcquisitionEquipment> {
 
     @ViewChild('table') table: TableComponent;
-    private acqEquips: AcquisitionEquipment[];
-
-    private createAcqEquip = false;
-    private selectedAcqEquip : AcquisitionEquipment = new AcquisitionEquipment();
-
-    @ViewChild('coilModal') coilModal: ModalComponent;
-
 
     constructor(
-            private acqEquipService: AcquisitionEquipmentService,
-            private viewContainerRef: ViewContainerRef) {
+            private acqEquipService: AcquisitionEquipmentService) {
         super('acquisition-equipment');
     }
 

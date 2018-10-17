@@ -4,6 +4,7 @@ import { AbstractImportStepComponent } from '../import-step.abstract';
 import { slideDown } from '../../shared/animations/animations';
 import { ImportService } from '../import.service';
 import * as AppUtils from '../../utils/app.utils';
+import { ImportModelService } from '../import.model.service';
 
 @Component({
     selector: 'select-series',
@@ -21,7 +22,10 @@ export class SelectSeriesComponent extends AbstractImportStepComponent implement
     private detailedSerie: Object;
     private papayaParams: object[];
 
-    constructor(private importService: ImportService) {
+    constructor(
+            private importService: ImportService,
+            private importModelService: ImportModelService) {
+
         super();
     }
 
@@ -45,7 +49,7 @@ export class SelectSeriesComponent extends AbstractImportStepComponent implement
 
     private onPatientUpdate(): void {
         this.updateValidity();
-        this.patientsChange.emit(this.patients);
+        this.importModelService.selectedPatientsSub.next(this.patients);
     }
 
     private initPapaya(serie: SerieDicom): void {

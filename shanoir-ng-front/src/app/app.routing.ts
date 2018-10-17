@@ -27,6 +27,10 @@ import { SubjectListComponent } from './subjects/subject-list/subject-list.compo
 import { SubjectComponent } from './subjects/subject/subject.component';
 import { DatasetComponent } from './datasets/dataset/dataset.component';
 import { DatasetListComponent } from './datasets/dataset-list/dataset-list.component';
+import { ImportRunComponent } from './import/run/run-import.component';
+import { DicomUploadComponent } from './import/dicom-upload/dicom-upload.component';
+import { SelectSeriesComponent } from './import/select-series/select-series.component';
+import { ClinicalContextComponent } from './import/clinical-context/clinical-context.component';
 
 let appRoutes: Routes = [
     {
@@ -44,7 +48,22 @@ let appRoutes: Routes = [
         component: HomeComponent
     }, {
         path: 'imports',
-        component: ImportComponent
+        component: ImportComponent,
+        children: [
+            {
+                path: 'upload',
+                component: DicomUploadComponent,
+            }, {
+                path: 'series',
+                component: SelectSeriesComponent,
+            }, {
+                path: 'context',
+                component: ClinicalContextComponent,
+            }, {
+                path: 'run',
+                component: ImportRunComponent,
+            }
+        ]
     }, {
         path: 'new-instrument',
         component: NewInstrumentComponent,

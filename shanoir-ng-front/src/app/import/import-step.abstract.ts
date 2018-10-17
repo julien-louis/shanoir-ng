@@ -3,10 +3,6 @@ import { Output, EventEmitter, Input, OnChanges, SimpleChanges } from '@angular/
 
 export abstract class AbstractImportStepComponent implements OnChanges {
 
-    @Input() open: boolean;
-    @Input() disabled: boolean;
-    @Input() lastEnabled: boolean = false;
-    @Output() headerClick = new EventEmitter<any>();
     @Output() validityChange = new EventEmitter<boolean>();
     private valid: boolean;
 
@@ -25,9 +21,5 @@ export abstract class AbstractImportStepComponent implements OnChanges {
     }
 
     abstract getValidity(): boolean;
-
-    private onHeaderClick(event: any) {
-        if (!this.disabled) this.headerClick.emit(event);
-    }
 
 }
