@@ -79,7 +79,7 @@ public class EmailServiceTest {
 	public void notifyNewUserTest() throws Exception {
 		emailService.notifyNewUser(ModelsUtil.createUser(), "password");
 
-		assertReceivedMessageContains("Shanoir Account Creation", "An account has been created");
+		assertReceivedMessageContains("Shanoir Account Creation", "Your account has been created");
 	}
 
 	@Test
