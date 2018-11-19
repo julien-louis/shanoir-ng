@@ -27,6 +27,7 @@ import org.shanoir.ng.user.UserRepository;
 import org.shanoir.ng.user.UserServiceImpl;
 import org.shanoir.ng.utils.ModelsUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -60,6 +61,9 @@ public class UserServiceTest {
 
 	@Mock
 	private UserRepository userRepository;
+	
+	@Mock
+	ApplicationEventPublisher publisher;
 
 	@InjectMocks
 	private UserServiceImpl userService;
