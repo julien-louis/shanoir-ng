@@ -94,7 +94,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 				(edit)="goToEdit()"
 				(cancel)="goToView()"
 				(back)="goBack()">
-				<button *ngIf="mode != 'view'"
+				<button *ngIf="mode != 'view' && studyCard.rules && studyCard.rules.length > 0"
 						type="button" 
 						class="Button right-icon show-errors" 
 						(click)="onShowErrors()"
