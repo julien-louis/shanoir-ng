@@ -180,7 +180,6 @@ export class ClinicalContextComponent implements OnDestroy {
                             if (center) {
                                 if (this.importMode == 'DICOM' && this.centerCompatible(center)) {
                                     studyOption.compatible = true;
-                                    console.log(study.name, center)
                                 }
                                 studyCenter.center = center;
                             } 
