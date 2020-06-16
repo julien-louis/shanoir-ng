@@ -180,6 +180,7 @@ export class ClinicalContextComponent implements OnDestroy {
                             if (center) {
                                 if (this.importMode == 'DICOM' && this.centerCompatible(center)) {
                                     studyOption.compatible = true;
+                                    console.log(study.name, center)
                                 }
                                 studyCenter.center = center;
                             } 
@@ -191,7 +192,7 @@ export class ClinicalContextComponent implements OnDestroy {
     }
 
     private equipmentsEquals(eq1: AcquisitionEquipment, eq2: EquipmentDicom): boolean {
-        return eq1.serialNumber === eq2.deviceSerialNumber
+        return eq1 && eq2 && eq1.serialNumber === eq2.deviceSerialNumber
         && eq1.manufacturerModel.name === eq2.manufacturerModelName
         && eq1.manufacturerModel.manufacturer.name === eq2.manufacturer;
     }
@@ -292,6 +293,9 @@ export class ClinicalContextComponent implements OnDestroy {
                 }
                 this.acquisitionEquipmentOptions.push(option);
             }
+        }
+        if (this.studycard && this.studycard.acquisitionEquipment) {
+            this.acquisitionEquipment = this.studycard.acquisitionEquipment;
         }
     }
 
