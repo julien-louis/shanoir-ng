@@ -27,8 +27,8 @@
 div {
     color: var(--color-c);
     position: absolute;
-    top: 1px;
-    bottom: 1px;
-    left: 1px;
-    right: 1px;
+    top: -1px;
+    bottom: -1px;
+    left: -1px;
+    right: -1px;
 }
