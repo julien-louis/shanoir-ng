@@ -9,9 +9,13 @@
 }
 
 .user { text-align: center; min-width: 300px; }
-.user .welcome { margin-top: 10px; color: var(--color-b-light); }
-.user-logo { background-color: #888; opacity: 0.5; border-radius: 50%; display: inline-block; padding: 13px; }
+.user .welcome { margin-top: 10px; color: var(--color-b-light2); }
+.user-logo { background-color: #888; opacity: 0.5; border-radius: 50%; display: inline-block; padding: 13px; position: relative; }
 .user-logo i { height: 40px; width: 40px; font-size: 40px; }
+.crown { color: gold; position: absolute; top: 3px; left: 0; right: 0; width: 100%; height: 100%; }
+.crown i { font-size: 15px; }
+#instance { margin: 0 14px 0 0; position: absolute; bottom: 1px; left: 0; right: 0px; text-align: right; font-size: 18px; font-weight: bold; }
+#instance::after { content: "Dev"; color: orange; }
 
 a i { margin-left: 7px; }
 a { color: var(--grey); }
@@ -35,7 +39,10 @@ a:hover, a:active { color: white; }
 
 progress-bar { width: 100px; }
 
-.bottom-info { min-width: 300px; font-size: 10px; flex: 1 1 auto; justify-content: flex-end; flex-direction: column; display: flex; text-align: center; color: var(--greyer); margin-bottom: 10px; }
+.bottom-info { min-width: 300px; font-size: 10px; flex: 1 1 auto; justify-content: flex-end; flex-direction: column; display: flex; text-align: center; color: var(--color-b-light2); margin-bottom: 10px; }
 .bottom-info a { color: inherit; }
 
-.user-commands a + a { margin-left: 20px; }
+.user-commands { margin-left: 7px; color: var(--very-light-grey); }
+.user-commands i { margin-left: 0; margin-right: 7px; }
+.user-commands, .user-logo { display: inline-block; }
+.user-commands a { display: block; text-align: left; }
