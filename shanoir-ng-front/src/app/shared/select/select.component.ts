@@ -88,6 +88,7 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     @Output() onViewClick = new EventEmitter();
     @Output() onNewClick = new EventEmitter();
     @Output() onAddClick = new EventEmitter();
+    @Output() onAddClickOption = new EventEmitter();
 
     readonly LIST_LENGTH: number = 16;
 
@@ -583,7 +584,10 @@ export class SelectBoxComponent implements ControlValueAccessor, OnDestroy, OnCh
     }
 
     private clickAdd(): void {
-        if(!this.addDisabled && this.selectedOption) this.onAddClick.emit(this.selectedOption.value);
+        if(!this.addDisabled && this.selectedOption) {
+            this.onAddClickOption.emit(this.selectedOption);
+            this.onAddClick.emit(this.selectedOption.value);
+        }
     }
 
     setDisabledState(isDisabled: boolean) {

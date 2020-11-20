@@ -12,9 +12,9 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { FacetResultPage } from "../../solr/solr.document.model";
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Option } from '../select/select.component';
 
 @Component({
     selector: 'checkbox-list',
@@ -28,54 +28,53 @@ import { FacetResultPage } from "../../solr/solr.document.model";
         }]   
 })
 
-export class CheckboxListComponent implements ControlValueAccessor, OnChanges{
+export class CheckboxListComponent implements ControlValueAccessor {
     onChange = (_: any) => {};
-    searchBarContent: string;
+    @Output() change: EventEmitter<any> = new EventEmitter<any>();
     onTouched = () => {};
-    @Input() items: FacetResultPage;
-    selectedItems: any[] = [];
+    @Input() options: Option<any>[];
+    selectedOptions: Option<any>[] = [];
     selectAll: boolean = true;
-    currentPage: number = 0;
-    itemsPersPage: number = 10;
-    totalPages: number =  0;
-   
-   constructor(
-      private cdr: ChangeDetectorRef,
-    ) {
+    selected: any;
+
+    unselectAll (isChecked: boolean) {
+        this.selectedOptions = [];
+        this.options.forEach(opt => opt.disabled = false);
+        this.sendSelected();
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.items && this.items !== undefined) {
-            this.totalPages = Math.ceil(this.items.totalElements / this.itemsPersPage);
-            // this.selectUnselectAll(false); // checked all by default
-        }
+    add(option: Option<any>) {
+        option.disabled = true;
+        this.selectedOptions.push(option);
+        this.selected = null;
+        this.sendSelected();
     }
 
-    search() {
-        if (!this.searchBarContent) {
-            this.searchBarContent = "";
-        }
-        // Set searched values on top, then order by value count  
-        this.items.content = this.items.content.sort((a, b) => {
-            if (a.value.indexOf(this.searchBarContent) == 0 && b.value.indexOf(this.searchBarContent) != 0) {
-                return -1
-            } else if (a.value.indexOf(this.searchBarContent) != 0 && b.value.indexOf(this.searchBarContent) == 0) {
-                return 1;
-            } else {
-                // If not searched or both searched, compare using count
-                return (b.valueCount - a.valueCount);
-            }
-        });
-        this.cdr.detectChanges();
+    remove(index: number, option: Option<any>) {
+        this.selectedOptions.splice(index, 1);
+        option.disabled = false;
+        this.sendSelected();
     }
 
-    selectUnselectAll (isChecked: boolean) {
-        this.items.content.map(item => { item.checked = isChecked; return item; })
-        this.onToggle();
+    sendSelected() {
+        let items = this.selectedOptions.map(option => option.value);
+        this.onChange(items);
+        this.change.emit(items);
     }
     
     writeValue(obj: any): void {
-        this.selectedItems = obj;
+        if (!this.options) return;
+        else if (!obj) this.selectedOptions = [];
+        if (obj && Array.isArray(obj)) {
+            this.selectedOptions = obj.map(item => {
+                if (this.options) {
+                    return this.options.find(opt => {
+                        return opt.value == item
+                                || (opt.value && opt.value.id && item.id && opt.value.id == item.id);
+                    });
+                } 
+            });
+        } else throw Error('ngModel must be an array');
     }
 
     registerOnChange(fn: any): void {
@@ -84,15 +83,5 @@ export class CheckboxListComponent implements ControlValueAccessor, OnChanges{
     
     registerOnTouched(fn: any): void {
         this.onTouched = fn;
-    }
-
-    onToggle() {
-        this.selectedItems = this.items.content.filter(item => item.checked).map(item => item.value);
-        this.onChange(this.selectedItems);
-    }
-
-    setPage(page: number) {
-        if (page < 0) return;
-        this.currentPage = page;
     }
 }

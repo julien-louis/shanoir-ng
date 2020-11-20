@@ -21,6 +21,7 @@ import { slideDown } from "../shared/animations/animations";
 import { Pageable } from "../shared/components/table/pageable.model";
 import { TableComponent } from "../shared/components/table/table.component";
 import { DatepickerComponent } from "../shared/date-picker/date-picker.component";
+import { Option } from "../shared/select/select.component";
 import { FacetResultPage, SolrRequest, SolrResultPage } from "./solr.document.model";
 import { SolrService } from "./solr.service";
 
@@ -43,6 +44,13 @@ export class SolrSearchComponent{
     hasDownloadRight: boolean = true;
     selectedDatasetIds: number[];
     allStudies: FacetResultPage; 
+
+    studyOptions: Option<string[]>[];
+    subjectOptions: Option<string[]>[];
+    datasetOptions: Option<string>[];
+    examinationOptions: Option<string>[];
+    datasetTypeOptions: Option<string>[];
+    datasetNatureOptions: Option<string>[];
 
     constructor(
             private breadcrumbsService: BreadcrumbsService, private formBuilder: FormBuilder,
@@ -144,7 +152,7 @@ export class SolrSearchComponent{
             for (let key of Object.keys(this.solrRequest)) {
                 if (key && this.solrRequest[key] && !(this.solrRequest[key] instanceof Date)) savedStates.push(this.solrRequest[key]);
             }
-            return this.solrService.search(this.solrRequest, pageable).then(solrResultPage => {
+            let searchPromise: Promise<SolrResultPage> = this.solrService.search(this.solrRequest, pageable).then(solrResultPage => {
                 if (solrResultPage) { 
                     solrResultPage.content.map(solrDoc => solrDoc.id = solrDoc.datasetId);
                 
@@ -158,7 +166,20 @@ export class SolrSearchComponent{
                     })} 
                 return solrResultPage;
             });
+            searchPromise.then(() => {
+                this.studyOptions = this.facetResultPages[0].content.map(facet => new Option<string[]>([facet.value], facet.value));
+                this.subjectOptions = this.facetResultPages[1].content.map(facet => new Option<string[]>([facet.value], facet.value));
+                this.datasetOptions = this.facetResultPages[2].content.map(facet => new Option<string>(facet.value, facet.value));
+                this.examinationOptions = this.facetResultPages[3].content.map(facet => new Option<string>(facet.value, facet.value));
+                this.datasetTypeOptions = this.facetResultPages[4].content.map(facet => new Option<string>(facet.value, facet.value));
+                this.datasetNatureOptions = this.facetResultPages[5].content.map(facet => new Option<string>(facet.value, facet.value));
+            });
+            return searchPromise;
         }
+    }
+
+    test() {
+        console.log('change', this.solrRequest.datasetNature)
     }
 
     // Grid columns definition
