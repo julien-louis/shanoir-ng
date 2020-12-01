@@ -99,6 +99,7 @@ logging:
     org.shanoir: WARN
     org.springframework.web: ERROR
     org.hibernate: ERROR
+    org.springframework.amqp: OFF
 
 ---
 

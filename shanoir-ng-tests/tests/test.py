@@ -52,7 +52,7 @@ def start_selenium():
         if b == "ie":
             driver = webdriver.Ie(os.getcwd()+"\IEDriverServer.exe")
         elif b == "chrome":
-            driver = webdriver.Chrome(os.getcwd()+"\chromedriver.exe")
+            driver = webdriver.Chrome("chromedriver")
         else:
             # Firefox
             fp = webdriver.FirefoxProfile()

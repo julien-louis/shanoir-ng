@@ -98,6 +98,8 @@ logging:
     org.springframework.web: ERROR
     org.hibernate: ERROR
     org.shanoir: INFO
+    org.springframework.amqp: OFF
+    
         
   
 ### ============================================================= ###
