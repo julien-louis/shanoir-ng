@@ -52,6 +52,7 @@ export class TableSearchComponent implements OnChanges {
     public resetSearch(): void {
         this.filter.searchStr = "";
         this.filter.searchField = "";
+        console.log('reset')
         this.search();
     }
    

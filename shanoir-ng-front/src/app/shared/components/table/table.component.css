@@ -2,7 +2,7 @@
 .full-row { background-color: var(--color-b); overflow: initial; }
 th,
 caption { padding: 4px 5px; background-color: var(--color-b); color: var(--very-light-grey); font-weight: normal; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-th { width: 100%; white-space: normal; }
+th { width: 100%; white-space: normal; text-align: center; }
 	.controls { padding: 0; text-align: left; background-color: transparent; color: var(--very-dark-grey); }
 		.controls button { height: 28px; padding: 0 5px; vertical-align: middle; background-color: transparent; border-radius: 0; border: 1px solid transparent; color: var(--dark-grey); }
 			.controls button:hover { box-shadow: none; transform: none; background-color: var(--color-b-light); }
@@ -24,7 +24,7 @@ th { width: 100%; white-space: normal; }
 	th.col-date { width: 70px; }
 	th.col-boolean { width: 20px; }
 	th.col-button { width: 20px; }
-	th.pager { padding: 0 5px; overflow: initial; }
+	th.pager { padding: 0 5px; overflow: initial; text-align: center; }
 	th.status-bar { text-align: left; padding: 3px 0; color: var(--greyer)}
 		th.status-bar input { width: 150px; }
 		th.status-bar .options { border-right: 0; }

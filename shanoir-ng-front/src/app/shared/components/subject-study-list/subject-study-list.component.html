@@ -24,39 +24,11 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
             </select-box>
         </span>
     </li>
-    <li *ngIf="model && model.length > 0">
-        <table>
-            <thead>
-                <tr>
-                    <th class="label-col">{{columnName}}</th>
-                    <th class="input-col">Subject id for this study</th>
-                    <th class="chkbx-col" title="Physically Involved">PI</th>
-                    <th *ngIf="displaySubjectType" class="dropdown-col">Subject Type</th>
-                    <th class="buttons-col"></th>
-                </tr>
-            </thead>  
-            <tbody>
-                <tr *ngFor="let subjectStudy of model; let i = index">
-                    <td class="label-col">
-                        <span *ngIf="compMode == 'study'">{{subjectStudy.subject.name}}</span>
-                        <span *ngIf="compMode == 'subject'">{{subjectStudy.study.name}}</span>
-                    </td>
-                    <td class="input-col">
-                        <input type="text" id="subjectStudyIdentifier-{{i}}" [(ngModel)]="subjectStudy.subjectStudyIdentifier" [ngModelOptions]="{standalone: true}" (change)="onChange()" (blur)="onTouch()"/>
-                    </td>
-                    <td class="chkbx-col">
-                        <checkbox [(ngModel)]="subjectStudy.physicallyInvolved" [ngModelOptions]="{standalone: true}" (onChange)="onChange()" (blur)="onTouch()"></checkbox>
-                    </td>
-                    <td *ngIf="displaySubjectType" class="dropdown-col">
-                        <select id="subjectType-{{i}}" [(ngModel)]="subjectStudy.subjectType" [ngModelOptions]="{standalone: true}" (change)="onChange()" (blur)="onTouch()">
-                            <option [value]="'HEALTHY_VOLUNTEER'" i18n="Subject Types Healthy Volunteer|Type label@@SubjectTypeHealthyVolunteer">Healthy Volunteer</option>
-                            <option [value]="'PATIENT'" i18n="Subject Types Patient|Type label@@SubjectTypePatient">Patient</option>
-                            <option [value]="'PHANTOM'" i18n="Subject Types Phantom|Type label@@SubjectTypePhantom">Phantom</option>
-                        </select>
-                    </td>
-                    <td class="buttons-col"><span class="button" (click)="removeSubjectStudy(subjectStudy)"><i class="fas fa-ban"></i></span>
-                </tr>
-            </tbody>
-        </table>
+    <li *ngIf="(subject || study) && browserPaging && columnDefs && model && model.length > 0">
+        <shanoir-table #subjectTable
+            [getPage]="getPage.bind(this)" 
+            [columnDefs]="columnDefs"
+            [editMode]="true">
+        </shanoir-table>
     </li>
 </ol>

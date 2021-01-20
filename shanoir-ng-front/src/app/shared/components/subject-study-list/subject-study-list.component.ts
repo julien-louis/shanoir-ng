@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, forwardRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, forwardRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Study } from '../../../studies/shared/study.model';
@@ -19,6 +19,9 @@ import { SubjectStudy } from '../../../subjects/shared/subject-study.model';
 import { Subject } from '../../../subjects/shared/subject.model';
 import { AbstractInput } from '../../form/input.abstract';
 import { Option } from '../../select/select.component';
+import { BrowserPaging } from '../table/browser-paging.model';
+import { FilterablePageable, Page } from '../table/pageable.model';
+import { TableComponent } from '../table/table.component';
 
 
 @Component({
@@ -38,11 +41,16 @@ export class SubjectStudyListComponent extends AbstractInput implements OnChange
     
     @Input() subject: Subject;
     @Input() study: Study;
+    subjectInit: Promise<Subject> = new Promise(() => {});
+    studyInit: Promise<Study> = new Promise(() => {});
     @Input() selectableList: Subject[] | Study[];
     private selected: Subject | Study;
     public optionList: Option<Subject | Study>[];
     @Input() displaySubjectType: boolean = true;
-
+    private browserPaging: BrowserPaging<SubjectStudy>;
+    private columnDefs: any[];
+    compMode: 'subject' | 'study';
+    @ViewChild('subjectTable') table: TableComponent;
     private get legend(): string {
         return this.compMode == 'study' ? 'Subjects' : 'Studies';
     }
@@ -56,6 +64,14 @@ export class SubjectStudyListComponent extends AbstractInput implements OnChange
                     this.optionList.push(option);
                 }
             }
+        }
+        if (changes.study && this.study) {
+            this.compMode = 'study';
+            this.createColumnDefs();
+        }
+        if (changes.subject && this.subject) {
+            this.compMode = 'subject';
+            this.createColumnDefs();
         }
     }
     
@@ -71,15 +87,8 @@ export class SubjectStudyListComponent extends AbstractInput implements OnChange
                     if(this.model.find(subStu => subStu.study.id == option.value.id)) option.disabled = true; 
                 }
             }
+            this.browserPaging = new BrowserPaging(this.model, this.columnDefs);
         }
-    }
-
-    private get compMode(): 'subject' | 'study' { 
-        if (this.subject && this.study) throw Error('You cannot set both subject and study');
-        if (this.subject) return 'subject';
-        if (this.study) return 'study';
-        throw Error('You have to set either subject or study');
-        
     }
 
     onAdd() {
@@ -112,6 +121,7 @@ export class SubjectStudyListComponent extends AbstractInput implements OnChange
         if (index > -1) {
             this.model.splice(index, 1);
             this.propagateChange(this.model);
+            this.table.refresh();
             if (this.compMode == 'study') {
                 let option: Option<Subject> = this.optionList.find(opt => opt.value.id == subjectStudy.subject.id) as Option<Subject>;
                 if (option) option.disabled = false;
@@ -129,4 +139,25 @@ export class SubjectStudyListComponent extends AbstractInput implements OnChange
     onTouch() {
         this.propagateTouched();
     }
+
+    getPage(pageable: FilterablePageable): Promise<Page<SubjectStudy>> {
+        return Promise.resolve(this.browserPaging.getPage(pageable));
+    }
+
+    private createColumnDefs() {
+        this.columnDefs = [
+            { headerName: 'Name', field: this.compMode == 'study' ? 'subject.name' : 'study.name' },
+            { headerName: 'Subject id for this study', field: 'subjectStudyIdentifier', editable: true, onEdit: () => this.onChange() },
+            { headerName: 'Physically Involved', field: 'physicallyInvolved', type: 'boolean', editable: true, onEdit: () => this.onChange() },
+            { headerName: 'Subject Type', field: 'subjectType', editable: true, onEdit: () => this.onChange(), 
+                possibleValues: [
+                    { label: 'Healthy Volunteer', value: 'HEALTHY_VOLUNTEER' },
+                    { label: 'Patient', value: 'PATIENT' },
+                    { label: 'Phantom', value: 'PHANTOM' }
+                ]
+            },
+            { headerName: "", type: "button", awesome: "fa-trash", action: (item) => this.removeSubjectStudy(item) }
+        ];
+    }
+
 }
