@@ -62,21 +62,21 @@ export class NotificationsService {
     }
 
     connect(): void {
-        this.keycloakService.getToken().then(token => {
-            this.source = new EventSourcePolyfill(AppUtils.BACKEND_API_UPDATE_TASKS_URL, {
-                  headers: {
-                    'Authorization': "Bearer " + token
-                  }
-                });
-            this.source.addEventListener('message', message => {
-                if (message.data !== "{}") {
-                    this.refresh();
-                }
-            });
-            this.source.onmessage = (message)=>{
-                let n:Notification = JSON.parse(message.data);
-            }     
-        })
+        // this.keycloakService.getToken().then(token => {
+        //     this.source = new EventSourcePolyfill(AppUtils.BACKEND_API_UPDATE_TASKS_URL, {
+        //           headers: {
+        //             'Authorization': "Bearer " + token
+        //           }
+        //         });
+        //     this.source.addEventListener('message', message => {
+        //         if (message.data !== "{}") {
+        //             this.refresh();
+        //         }
+        //     });
+        //     this.source.onmessage = (message)=>{
+        //         let n:Notification = JSON.parse(message.data);
+        //     }     
+        // })
     }
 
     totalProgress(): number {

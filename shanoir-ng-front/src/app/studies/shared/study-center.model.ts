@@ -12,11 +12,12 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 import { Center } from '../../centers/shared/center.model';
+import { Entity } from '../../shared/components/entity/entity.abstract';
 import { Id } from '../../shared/models/id.model';
 import { Study } from './study.model';
 
 
-export class StudyCenter {
+export class StudyCenter extends Entity {
     center: Center;
     id: number;
     study: Study;

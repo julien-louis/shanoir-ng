@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
+import { parse, serialize } from '../utils/serialization.utils'
 
 @Injectable()
 export class BreadcrumbsService {
@@ -70,10 +71,10 @@ export class BreadcrumbsService {
                 this.nextLabel = null;
                 this.popFoundedStepIndex = null;
                 this.currentStep.waitStep = null;
-                // this.saveSession();
+                this.saveSession();
             }
         });
-        // this.loadSession();
+        this.loadSession();
     }
 
     private focusStep(index: number) {
@@ -150,39 +151,31 @@ export class BreadcrumbsService {
         return false;
     }
 
-    // public saveSession() {
-    //     let stepsJSON = [];
-    //     for(let step of this.steps) {
-    //         stepsJSON.push(step.save())
-    //     }
+    public saveSession() {
+        sessionStorage.setItem('breadcrumbsData', serialize({ 
+            steps: this.steps, 
+            popFoundedStepIndex: this.popFoundedStepIndex,
+            replace: this.replace,
+            currentStepIndex: this.currentStepIndex,
+            nextLabel: this.nextLabel,
+            nextMilestone: this.nextMilestone }));
+    }
 
-    //     sessionStorage.setItem('breadcrumbsData', JSON.stringify({ 
-    //         steps: stepsJSON, 
-    //         popFoundedStepIndex: this.popFoundedStepIndex,
-    //         replace: this.replace,
-    //         currentStepIndex: this.currentStepIndex,
-    //         nextLabel: this.nextLabel,
-    //         nextMilestone: this.nextMilestone }));
-    // }
+    public loadSession() {
+        let json = parse(sessionStorage.getItem('breadcrumbsData'));
+        if(json == null) {
+            return;
+        }
+        this.popFoundedStepIndex = json.popFoundedStepIndex;
+        this.replace = json.replace;
+        this.currentStepIndex = json.currentStepIndex;
+        this.nextLabel = json.nextLabel;
+        this.nextMilestone = json.nextMilestone;
+        this.steps = (json.steps as any[]).map(step => Object.assign(new Step(step.label, step.route, step.timestamp), step));
 
-    // public loadSession() {
-    //     let json = JSON.parse(sessionStorage.getItem('breadcrumbsData'));
-    //     if(json == null) {
-    //         return;
-    //     }
-    //     this.popFoundedStepIndex = json.popFoundedStepIndex;
-    //     this.replace = json.replace;
-    //     this.currentStepIndex = json.currentStepIndex;
-    //     this.nextLabel = json.nextLabel;
-    //     this.nextMilestone = json.nextMilestone;
-    //     this.steps = [];
-    //     for(let step of json.steps) {
-    //         this.steps.push(Step.load(step));
-    //     }
-
-    //     this.titleService.setTitle('Shanoir' + (this.nextLabel ? ' - ' + this.nextLabel : ''));
-    //     this.ignoreNavigationEnd = true;
-    // }
+        this.titleService.setTitle('Shanoir' + (this.nextLabel ? ' - ' + this.nextLabel : ''));
+        this.ignoreNavigationEnd = true;
+    }
 
     public findImportMode(): 'DICOM' | 'PACS' | 'EEG' | 'BRUKER' | 'BIDS' {
         for (let i=this.currentStepIndex; i>=0; i--) {
