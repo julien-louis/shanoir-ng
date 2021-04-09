@@ -48,6 +48,7 @@ export class StudyCardComponent extends EntityComponent<StudyCard> {
     selectedRules: StudyCardRule[] = [];
     hasAdministrateRightPromise: Promise<boolean>;
     @ViewChild(StudyCardRulesComponent) rulesComponent: StudyCardRulesComponent;
+    test: string = 'this is a test'
 
     constructor(
             private route: ActivatedRoute,
