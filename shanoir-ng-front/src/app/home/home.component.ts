@@ -35,8 +35,8 @@ export class HomeComponent {
 
     shanoirBigLogoUrl: string = ImagesUrlUtil.SHANOIR_BLACK_LOGO_PATH;
     
-    challengeDua: DataUserAgreement;
-    challengeStudy: Study;
+    challengeDuas: DataUserAgreement[];
+    challengeStudies: Study[];
     studies: Study[];
     accountRequests: User[];
     jobs: Task[];
@@ -59,20 +59,16 @@ export class HomeComponent {
 
     load() {
         this.studyService.getMyDUA().then(duas => {
-            this.challengeDua = null;
+            this.challengeDuas = null;
             this.notifications = null;
             if (duas) {
+                this.challengeDuas = duas.filter(dua => dua.isChallenge);
                 this.notifications = duas.slice(0, 10);
-                for (let dua of duas) {
-                    if (dua.isChallenge) {
-                        this.challengeDua = dua;
-                        return;
-                    }
-                }
+
             }
         }).then(() => {
             this.loaded = true;
-            if (this.admin || !this.challengeDua) {
+            if (this.admin || !this.challengeDuas || this.challengeDuas.length == 0) {
                 this.fetchChallengeStudy()
                 if (this.admin) {
                     this.fetchAccountRequests();
@@ -89,19 +85,14 @@ export class HomeComponent {
     private fetchChallengeStudy() {
         this.studyService.getAll().then(studies => {
             if (studies) {
+                this.challengeStudies = studies.filter(study => study.challenge);
                 this.studies = studies.slice(0, 8);
-                for (let study of studies) {
-                    if (study.challenge) {
-                        this.challengeStudy = study;
-                        return;
-                    }
-                }
             }
         });
     }
 
-    downloadFile(filePath: string) {
-        this.studyService.downloadFile(filePath, this.challengeStudy.id, 'protocol-file');
+    downloadFile(filePath: string, studyId: number) {
+        this.studyService.downloadFile(filePath, studyId, 'protocol-file');
     }
 
     isAuthenticated(): boolean {

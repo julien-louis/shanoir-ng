@@ -12,19 +12,19 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 -->
 
-<h2 *ngIf="admin || !challengeDua" class="header command-zone">Shanoir Home</h2>
+<h2 *ngIf="admin || !challengeDuas || challengeDuas.length == 0" class="header command-zone">Shanoir Home</h2>
 
-<div *ngIf="loaded && !admin && challengeDua" class="challenge-welcome">
+<div *ngIf="loaded && !admin && challengeDuas && this.challengeDuas.length > 0" class="challenge-welcome">
     <div>
         <h1>Welcome to Shanoir, challenger!</h1>
-        <p>Here you will be able to download the datasets for the {{challengeDua.studyName}} Challenge.
-        But before that that, we ask you to accept the following Data User Agreement : </p>
-        <dua-signing (sign)="onSign()" [dua]="challengeDua"></dua-signing>
+        <p>Here you will be able to download the datasets for the challenge<ng-container *ngIf="challengeDuas.length >= 2">s</ng-container> you applied for.
+        <br/>But before that that, please accept the following Data User Agreement<ng-container *ngIf="challengeDuas.length >= 2">s</ng-container> :</p>
+        <dua-signing *ngFor="let challengeDua of challengeDuas" (sign)="onSign()" [dua]="challengeDua"></dua-signing>
     </div>
 </div>
 
-<div *ngIf="loaded && (admin || !challengeDua)">
-    <div *ngIf="challengeStudy" class="block challenge">
+<div *ngIf="loaded && (admin || !challengeDuas || challengeDuas.length == 0)">
+    <div *ngFor="let challengeStudy of challengeStudies" class="block challenge">
         <table><tr>
             <td class="left-cell">
                 <div class="block-title">
@@ -40,8 +40,8 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
             <td>
                 <ul class="challenge-files">
                     <li *ngFor="let filePath of challengeStudy.protocolFilePaths">
-                        <i class="fas fa-download" (click)="downloadFile(filePath)"></i>
-                        <span (click)="downloadFile(filePath)">{{filePath}}</span>
+                        <i class="fas fa-download" (click)="downloadFile(filePath, challengeStudy.id)"></i>
+                        <span (click)="downloadFile(filePath, challengeStudy.id)">{{filePath}}</span>
                     </li>
                     <li class="study">
                         <i class="fas fa-folder-open" [routerLink]="'/study/details/' + challengeStudy.id"></i>
