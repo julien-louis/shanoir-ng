@@ -179,6 +179,24 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
         </tr></table>        
     </div>
 
+    <div class="block subscribe-challenge" *ngIf="otherChallengeOptions && otherChallengeOptions.length > 0">
+        <table><tr>
+            <td class="icon" *ngIf="!challengeApplied">
+                <i class="fas fa-trophy"></i>
+                <div class="block-title">Subscribe to a Challenge</div>
+                <div>
+                    <select-box [(ngModel)]="selectedChallenge" [options]="otherChallengeOptions"></select-box>
+                </div>
+                <button (click)="subscribeChallenge()">Submit application</button>
+            </td>
+            <td class="icon" *ngIf="challengeApplied">
+                <i class="fas fa-trophy"></i>
+                <div class="block-title"> </div>
+                <p>You have applied to the {{selectedChallenge.name}} challenge. A mail has just been sent to the administrators of this challenge, you should be contacted soon about your application.</p>
+            </td>
+        </tr></table>          
+    </div>
+
     <div class="block doc">
         <table><tr>
             <td class="icon">

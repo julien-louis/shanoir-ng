@@ -18,7 +18,10 @@ import { TaskService } from '../async-tasks/task.service';
 
 import { BreadcrumbsService } from '../breadcrumbs/breadcrumbs.service';
 import { DataUserAgreement } from '../dua/shared/dua.model';
+import { slideRight } from '../shared/animations/animations';
 import { KeycloakService } from '../shared/keycloak/keycloak.service';
+import { IdName } from '../shared/models/id-name.model';
+import { Option } from '../shared/select/select.component';
 import { ImagesUrlUtil } from '../shared/utils/images-url.util';
 import { Study } from '../studies/shared/study.model';
 import { StudyService } from '../studies/shared/study.service';
@@ -28,7 +31,8 @@ import { UserService } from '../users/shared/user.service';
 @Component({
     selector: 'home',
     templateUrl: 'home.component.html',
-    styleUrls: ['home.component.css']
+    styleUrls: ['home.component.css'],
+    animations: [ slideRight ]
 })
 
 export class HomeComponent {
@@ -45,6 +49,9 @@ export class HomeComponent {
     loaded: boolean = false;
     nbAccountRequests: number;
     nbExtensionRequests: number;
+    otherChallengeOptions: Option<IdName>[];
+    selectedChallenge: IdName = null;
+    challengeApplied: boolean = false;
 
     constructor(
             private breadcrumbsService: BreadcrumbsService,
@@ -69,7 +76,7 @@ export class HomeComponent {
         }).then(() => {
             this.loaded = true;
             if (this.admin || !this.challengeDuas || this.challengeDuas.length == 0) {
-                this.fetchChallengeStudy()
+                this.fetchChallengeStudy().then(() => this.fetchOtherChallenges());
                 if (this.admin) {
                     this.fetchAccountRequests();
                 }
@@ -82,8 +89,8 @@ export class HomeComponent {
         this.load();
     }
 
-    private fetchChallengeStudy() {
-        this.studyService.getAll().then(studies => {
+    private fetchChallengeStudy(): Promise<void> {
+        return this.studyService.getAll().then(studies => {
             if (studies) {
                 this.challengeStudies = studies.filter(study => study.challenge);
                 this.studies = studies.slice(0, 8);
@@ -121,4 +128,21 @@ export class HomeComponent {
         return this.keycloakService.canUserImportFromPACS();
     }
 
+    fetchOtherChallenges() {
+        this.studyService.getChallenges().then(result => {
+            if (result) {
+                this.otherChallengeOptions = result
+                    // filter the challenge already subscribed
+                    .filter(chal => !this.challengeStudies.find(study => study.id == chal.id))
+                    .map(chal => new Option(new IdName(chal.id, chal.name), chal.name));
+            }
+        });
+    }
+
+    subscribeChallenge() {
+        if (this.selectedChallenge) {
+            this.studyService.applyChallenge(this.selectedChallenge.id);
+            this.challengeApplied = true;
+        }
+    }
 }

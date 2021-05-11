@@ -82,4 +82,12 @@ h2 { margin-bottom: 30px; }
 .doc .icon { background-color: darkorange; }
 .doc li { line-height: 20px; }
 .doc li i { color: var(--color-a-light); margin-right: 7px; }
+
 a { text-decoration: underline; }
+
+.subscribe-challenge { border-color: blueviolet; }
+.subscribe-challenge .icon { background-color: blueviolet; }
+.subscribe-challenge .icon i { color: var(--color-a-light); margin-right: 7px; font-size: 30px; height: 30px; margin-bottom: 15px; }
+.subscribe-challenge select { margin-bottom: 15px; }
+.subscribe-challenge p { color: white; }
+
