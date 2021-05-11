@@ -166,6 +166,11 @@ export class StudyService extends EntityService<Study> {
             .toPromise();
     }
 
+    applyChallenge(studyId: number): Promise<void> {
+        return this.http.put<any>(AppUtils.BACKEND_API_STUDY_URL + '/apply/' + studyId, null)
+                .toPromise();
+    }
+
     protected getIgnoreList(): string[] {
         return super.getIgnoreList().concat(['completeMembers']);
     }
