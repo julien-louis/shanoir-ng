@@ -289,6 +289,32 @@ public class DatasetSecurityService {
     }
     
     /**
+     * Reject if one dataset doesn't have the right.
+     * DatasetIds list is also cleaned here
+     * 
+     * @param datasets the datasets
+     * @param rightStr the right
+     * @return true or false
+     * @throws EntityNotFoundException
+     */
+    public boolean hasRightOnEveryDatasetAcquisition(List<Long> datasetAcqIds, String rightStr) throws EntityNotFoundException {
+    	if (KeycloakUtil.getTokenRoles().contains("ROLE_ADMIN")) {
+			return true;
+		}
+    	// If the entry is empty, return an empty list
+    	if (datasetAcqIds == null || datasetAcqIds.isEmpty()) {
+			return true;
+		}
+    	
+    	Iterable<DatasetAcquisition> acqs = datasetAcquisitionRepository.findAll(datasetAcqIds);
+    	Set<Long> studyIds = new HashSet<Long>();
+    	for (DatasetAcquisition acq : acqs) {
+    		studyIds.add(acq.getExamination().getStudyId());
+    	}
+    	return studyIds.equals(commService.hasRightOnStudies(studyIds, rightStr));
+    }
+    
+    /**
      * Check that the connected user has the given right for the given dataset.
      * 
      * @param dataset the dataset

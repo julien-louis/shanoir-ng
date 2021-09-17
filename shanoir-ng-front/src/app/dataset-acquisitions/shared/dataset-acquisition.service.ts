@@ -79,4 +79,10 @@ export class DatasetAcquisitionService extends EntityService<DatasetAcquisition>
             return this.customReplacer(key, value, dto);
         });
     }
+
+    getByStudycardId(studycardId: number): Promise<DatasetAcquisition[]> {
+        return this.http.get<DatasetAcquisitionDTO[]>(AppUtils.BACKEND_API_DATASET_ACQUISITION_URL + '/byStudyCard/' + studycardId)
+                .toPromise()
+                .then(dtos => this.dsAcqDtoService.toDatasetAcquisitions(dtos));
+    }
 }

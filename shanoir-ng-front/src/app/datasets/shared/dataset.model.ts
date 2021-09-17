@@ -28,7 +28,7 @@ export abstract class Dataset extends Entity {
     creationDate: Date;
     name: string;
     type: DatasetType;
-    datasetAcquisition: DatasetAcquisition
+    datasetAcquisition: DatasetAcquisition;
     //datasetExpressions: List<DatasetExpression>
     //datasetProcessing: DatasetProcessing
     //groupOfSubjectsId: number;

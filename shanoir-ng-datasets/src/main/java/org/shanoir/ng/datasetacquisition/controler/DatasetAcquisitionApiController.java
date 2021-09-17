@@ -128,14 +128,14 @@ public class DatasetAcquisitionApiController implements DatasetAcquisitionApi {
 	}
 	
 	@Override
-	public ResponseEntity<List<DatasetAcquisitionDTO>> findByStudyCard(
+	public ResponseEntity<List<ExaminationDatasetAcquisitionDTO>> findByStudyCard(
 			@ApiParam(value = "id of the study card", required = true) @PathVariable("studyCardId") Long studyCardId) {
 		
 		List<DatasetAcquisition> daList = datasetAcquisitionService.findByStudyCard(studyCardId);
 		if (daList.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} else {
-			return new ResponseEntity<>(dsAcqMapper.datasetAcquisitionsToDatasetAcquisitionDTOs(daList), HttpStatus.OK);
+			return new ResponseEntity<>(examDsAcqMapper.datasetAcquisitionsToExaminationDatasetAcquisitionDTOs(daList), HttpStatus.OK);
 		}
 	}
 

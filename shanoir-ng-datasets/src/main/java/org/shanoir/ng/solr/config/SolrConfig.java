@@ -33,7 +33,7 @@ import org.springframework.data.solr.repository.config.EnableSolrRepositories;
  *
  */
 @Configuration
-@EnableSolrRepositories(basePackages="org.shanoir.ng.solr.repository", schemaCreationSupport = true)
+@EnableSolrRepositories(basePackages="org.shanoir.ng.solr.repository", schemaCreationSupport = false)
 @ComponentScan
 public class SolrConfig {
 	

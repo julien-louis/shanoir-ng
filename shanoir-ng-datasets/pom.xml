@@ -36,7 +36,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 		<spring.active.profile></spring.active.profile>
 		<resteasy.version>3.1.0.Final</resteasy.version>
 		<org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
-        <dcm4che.version>5.14.1</dcm4che.version>
+        <dcm4che.version>5.24.0</dcm4che.version>
 		<docker.image.name>shanoir-ng/datasets</docker.image.name>
 		<supervisor.file.name>ms.template.sv.dev.conf</supervisor.file.name>
 		<powermock.version>1.7.1</powermock.version>
@@ -110,6 +110,11 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+		    <groupId>org.dcm4che</groupId>
+		    <artifactId>dcm4che-json</artifactId>
+		    <version>${dcm4che.version}</version>
 		</dependency>
 		<dependency>
 		 	<groupId>org.apache.httpcomponents</groupId>

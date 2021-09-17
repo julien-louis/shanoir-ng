@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.shanoir.ng.dataset.dto.DatasetDTO;
 import org.shanoir.ng.datasetacquisition.dto.DatasetAcquisitionDTO;
 import org.shanoir.ng.datasetacquisition.dto.ExaminationDatasetAcquisitionDTO;
 import org.shanoir.ng.datasetacquisition.model.DatasetAcquisition;
@@ -86,8 +87,8 @@ public interface DatasetAcquisitionApi {
 			@ApiResponse(code = 500, message = "unexpected error", response = ErrorModel.class) })
 	@RequestMapping(value = "/datasetacquisition/byStudyCard/{studyCardId}", produces = { "application/json" }, method = RequestMethod.GET)
 	@PreAuthorize("hasAnyRole('ADMIN', 'EXPERT', 'USER')")
-	@PostAuthorize("hasRole('ADMIN') or @datasetSecurityService.filterDatasetAcquisitionDTOList(returnObject.getBody(), 'CAN_SEE_ALL')")
-	ResponseEntity<List<DatasetAcquisitionDTO>> findByStudyCard(
+	@PostAuthorize("hasRole('ADMIN') or @datasetSecurityService.filterExaminationDatasetAcquisitionDTOList(returnObject.getBody(), 'CAN_SEE_ALL')")
+	ResponseEntity<List<ExaminationDatasetAcquisitionDTO>> findByStudyCard(
 			@ApiParam(value = "id of the study card", required = true) @PathVariable("studyCardId") Long studyCardId);
 	
 	@ApiOperation(value = "", notes = "Deletes a datasetAcquisition", response = Void.class, tags = {})
@@ -125,7 +126,7 @@ public interface DatasetAcquisitionApi {
 	@PostAuthorize("hasRole('ADMIN') or @datasetSecurityService.filterExaminationDatasetAcquisitionDTOList(returnObject.getBody(), 'CAN_SEE_ALL')")
 	ResponseEntity<List<ExaminationDatasetAcquisitionDTO>> findDatasetAcquisitionByExaminationId(
 			@ApiParam(value = "id of the examination", required = true) @PathVariable("examinationId") Long examinationId);
-	
+
 	@ApiOperation(value = "", notes = "Returns a dataset acquisitions page", response = Page.class, tags = {})
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "found dataset acquisitions", response = Page.class),
 			@ApiResponse(code = 204, message = "no user found", response = ErrorModel.class),

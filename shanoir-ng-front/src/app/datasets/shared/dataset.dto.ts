@@ -26,6 +26,8 @@ import { Channel, Event, EegDataset } from '../dataset/eeg/dataset.eeg.model';
 import { DatasetProcessing } from './dataset-processing.model';
 import { DatasetAcquisitionDTO, DatasetAcquisitionDTOService } from '../../dataset-acquisitions/shared/dataset-acquisition.dto';
 import { DatasetAcquisitionUtils } from '../../dataset-acquisitions/shared/dataset-acquisition.utils';
+import { IdName } from '../../shared/models/id-name.model';
+import { DatasetAcquisition } from '../../dataset-acquisitions/shared/dataset-acquisition.model';
 
 @Injectable()
 export class DatasetDTOService {
@@ -101,6 +103,10 @@ export class DatasetDTOService {
             let dsAcq = DatasetAcquisitionUtils.getNewDAInstance(dto.datasetAcquisition.type);
             DatasetAcquisitionDTOService.mapSyncFields(dto.datasetAcquisition, dsAcq);
             entity.datasetAcquisition = dsAcq;
+        }
+        else if (dto['datasetAcquisitionId']) {
+            entity.datasetAcquisition = DatasetAcquisitionUtils.getNewDAInstance(entity.type);
+            entity.datasetAcquisition.id = dto['datasetAcquisitionId'];
         }
         if (entity.type == 'Mr') {
             this.mapSyncFieldsMr(dto as MrDatasetDTO, entity as MrDataset);

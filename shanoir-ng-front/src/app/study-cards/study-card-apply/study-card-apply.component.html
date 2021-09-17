@@ -14,10 +14,11 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 
 <h2 i18n="Manage datasets|Title@@datasetListTitle">Reapply Study Card<span *ngIf="studycard"> : {{studycard.name}}</span></h2>
 
-<h3>Already enriched datasets : </h3>
+<h3>The studycard has been prviously applied on these dataset acquisitions : </h3>
 <shanoir-table #table
         [getPage]="getPage.bind(this)" 
-        [columnDefs]="columnsDefs" 
+        [columnDefs]="columnsDefs"
+		[subRowsDefs]="subRowsDefs"
         [browserSearch]="true"
 		[selectionAllowed]="true"
 		[(selection)]="selected">

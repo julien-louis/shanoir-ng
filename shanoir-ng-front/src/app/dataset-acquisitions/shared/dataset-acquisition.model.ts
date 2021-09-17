@@ -32,4 +32,5 @@ export abstract class DatasetAcquisition extends Entity {
     protocol: any;
     name: string; // set in ExaminationDatasetAcquisitionDecorator.java
     creationDate: Date;
+    datasetsAndProcessings: any;
 }

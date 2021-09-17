@@ -58,7 +58,7 @@ export class StudyCardService extends EntityService<StudyCard> {
     }
 
     applyStudyCardOn(studyCardId: number, datasetIds: number[]) {
-        return this.http.post<any[]>(this.API_URL + '/apply/', JSON.stringify({studyCardId: studyCardId, datasetIds: datasetIds}))
+        return this.http.post<any[]>(this.API_URL + '/apply', JSON.stringify({studyCardId: studyCardId, datasetIds: datasetIds}))
             .toPromise()
             .then();
     }

@@ -45,6 +45,8 @@ public class DatasetDTO {
 	private String name;
 	
 	private String type;
+	
+	private Long datasetAcquisitionId;
 
 
 	/**
@@ -168,4 +170,12 @@ public class DatasetDTO {
 		this.type = type;
 	}
 
+	public Long getDatasetAcquisitionId() {
+		return datasetAcquisitionId;
+	}
+
+	public void setDatasetAcquisitionId(Long datasetAcquisitionId) {
+		this.datasetAcquisitionId = datasetAcquisitionId;
+	}
+	
 }

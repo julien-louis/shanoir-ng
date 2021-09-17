@@ -11,10 +11,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { ApplicationRef, ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { BrowserPaging } from './browser-paging.model';
 import { Filter, FilterablePageable, Order, Page, Pageable, Sort } from './pageable.model';
 
 
@@ -27,6 +28,7 @@ import { Filter, FilterablePageable, Order, Page, Pageable, Sort } from './pagea
 export class TableComponent implements OnInit, OnChanges {
     @Input() getPage: (pageable: Pageable, forceRefresh: boolean) => Promise<Page<any>>;
     @Input() columnDefs: any[];
+    @Input() subRowsDefs: any[];
     @Input() customActionDefs: any[];
     @Input() selectionAllowed: boolean = false;
     @Input() enableSettings: boolean = false;
@@ -39,6 +41,7 @@ export class TableComponent implements OnInit, OnChanges {
     @Output() rowEdit: EventEmitter<Object> = new EventEmitter<Object>();
     @Input() disableCondition: (item: any) => boolean;
     @Input() maxResults: number = 20;
+    @Input() @HostBinding('class.sub') sub: boolean = false;
     page: Page<Object>;
     isLoading: boolean = false;
     maxResultsField: number;
@@ -51,11 +54,14 @@ export class TableComponent implements OnInit, OnChanges {
     firstLoading: boolean = true;
     @ViewChild('settingsDialog') settingsDialog: ModalComponent;
     @Input() identifier: string = 'default'; // usefull for saving table config when there is more than one table in the page
+    nbColumns: number;
+    expended: boolean[] = [];
     
 
     constructor(
             private applicationRef: ApplicationRef,
             private breadcrumbsService: BreadcrumbsService) {
+        this.maxResults = this.sub ? 1000 : this.maxResults;
         this.maxResultsField = this.maxResults;
     }
 
@@ -93,6 +99,9 @@ export class TableComponent implements OnInit, OnChanges {
             this.goToPage(1)
                 .then(() => this.firstLoading = false);
         }
+        this.nbColumns = this.columnDefs.length;
+        if (this.selectionAllowed) this.nbColumns++;
+        if (this.subRowsDefs) this.nbColumns++;
     }
 
     
@@ -445,6 +454,14 @@ export class TableComponent implements OnInit, OnChanges {
 
     rowDisabled(item): boolean {
         return this.disableCondition && this.disableCondition(item);
+    }
+
+    subGetPage(items: any[], columnDefs: any): (pageable: Pageable, forceRefresh: boolean) => Promise<Page<any>> {
+        return (pageable: Pageable, forceRefresh: boolean) => Promise.resolve(new BrowserPaging(items, columnDefs).getPage(pageable));
+    }
+
+    expend(id: number) {
+        this.expended[id] = true;
     }
 
     @HostListener('document:keypress', ['$event']) onKeydownHandler(event: KeyboardEvent) {

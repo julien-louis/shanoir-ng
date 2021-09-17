@@ -90,6 +90,7 @@ export class DatasetAcquisitionDTOService {
         entity.sortingIndex = dto.sortingIndex;
         entity.type = dto.type;
         entity.creationDate = dto.creationDate;
+        entity.name = dto.name;
         if (dto.examination) {
             entity.examination = new Examination();
             ExaminationDTOService.mapSyncFields(dto.examination, entity.examination);
@@ -107,6 +108,9 @@ export class DatasetAcquisitionDTOService {
                 (entity as CtDatasetAcquisition).protocol = Object.assign(new CtProtocol(), (dto as CtDatasetAcquisitionDTO).protocol);
                 break;
             }
+        }
+        if (dto.datasets) {
+            entity.datasetsAndProcessings = dto.datasets;
         }
         return entity;
     }
@@ -143,6 +147,8 @@ export class DatasetAcquisitionDTO {
     sortingIndex: number;
     creationDate: Date;
     type: 'Mr' | 'Pet' | 'Ct' | 'Eeg';
+    name: string;
+    datasets: any;
 }
 
 export class MrDatasetAcquisitionDTO extends DatasetAcquisitionDTO {

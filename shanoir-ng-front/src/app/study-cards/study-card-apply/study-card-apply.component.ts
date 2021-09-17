@@ -13,12 +13,18 @@
  */
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
+import { ManufacturerModel } from '../../acquisition-equipments/shared/manufacturer-model.model';
 import { BreadcrumbsService } from '../../breadcrumbs/breadcrumbs.service';
+import { DatasetAcquisition } from '../../dataset-acquisitions/shared/dataset-acquisition.model';
+import { DatasetAcquisitionService } from '../../dataset-acquisitions/shared/dataset-acquisition.service';
 import { Dataset } from '../../datasets/shared/dataset.model';
 import { DatasetService } from '../../datasets/shared/dataset.service';
+import { DatasetModalityType } from '../../enum/dataset-modality-type.enum';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { BrowserPaging } from '../../shared/components/table/browser-paging.model';
 import { FilterablePageable, Page } from '../../shared/components/table/pageable.model';
+import { TableComponent } from '../../shared/components/table/table.component';
 import { StudyCard } from '../shared/study-card.model';
 import { StudyCardService } from '../shared/study-card.service';
 
@@ -31,28 +37,32 @@ export class StudyCardApplyComponent {
 
     studycard: StudyCard;
     private loadedPromise: Promise<void>;
-    private browserPaging: BrowserPaging<Dataset>;
-    private datasets: Dataset[];
+    private browserPaging: BrowserPaging<DatasetAcquisition>;
+    private datasetAcquisitions: DatasetAcquisition[];
     columnsDefs: any = this.getColumnDefs();
+    subRowsDefs: any = this.getSubRowsDefs();
     selected: Set<number> = new Set();
 
 
     constructor(
-            private datasetService: DatasetService,
+            //private datasetService: DatasetService,
+            private dsAcqService: DatasetAcquisitionService,
             private studycardService: StudyCardService,
             private activatedRoute: ActivatedRoute,
             breadcrumbsService: BreadcrumbsService,
             private confirmService: ConfirmDialogService) {
         breadcrumbsService.nameStep('Reapply Study Card');
-        this.loadDatasets();
+        this.loadAcquisitions();
         this.loadStudyCard();
     }
 
-    private loadDatasets(): Promise<void>  {
+    private loadAcquisitions(): Promise<void>  {
         const studycardId: number = +this.activatedRoute.snapshot.params['id'];
-        this.loadedPromise = this.datasetService.getByStudycardId(studycardId).then((datasets) => {
-            this.datasets = datasets;
-            this.browserPaging = new BrowserPaging(datasets, this.columnsDefs);
+        this.loadedPromise = this.dsAcqService.getByStudycardId(studycardId).then((acqs) => {
+            this.datasetAcquisitions = acqs;
+            this.browserPaging = new BrowserPaging(acqs, this.columnsDefs);
+            console.log(acqs[0])
+            console.log(TableComponent.getCellValue(acqs[0], this.subRowsDefs.columns[0]))
         });
         return this.loadedPromise;
     }
@@ -62,40 +72,63 @@ export class StudyCardApplyComponent {
         this.studycardService.get(studycardId).then(sc => this.studycard = sc);
     }
 
-    getPage(pageable: FilterablePageable, forceRefresh: boolean = false): Promise<Page<Dataset>> {
+    getPage(pageable: FilterablePageable, forceRefresh: boolean = false): Promise<Page<DatasetAcquisition>> {
         return this.loadedPromise.then(() => {
             if (forceRefresh) {
-                return this.loadDatasets().then(() => this.browserPaging.getPage(pageable));
+                return this.loadAcquisitions().then(() => this.browserPaging.getPage(pageable));
             } else {
                 return this.browserPaging.getPage(pageable);
             }
         });
     }
 
-    getColumnDefs() {
+    getColumnDefs(): any[] {
+        let colDef: any[] = [
+            { headerName: 'Id', field: 'id', type: 'number', width: '30px', defaultSortCol: true, defaultAsc: false},
+            { headerName: 'Type', field: 'type', width: '22px'},
+            { headerName: 'Nb Datasets', width: '30px', 
+                cellRenderer: params => params.data.datasetsAndProcessings ? params.data.datasetsAndProcessings.length : 0
+            },
+            { headerName: 'Name', field: 'name'},
+        ];
+        return colDef;       
+    }
+
+    getSubRowsDefs() {
         function dateRenderer(date: number) {
             if (date) {
                 return new Date(date).toLocaleDateString();
             }
             return null;
         };
-        return [
-            {headerName: "Id", field: "id", type: "number", width: "60px", defaultSortCol: true, defaultAsc: false},
-            {headerName: "Name", field: "name", orderBy: ["updatedMetadata.name", "originMetadata.name", "id"]},
-            {headerName: "Type", field: "type", width: "50px", suppressSorting: true},
-            {headerName: "Subject", field: "subject.name"},
-            {headerName: "Study", field: "study.name"},
-            {headerName: "Creation", field: "creationDate", type: "date", cellRenderer: (params: any) => dateRenderer(params.data.creationDate)},
-            {headerName: "Comment", field: "originMetadata.comment"},
-        ];
+        let subRows = {
+            field: 'datasetsAndProcessings',
+            columns: [
+                { headerName: 'Id', field: 'id', type: 'number', width: '30px', defaultSortCol: true, defaultAsc: false},
+                { headerName: 'Name', field: 'name'},
+                { headerName: "Creation", field: "creationDate", type: "date", cellRenderer: (params: any) => dateRenderer(params.data.creationDate)},
+            ]
+        }
+        return subRows;
     }
 
-    private getAllDatasetsIds(): number[] {
-        return this.datasets.map(ds => ds.id);
+    transformAcqEq(acqEqpt: AcquisitionEquipment): string {
+        if (!acqEqpt) return "";
+        else if (!acqEqpt.manufacturerModel) return String(acqEqpt.id);
+        else {
+            let manufModel: ManufacturerModel = acqEqpt.manufacturerModel;
+            return manufModel.manufacturer.name + " - " + manufModel.name + " " + (manufModel.magneticField ? (manufModel.magneticField + "T") : "")
+                + " (" + DatasetModalityType.getLabel(manufModel.datasetModalityType) + ") " + acqEqpt.serialNumber
+        }
+    }
+
+
+    private getAllAcqsIds(): number[] {
+        return this.datasetAcquisitions.map(ds => ds.id);
     }
 
     reapplyOnAll() {
-        this.reapplyOn(this.getAllDatasetsIds());
+        this.reapplyOn(this.getAllAcqsIds());
     }
 
     reapplyOnSelected() {

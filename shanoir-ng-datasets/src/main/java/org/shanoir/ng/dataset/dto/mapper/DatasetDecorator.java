@@ -80,5 +80,21 @@ public abstract class DatasetDecorator implements DatasetMapper {
 	public IdName datasetToIdNameDTO(final Dataset dataset) {
 		return defaultMapper.datasetToIdNameDTO(dataset);
 	}
+	
+	@Override
+	public DatasetDTO datasetToDatasetDTO(Dataset dataset) {
+		DatasetDTO dto = defaultMapper.datasetToDatasetDTO(dataset);
+		dto.setDatasetAcquisitionId(dataset.getDatasetAcquisition().getId());
+		return dto;
+	}
+	
+	@Override
+	public List<DatasetDTO> datasetToDatasetDTO(List<Dataset> datasets) {
+		List<DatasetDTO> dtos = new ArrayList<>();
+		for (Dataset dataset : datasets) {
+			dtos.add(datasetToDatasetDTO(dataset));			
+		}
+		return dtos;
+	}
 
 }

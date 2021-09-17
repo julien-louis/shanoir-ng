@@ -22,6 +22,7 @@ package org.shanoir.ng.solr.model;
 import java.util.Date;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
@@ -30,6 +31,7 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
  * @author yyao
  *
  */
+@ComponentScan
 @SolrDocument(solrCoreName = "shanoir")
 public class ShanoirSolrDocument {
 	
@@ -39,7 +41,7 @@ public class ShanoirSolrDocument {
 	private	Long datasetId;
 	
 	@Field
-	@Indexed(name="datasetName", type="string")
+	@Indexed(name="datasetName", type="lower")
 	private	String datasetName;
 	
 	// DatasetModalityType: MR, CT, PET etc..

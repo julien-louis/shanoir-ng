@@ -88,3 +88,7 @@ app-modal .header { font-size: 16px; }
 app-modal .body { margin: 15px 10px; }
 app-modal input { width: 37px; }
 app-modal table td { padding: 1 5px; }
+
+:host().sub th { background-color: var(--color-c-light); color: var(--color-a); }
+.sub-container td { padding: 0; }
+.sub-container:hover, .sub-container td:hover { background-color: inherit; }
