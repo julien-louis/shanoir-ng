@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,6 @@ import org.shanoir.ng.eeg.model.Event;
 import org.shanoir.ng.examination.model.Examination;
 import org.shanoir.ng.examination.repository.ExaminationRepository;
 import org.shanoir.ng.examination.service.ExaminationService;
-import org.shanoir.ng.exporter.service.BIDSService;
 import org.shanoir.ng.importer.dto.Dataset;
 import org.shanoir.ng.importer.dto.DatasetFile;
 import org.shanoir.ng.importer.dto.EegImportJob;
@@ -85,18 +85,21 @@ public class ImporterServiceTest {
 	private DicomPersisterService dicomPersisterService;
 
 	@Mock
-	private BIDSService bidsService;
-
-	@Mock
 	private ShanoirEventService taskService;
 	
 	@Mock
 	StudyUserRightsRepository studyUserRightRepo;
 
+	private Examination exam;
+
 	@Before
 	public void setUp() throws IOException {
+		exam = new Examination();
+		exam.setExaminationDate(LocalDate.now());
+		exam.setId(1l);
         PowerMockito.mockStatic(KeycloakUtil.class);
         given(KeycloakUtil.getKeycloakHeader()).willReturn(null);
+        given(examinationService.findById(Mockito.anyLong())).willReturn(exam);
 	}
 
 	@Test
@@ -160,9 +163,6 @@ public class ImporterServiceTest {
 		assertEquals(ds.getName(), dataset.getName());
 		assertEquals(DatasetExpressionFormat.EEG, ds.getDatasetExpressions().get(0).getDatasetExpressionFormat());
 		
-		// Check that we save bids folder too
-		verify(bidsService).addDataset(any(Examination.class), Mockito.eq(importJob.getSubjectName()), Mockito.eq(importJob.getStudyName()));
-
 		DatasetMetadata metadata = ds.getOriginMetadata();
 		assertNotNull(metadata);
 		assertEquals(DatasetModalityType.EEG_DATASET, metadata.getDatasetModalityType());
@@ -211,7 +211,7 @@ public class ImporterServiceTest {
 		Examination examination = new Examination();
 		examination.setId(2L);
 		examination.setExaminationDate(LocalDate.now());
-		when(examinationRepository.findOne(importJob.getExaminationId())).thenReturn(examination);
+		when(examinationRepository.findById(importJob.getExaminationId())).thenReturn(Optional.of(examination));
 		DatasetAcquisition datasetAcq = new MrDatasetAcquisition();
 		when(datasetAcquisitionContext.generateDatasetAcquisitionForSerie(serie, 0, importJob)).thenReturn(datasetAcq);
 		when(studyUserRightRepo.findByStudyId(importJob.getStudyId())).thenReturn(Collections.emptyList());
@@ -233,7 +233,6 @@ public class ImporterServiceTest {
 		// Check what we save at the end
 		verify(datasetAcquisitionService).create(datasetAcq);
 		verify(dicomPersisterService).persistAllForSerie(any());
-		verify(bidsService).addDataset(any(Examination.class), Mockito.eq(importJob.getSubjectName()), Mockito.eq(importJob.getStudyName()));
 
 		assertNotNull(datasetAcq);
 		

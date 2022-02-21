@@ -15,7 +15,6 @@
 package org.shanoir.ng.studycard.service;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import org.dcm4che3.data.Attributes;
@@ -118,11 +117,11 @@ public class StudyCardProcessingService {
 	
 	private boolean numericalCompare(Operation operation, int comparison) {
 		if (Operation.BIGGER_THAN.equals(operation)) {
-			return comparison >= 1;
+			return comparison > 0;
 		} else if (Operation.EQUALS.equals(operation)) {
 			return comparison == 0;
 		} else if (Operation.SMALLER_THAN.equals(operation)) {
-			return comparison <= 1;
+			return comparison < 0;
 		}
 		throw new IllegalArgumentException("Cannot use this method for non-numerical operations (" + operation + ")");
 	}

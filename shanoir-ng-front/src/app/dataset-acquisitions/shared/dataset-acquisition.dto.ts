@@ -146,7 +146,7 @@ export class DatasetAcquisitionDTO {
     softwareRelease: string;
     sortingIndex: number;
     creationDate: Date;
-    type: 'Mr' | 'Pet' | 'Ct' | 'Eeg';
+    type: 'Mr' | 'Pet' | 'Ct' | 'Eeg' | 'Generic' | 'Processed';;
     name: string;
     datasets: any;
 }
@@ -163,9 +163,13 @@ export class CtDatasetAcquisitionDTO extends DatasetAcquisitionDTO {
     protocol: any;
 }
 
+export class ProcessedDatasetAcquisitionDTO extends DatasetAcquisitionDTO {
+   	parentAcquisitions: any[];
+}
+
 export class ExaminationDatasetAcquisitionDTO {
     id: number;
     name: string;
-    type: 'Mr' | 'Pet' | 'Ct' | 'Eeg';
+    type: 'Mr' | 'Pet' | 'Ct' | 'Eeg' | 'Generic' | 'Processed';
     datasets: any;
 }

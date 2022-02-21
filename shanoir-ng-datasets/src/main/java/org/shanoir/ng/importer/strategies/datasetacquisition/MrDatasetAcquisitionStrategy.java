@@ -18,15 +18,20 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.shanoir.ng.dataset.modality.BidsDataType;
 import org.shanoir.ng.dataset.modality.MrDataset;
 import org.shanoir.ng.dataset.model.Dataset;
 import org.shanoir.ng.datasetacquisition.model.DatasetAcquisition;
 import org.shanoir.ng.datasetacquisition.model.mr.MrDatasetAcquisition;
 import org.shanoir.ng.datasetacquisition.model.mr.MrProtocol;
+import org.shanoir.ng.datasetacquisition.model.mr.MrProtocolSCMetadata;
 import org.shanoir.ng.dicom.DicomProcessing;
 import org.shanoir.ng.importer.dto.DatasetsWrapper;
 import org.shanoir.ng.importer.dto.ImportJob;
@@ -72,6 +77,21 @@ public class MrDatasetAcquisitionStrategy implements DatasetAcquisitionStrategy 
 	@Autowired
 	private StudyCardRepository studyCardRepository;
 
+    private static final Map<String, BidsDataType> dataTypeMapping;
+    static {
+        Map<String, BidsDataType> aMap = new HashMap<String, BidsDataType>();
+        aMap.put("ANGIO_TIME", BidsDataType.ANAT);
+        aMap.put("CINE", BidsDataType.ANAT);
+        aMap.put("DIFFUSION", BidsDataType.DWI);
+        aMap.put("FLUID_ATTENUATED", BidsDataType.ANAT);
+        aMap.put("FMRI", BidsDataType.FUNC);
+        aMap.put("MULTIECHO ", BidsDataType.ANAT);
+        aMap.put("T1", BidsDataType.ANAT);
+        aMap.put("T2", BidsDataType.ANAT);
+        aMap.put("T2_STAR", BidsDataType.ANAT);
+        //TODO: To be completed by an expert
+        dataTypeMapping = Collections.unmodifiableMap(aMap);
+    }
 	
 	@Override
 	public DatasetAcquisition generateDatasetAcquisitionForSerie(Serie serie, int rank, ImportJob importJob) throws Exception {
@@ -79,7 +99,7 @@ public class MrDatasetAcquisitionStrategy implements DatasetAcquisitionStrategy 
 		LOG.info("Generating DatasetAcquisition for   : {} - {} - Rank:{}", serie.getSequenceName(), serie.getProtocolName(), rank);
 		Attributes dicomAttributes = null;
 		try {
-			dicomAttributes = dicomProcessing.getDicomObjectAttributes(serie.getFirstDatasetFileForCurrentSerie(),serie.getIsEnhanced());
+			dicomAttributes = dicomProcessing.getDicomObjectAttributes(serie.getFirstDatasetFileForCurrentSerie(), serie.getIsEnhanced());
 		} catch (IOException e) {
 			LOG.error("Unable to retrieve dicom attributes in file " + serie.getFirstDatasetFileForCurrentSerie().getPath(), e);
 		}
@@ -99,7 +119,6 @@ public class MrDatasetAcquisitionStrategy implements DatasetAcquisitionStrategy 
 		MrProtocol mrProtocol = mrProtocolStrategy.generateProtocolForSerie(dicomAttributes, serie);
 		mrDatasetAcquisition.setMrProtocol(mrProtocol);
 	
-		// TODO ATO add Compatibility check between study card Equipment and dicomEquipment if not done at front level.
 		DatasetsWrapper<MrDataset> datasetsWrapper = mrDatasetStrategy.generateDatasetsForSerie(dicomAttributes, serie, importJob);
 		List<Dataset> genericizedList = new ArrayList<>();
 		for (Dataset dataset : datasetsWrapper.getDatasets()) {
@@ -119,16 +138,26 @@ public class MrDatasetAcquisitionStrategy implements DatasetAcquisitionStrategy 
 				mrDatasetAcquisition.getMrProtocol().setAcquisitionDuration(null);
 			}
 		}
-		
+
+		// Can be overridden by study cards
+		String imageType = dicomAttributes.getString(Tag.ImageType, 2);		
+		if (imageType != null && dataTypeMapping.get(imageType) != null) {
+			MrProtocolSCMetadata metadata = mrDatasetAcquisition.getMrProtocol().getUpdatedMetadata();
+			if (mrDatasetAcquisition.getMrProtocol().getUpdatedMetadata() == null) {
+				mrDatasetAcquisition.getMrProtocol().setUpdatedMetadata(new MrProtocolSCMetadata());
+			}
+			mrDatasetAcquisition.getMrProtocol().getUpdatedMetadata().setBidsDataType(dataTypeMapping.get(imageType));
+		}
+
 		if (studyCard != null) {
 			studyCardProcessingService.applyStudyCard(mrDatasetAcquisition, studyCard, dicomAttributes);
 		}
-		
+
 		return mrDatasetAcquisition;
 	}
 
 	private StudyCard getStudyCard(Long studyCardId) {
-		StudyCard studyCard = studyCardRepository.findOne(studyCardId);
+		StudyCard studyCard = studyCardRepository.findById(studyCardId).orElse(null);
 		if (studyCard == null) {
 			throw new IllegalArgumentException("No study card found with id " + studyCardId);
 		}

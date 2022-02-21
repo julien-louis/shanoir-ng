@@ -14,19 +14,14 @@
 
 package org.shanoir.ng.studycard.controler;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.Json;
-import javax.json.stream.JsonParser;
 import javax.mail.MessagingException;
 
 import org.shanoir.ng.dataset.model.DatasetExpressionFormat;
@@ -34,6 +29,7 @@ import org.shanoir.ng.dataset.service.DatasetUtils;
 import org.shanoir.ng.datasetacquisition.model.DatasetAcquisition;
 import org.shanoir.ng.datasetacquisition.service.DatasetAcquisitionService;
 import org.shanoir.ng.download.WADODownloaderService;
+import org.dcm4che3.data.Tag;
 import org.shanoir.ng.shared.core.model.IdList;
 import org.shanoir.ng.shared.error.FieldErrorMap;
 import org.shanoir.ng.shared.exception.EntityNotFoundException;
@@ -55,9 +51,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestClientException;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.json.JSONReader;
-import org.glassfish.json.JsonParserImpl;
 
 import io.swagger.annotations.ApiParam;
 

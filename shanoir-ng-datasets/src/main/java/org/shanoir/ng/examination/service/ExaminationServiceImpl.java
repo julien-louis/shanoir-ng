@@ -16,6 +16,7 @@ package org.shanoir.ng.examination.service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.shanoir.ng.dataset.model.Dataset;
@@ -26,6 +27,7 @@ import org.shanoir.ng.shared.event.ShanoirEvent;
 import org.shanoir.ng.shared.event.ShanoirEventService;
 import org.shanoir.ng.shared.event.ShanoirEventType;
 import org.shanoir.ng.shared.exception.EntityNotFoundException;
+import org.shanoir.ng.shared.exception.ShanoirException;
 import org.shanoir.ng.shared.security.rights.StudyUserRight;
 import org.shanoir.ng.solr.service.SolrService;
 import org.shanoir.ng.study.rights.StudyUserRightsRepository;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,23 +70,26 @@ public class ExaminationServiceImpl implements ExaminationService {
 	
 	@Override
 	public void deleteById(final Long id) throws EntityNotFoundException {
-		Examination exam = examinationRepository.findOne(id);
-
+		Optional<Examination> examinationOpt = examinationRepository.findById(id);
+		if (!examinationOpt.isPresent()) {
+			throw new EntityNotFoundException(Examination.class, id);
+		}
 		Long tokenUserId = KeycloakUtil.getTokenUserId();
-		String studyIdAsString = exam.getStudyId().toString();
+		Examination examination = examinationOpt.get();
+		String studyIdAsString = examination.getStudyId().toString();
 
 		// Iterate over datasets acquisitions and datasets to send events and remove them from solr
-		for (DatasetAcquisition dsAcq : exam.getDatasetAcquisitions()) {
+		for (DatasetAcquisition dsAcq : examination.getDatasetAcquisitions()) {
 			eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_ACQUISITION_EVENT, dsAcq.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
 			for (Dataset ds : dsAcq.getDatasets())  {
-				eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_EVENT, ds.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
+				eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_EVENT, ds.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS, ds.getStudyId()));
 				solrService.deleteFromIndex(ds.getId());
 			}
 		}
 
-		eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_EXAMINATION_EVENT, id.toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
+		eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_EXAMINATION_EVENT, id.toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS, examination.getStudyId()));
 		// Delete examination
-		examinationRepository.delete(id);
+		examinationRepository.deleteById(id);
 	}
 
 	@Override
@@ -94,12 +100,12 @@ public class ExaminationServiceImpl implements ExaminationService {
 		for (DatasetAcquisition dsAcq : exam.getDatasetAcquisitions()) {
 			eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_ACQUISITION_EVENT, dsAcq.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
 			for (Dataset ds : dsAcq.getDatasets())  {
-				eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_EVENT, ds.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
+				eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_DATASET_EVENT, ds.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS, ds.getStudyId()));
 				solrService.deleteFromIndex(ds.getId());
 			}
 		}
-		eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_EXAMINATION_EVENT, exam.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS));
-		examinationRepository.delete(exam.getId());
+		eventService.publishEvent(new ShanoirEvent(ShanoirEventType.DELETE_EXAMINATION_EVENT, exam.getId().toString(), tokenUserId, studyIdAsString, ShanoirEvent.SUCCESS, exam.getStudyId()));
+		examinationRepository.deleteById(exam.getId());
 	}
 
 	@Value("${datasets-data}")
@@ -128,7 +134,7 @@ public class ExaminationServiceImpl implements ExaminationService {
 
 	@Override
 	public Examination findById(final Long id) {
-		return examinationRepository.findOne(id);
+		return examinationRepository.findById(id).orElse(null);
 	}
 
 	@Override
@@ -139,10 +145,19 @@ public class ExaminationServiceImpl implements ExaminationService {
 	}
 
 	@Override
-	public Examination update(final Examination examination) throws EntityNotFoundException {
-		final Examination examinationDb = examinationRepository.findOne(examination.getId());
+	public Examination update(final Examination examination) throws EntityNotFoundException, ShanoirException {
+		final Examination examinationDb = examinationRepository.findById(examination.getId()).orElse(null);
 		if (examinationDb == null) {
 			throw new EntityNotFoundException(Examination.class, examination.getId());
+		}
+		if (!KeycloakUtil.getTokenRoles().contains("ROLE_ADMIN") && !examinationDb.getCenterId().equals(examination.getCenterId())) {
+			throw new ShanoirException("Cannot update the center of the examination, please ask an administrator.", HttpStatus.FORBIDDEN.value());
+		}
+		if (!KeycloakUtil.getTokenRoles().contains("ROLE_ADMIN") && !examinationDb.getStudyId().equals(examination.getStudyId())) {
+			throw new ShanoirException("Cannot update the study of the examination, please ask an administrator.", HttpStatus.FORBIDDEN.value());
+		}
+		if (!KeycloakUtil.getTokenRoles().contains("ROLE_ADMIN") && !examinationDb.getSubjectId().equals(examination.getSubjectId())) {
+			throw new ShanoirException("Cannot update the subject of the examination, please ask an administrator.", HttpStatus.FORBIDDEN.value());
 		}
 		updateExaminationValues(examinationDb, examination);
 		examinationRepository.save(examinationDb);
