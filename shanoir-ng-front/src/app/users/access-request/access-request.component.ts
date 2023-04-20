@@ -35,6 +35,7 @@ export class AccessRequestComponent extends EntityComponent<AccessRequest> {
     public studyOptions:  Option<number>[];
     studies: IdName[];
     fromStudy: boolean = false;
+    isAdmin: boolean;
 
     public get accessRequest(): AccessRequest { return this.entity; }
     public set accessRequest(accreq: AccessRequest) {
@@ -47,6 +48,7 @@ export class AccessRequestComponent extends EntityComponent<AccessRequest> {
             public studyService: StudyService,
             public accessRequestService: AccessRequestService) {
                 super(activatedRoute, 'access-request');
+                this.isAdmin = this.keycloakService.isUserAdmin();
             }
 
     public changeStudy(studyId: number) {

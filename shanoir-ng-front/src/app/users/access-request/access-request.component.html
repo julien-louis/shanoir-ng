@@ -71,18 +71,20 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
                 </span>
             </li>
 	    </ul>
-        <button *ngIf="mode == 'view'" type="button" (click)="acceptRequest()" class="accept right-icon">
-            Accept
-            <i class="fa-solid fa-thumbs-up"></i>
-        </button>
-        <button *ngIf="mode == 'view'" type="button" (click)="refuseRequest()" class="refuse right-icon">
-            Refuse
-            <i class="fa-solid fa-thumbs-down"></i>
-        </button>
+        <ng-container *ngIf="isAdmin">
+            <button *ngIf="mode == 'view'" type="button" (click)="acceptRequest()" class="accept right-icon">
+                Accept
+                <i class="fa-solid fa-thumbs-up"></i>
+            </button>
+            <button *ngIf="mode == 'view'" type="button" (click)="refuseRequest()" class="refuse right-icon">
+                Refuse
+                <i class="fa-solid fa-thumbs-down"></i>
+            </button>
+        </ng-container>
     <form-footer
-    [state]="footerState"
-    (save)="save()"
-    (back)="goBack()"
+            [state]="footerState"
+            (save)="save()"
+            (back)="goBack()"
     ></form-footer>
     </form>
 </div>
