@@ -53,6 +53,7 @@ export class AppComponent {
             private userService: UserService) {
         
         ServiceLocator.rootViewContainerRef = this.viewContainerRef;
+        this.test();
     }
 
     ngOnInit() {
@@ -99,4 +100,151 @@ export class AppComponent {
                 if (response == true) this.router.navigate(['/dua']);
             });
     }
+
+    diagram: string;
+    test() {
+        let modelJson: any = {
+            classes: [
+                {
+                    name: 'Study',
+                    properties: [
+                        {
+                            name: 'name',
+                            type: 'string'
+                        }, {
+                            name: 'id',
+                            type: 'number'
+                        }
+                    ]
+                }, {
+                    name: 'Examination',
+                    properties: [
+                        {
+                            name: 'name',
+                            type: 'string'
+                        }, {
+                            name: 'id',
+                            type: 'number'
+                        }, {
+                            name: 'studyId',
+                            type: 'Study'
+                        }
+                    ]
+                }, {
+                    name: 'ExtraFile',
+                    properties: [
+                        {
+                            name: 'name',
+                            type: 'string'
+                        }, {
+                            name: 'id',
+                            type: 'number'
+                        }, {
+                            name: 'studyId',
+                            type: 'Study'
+                        }
+                    ]
+                }
+
+            ]
+        };
+
+// Lost in a wave
+// Landmvrks
+
+        
+        
+        
+        let diagram: string = '';
+
+
+
+        modelJson?.classes.forEach(clazz => {
+            console.log(clazz.name, clazz.drawn)
+            if (!clazz.drawn) {
+                diagram = this.addToTheRight(this.buildClass(clazz), diagram);
+                clazz.drawn = true;
+                modelJson.classes.filter(c => c.name != clazz.name && !c.drawn && c.properties?.find(prop => prop.type == clazz.name)).forEach((subClazz, index) => {
+                    console.log(index)
+                    if (index == 0) {
+                        diagram = this.addToTheRight(this.buildClass(subClazz), diagram);
+                        subClazz.drawn = true;
+                    } else if (index == 1) {
+                        // diagram = this.addToTheBottom(this.buildClass(subClazz), diagram);
+                        subClazz.drawn = true;
+                    }
+                });
+            }
+        });
+
+
+        // const classStringBlocks: string[] = modelJson?.classes?.map(c => this.buildClass(c));
+
+        // classStringBlocks.forEach(block => {
+        //     diagram = this.addToTheLeft(block, diagram);
+        // });
+
+        
+        this.diagram = diagram;
+    }
+    
+    buildLine(content: string, width: number, align: 'left' | 'center'): string {
+        const nNbFillers: number = width - content?.length;
+        if (align == 'center') {
+            return '|' + (' '.repeat(Math.floor(nNbFillers / 2))) + content + (' '.repeat(Math.round(nNbFillers / 2))) + '|';
+        } else if (align == 'left') {
+            return '|' + content + (' '.repeat(nNbFillers)) + '|';
+        } else {
+            throw new Error('invalid value for align');
+        };
+    }
+    
+    buildHorizontalBar(length: number): string {
+        const hline: string = '-';
+        return '+' + hline.repeat(length) + '+';
+    }
+
+    buildClass(clazz: any) {
+        let classStr: string = '';
+        let propertyLines: string [] = clazz.properties?.map(prop => {
+            return '- ' + prop.name + ': ' + prop.type;
+        });
+        const maxWidth: number = propertyLines.concat(clazz.name).reduce((prev, current) => {
+            return (prev.length > current.length) ? prev : current
+        }).length + 2;
+        
+        // header
+        classStr += this.buildHorizontalBar(maxWidth);
+        classStr += '\n' + this.buildLine(clazz.name, maxWidth, 'center');
+        classStr += '\n' + this.buildHorizontalBar(maxWidth);
+        
+        // body
+        propertyLines.forEach(propLine => {
+            classStr += '\n' + this.buildLine(propLine, maxWidth, 'left');
+        });
+        classStr += '\n' + this.buildHorizontalBar(maxWidth);
+        
+        return classStr;
+    }
+
+    addToTheLeft(added: string, to: string): string {
+        const margin: number = 5;
+        const splitAdded: string[] = added.split('\n');
+        const splitTo: string[] = to.split('\n');
+        splitTo.forEach((toLine, lineNumber) => {
+            splitAdded[lineNumber] = (splitAdded[lineNumber] || ' '.repeat(splitTo[0].length)) + ' '.repeat(margin) + toLine;
+        });
+        return splitAdded.join('\n');
+    }
+
+    addToTheRight(added: string, to: string): string {
+        return this.addToTheLeft(to, added);
+    }
+    
+    addToTheBottom(added: string, to: string): string {
+        const margin: number = 5;
+        to += '\n'.repeat(margin) + added
+        return to;
+    }
+
 }

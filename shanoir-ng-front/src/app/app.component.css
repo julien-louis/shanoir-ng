@@ -17,3 +17,5 @@ side-menu, .side-menu { overflow-x: hidden; scrollbar-width: none; overflow: -mo
 
 side-menu, .main-content { transition: 1s ease; }
 shanoir-console { position: absolute; bottom: 0; z-index: 1; }
+
+code { position: fixed; left: 0; top: 0; z-index: 100000; background-color: lightgreen; font-size: 25px; display: block; white-space: pre-wrap; }
