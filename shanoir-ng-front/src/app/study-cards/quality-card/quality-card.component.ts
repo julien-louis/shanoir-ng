@@ -146,8 +146,6 @@ export class QualityCardComponent extends EntityComponent<QualityCard> {
             'name': [this.qualityCard.name, [Validators.required, Validators.minLength(2), this.registerOnSubmitValidator('unique', 'name')]],
             'study': [this.qualityCard.study, [Validators.required]],
             'toCheckAtImport': [this.qualityCard.toCheckAtImport, [Validators.required]],
-            'rules': [this.qualityCard.rules, [StudyCardRulesComponent.validator]],
-            'conditions': new FormArray([]),
         });
         return form;
     }

@@ -11,29 +11,32 @@ the Free Software Foundation, either version 3 of the License, or
 You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 -->
+<h1>{{form?.controls.conditions?.value?.length}}</h1>
+<form *ngIf="form" [formGroup]="form">
+	<div *ngIf="rule?.conditions" class="conditions" [class.dataset]="rule.scope == 'Dataset'" [class.acquisition]="rule.scope == 'DatasetAcquisition'">
+		<div *ngFor="let condition of form.controls?.conditions?.value; let i = index" formArrayName="conditions" class="condition">	
+			<condition
+					[formControlName]="i"
+					[ruleScope]="rule.scope"
 
-<div class="conditions" [class.dataset]="rule.scope == 'Dataset'" [class.acquisition]="rule.scope == 'DatasetAcquisition'">
-	<div *ngFor="let condition of rule.conditions; let i = index" class="condition">	
-		<condition 
-				[ruleScope]="rule.scope"
-				[(condition)]="rule.conditions[i]" 
-				[mode]="mode"
-				[fieldOptions]="conditionFieldOptions" 
-				[fields]="conditionFields" 
-				[class.edit]="mode != 'view'" 
-				(conditionChange)="change.emit(rule)"
-				(delete)="deleteCondition(i)"
-				[showErrors]="showErrors"
-				[addSubForm]="addSubForm">
-		</condition>
+					[mode]="mode"
+					[fieldOptions]="conditionFieldOptions" 
+					[fields]="conditionFields" 
+					[class.edit]="mode != 'view'" 
+					(conditionChange)="onRuleChange()"
+					(delete)="deleteCondition(i)"
+					[showErrors]="showErrors"
+					[parentForm]="condition">
+			</condition>
+		</div>
+		<div *ngIf="rule.conditions?.length == 0">
+			<span class="always"><i class="fas fa-infinity"></i>Always</span>
+		</div>
+		<div>
+			<span *ngIf="mode != 'view'" class="add" (click)="addNewCondition()"><i class="fas fa-plus"></i>Add a condition</span>
+		</div>
 	</div>
-	<div *ngIf="rule.conditions?.length == 0">
-		<span class="always"><i class="fas fa-infinity"></i>Always</span>
-	</div>
-	<div>
-		<span *ngIf="mode != 'view'" class="add" (click)="addNewCondition()"><i class="fas fa-plus"></i>Add a condition</span>
-	</div>
-</div>
+</form>
 
 <div class="separator">
 	<span class="rule-controls top" *ngIf="mode != 'view'" >
@@ -47,7 +50,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 	</span>
 </div>
 
-<div class="actions" [class.dataset]="rule.scope == 'Dataset'" [class.acquisition]="rule.scope == 'DatasetAcquisition'">
+<div *ngIf="rule" class="actions" [class.dataset]="rule?.scope == 'Dataset'" [class.acquisition]="rule.scope == 'DatasetAcquisition'">
 	<div *ngFor="let action of rule.assignments; let i = index" class="action">
 		<action 
 				[(assignment)]="rule.assignments[i]" 
@@ -55,7 +58,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 				[fieldOptions]="assignmentFieldOptions" 
 				[fields]="assignmentFields" 
 				[class.edit]="mode != 'view'"
-				(actionChange)="change.emit(rule)"
+				(actionChange)="onRuleChange()"
 				(delete)="deleteAction(i)"
 				[showErrors]="showErrors">
 		</action>

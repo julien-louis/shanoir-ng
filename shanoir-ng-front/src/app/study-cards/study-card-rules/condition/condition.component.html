@@ -97,13 +97,12 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
             [clear]="false">
     </select-box>
     <ng-container *ngIf="condition?.operation != 'PRESENT' && condition?.operation != 'ABSENT'"> 
-        <form [formGroup]="form">
+        <form [formGroup]="form" *ngIf="form">
             <span *ngIf="condition.scope == 'StudyCardDICOMConditionOnDatasets' || !(shanoirFieldOptions?.length > 0)" formArrayName="values" class="multi-value edit">
-                <span *ngFor="let value of condition.values; let i  = index; trackBy: trackByFn" class="one-value">
+                <span *ngFor="let value of form.controls?.condition?.value; let i  = index; trackBy: trackByFn" class="one-value">
                     <auto-ajust-input 
                             [formControlName]="i"
                             class="value"
-                            [(ngModel)]="condition.values[i]"
                             (change)="onConditionChange()"
                             placeholder="enter value"
                             (focusout)="valueTouched = true">

@@ -11,28 +11,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, forwardRef } from '@angular/core';
 
-import { FormArray, FormControl, UntypedFormBuilder, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { ControlValueAccessor, FormArray, FormControl, FormGroup, NG_VALUE_ACCESSOR, UntypedFormBuilder, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Mode } from '../../../shared/components/entity/entity.component.abstract';
 import { Option } from '../../../shared/select/select.component';
 import { DicomService } from '../../shared/dicom.service';
 import { ConditionScope, DicomTag, Operation, StudyCardCondition, TagType } from '../../shared/study-card.model';
 import { ShanoirMetadataField } from '../action/action.component';
+import { SuperPromise } from 'src/app/utils/super-promise';
 
 
 
 @Component({
     selector: 'condition',
     templateUrl: 'condition.component.html',
-    styleUrls: ['condition.component.css']
+    styleUrls: ['condition.component.css'],
+    providers: [
+        {
+          provide: NG_VALUE_ACCESSOR,
+          useExisting: forwardRef(() => StudyCardConditionComponent),
+          multi: true,
+        }]
 })
-export class StudyCardConditionComponent implements OnInit, OnDestroy, OnChanges {
+export class StudyCardConditionComponent implements OnInit, OnDestroy, OnChanges, ControlValueAccessor {
     
     form: UntypedFormGroup;
     @Input() ruleScope: 'Dataset' | 'DatasetAcquisition' | 'Examination';
-    @Input() condition: StudyCardCondition;
+    condition: StudyCardCondition;
     @Output() conditionChange: EventEmitter<StudyCardCondition> = new EventEmitter();
     @Input() mode: Mode = 'view';
     @Input() fieldOptions: Option<string>[];
@@ -65,86 +72,27 @@ export class StudyCardConditionComponent implements OnInit, OnDestroy, OnChanges
     shanoirFieldTouched: boolean = false;
     private computeConditionOptionsSubscription: Subscription;
     private conditionChangeSubscription: Subscription;
-    @Input() addSubForm: (FormGroup) => void;
+    @Input() parentForm: FormGroup;
+    private onTouchedCallback = () => {};
+    private onChangeCallback = (_: any) => {};
+    private parentFormPromise: SuperPromise<void> = new SuperPromise();
+    private conditionPromise: SuperPromise<void> = new SuperPromise();
 
     constructor(
             private dicomService: DicomService,
             private cdr: ChangeDetectorRef,
-            private formBuilder: UntypedFormBuilder) {}
+            private formBuilder: UntypedFormBuilder) {
 
-    buildForm(): UntypedFormGroup {
-        let form: UntypedFormGroup = this.formBuilder.group({
-            'values': new FormArray(this.condition.values?.map(val => {
-                return this.buildValueControl(val);
-            })),
-        });
-        return form;
-    }
-
-    private buildValueControl(value: string) {
-        let validators: ValidatorFn[] = [Validators.required]
-        let type: TagType = this.condition?.dicomTag?.type;
-        if (['Double', 'Float'].includes(type)) {
-            validators.push(Validators.pattern('[+-]?([0-9]*[.])?[0-9]+')); // reals : only numbers, with dot as decimal separator
-        } else if (['Integer', 'Long'].includes(type)) {
-            validators.push(Validators.pattern('[+-]?[0-9]+')); // only numbers w/o decimals 
-        } else if (type == 'String') {
-            validators.push(Validators.pattern('^[^\"]*$')); // exclude "
-        } else if (type == 'Date') {
-            validators.push(Validators.pattern((/^\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/))); // yyyyMMdd
-        } else if (type == 'FloatArray') {
-            validators.push(Validators.pattern('([+-]?([0-9]*[.])?[0-9]+)(,[+-]?([0-9]*[.])?[0-9]+)*')); // comma separated reals
-        }else if ( type == 'IntArray') {
-            validators.push(Validators.pattern('([+-]?[0-9]+)(,[+-]?[0-9]+)*')); // comma separated integers
-        }
-        return new FormControl(value, validators);
-    }
-            
-    ngOnInit(): void {
-        if (this.mode != 'view') {
-            this.dicomService.getDicomTags().then(tags => {
-                this.tagOptions = [];
-                for (let tag of tags) {
-                    let hexStr: string = tag.code.toString(16).padStart(8, '0').toUpperCase();
-                    let label: string = hexStr.substr(0, 4) + ',' + hexStr.substr(4, 4) + ' - ' + tag.label + ' <' + tag.type + '>';
-                    this.tagOptions.push(new Option<DicomTag>(tag, label));
-                }
-            });
-        }
-        this.addSubForm(this.form);
-        setTimeout(() => this.init = true);
-    }
-            
-    ngOnDestroy(): void {
-        this.computeConditionOptionsSubscription?.unsubscribe();
-        this.conditionChangeSubscription?.unsubscribe();
-        setTimeout(() => {
-            (this.form?.get('values') as FormArray)?.clear();
+        Promise.all([this.conditionPromise, this.parentFormPromise]).then(() => {
+            this.form = this.formBuilder.group({'values': new FormArray([])}); 
+            this.condition.values.forEach(val => (this.form.controls.values as FormArray).push(new FormControl(val)));
         });
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.ruleScope && this.ruleScope) {
-            if (this.ruleScope == 'Dataset') {
-                this.conditionTypeOptions = [
-                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
-                    new Option('DatasetMetadataCondOnDataset', 'the dataset field'),
-                ];
-            } else if (this.ruleScope == 'DatasetAcquisition') {
-                this.conditionTypeOptions = [
-                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
-                    new Option('AcqMetadataCondOnAcq', 'the acquisition field'),
-                    new Option('AcqMetadataCondOnDatasets', 'the dataset field'),
-                ];
-            } else if (this.ruleScope == 'Examination') {
-                this.conditionTypeOptions = [
-                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
-                    new Option('ExamMetadataCondOnAcq', 'the acquisition field'),
-                    new Option('ExamMetadataCondOnDatasets', 'the dataset field'),
-                ];
-            }
-        }
-        if (changes.condition && this.condition && this.fields) {
+    writeValue(obj: any): void {
+        this.condition = obj;
+        if (this.condition) this.conditionPromise.resolve();
+        if (this.condition && this.fields) {
             if (this.condition.cardinality == -1) this.cardinalityType = 'ALL';
             if (this.condition.cardinality == 0) this.cardinalityType = 'NONE';
             if (this.condition.cardinality > 0) this.cardinalityType = 'AT_LEAST';
@@ -200,7 +148,90 @@ export class StudyCardConditionComponent implements OnInit, OnDestroy, OnChanges
         }
     }
 
+    registerOnChange(fn: any): void {
+        this.onChangeCallback = fn;
+    }
+
+    registerOnTouched(fn: any): void {
+        this.onTouchedCallback = fn;
+    }
+
+    buildForm(): UntypedFormGroup {
+        let form: UntypedFormGroup = this.formBuilder.group({
+            'values': new FormArray(this.condition.values?.map(val => {
+                return this.buildValueControl(val);
+            })),
+        });
+        form.setParent(this.parentForm);
+        return form;
+    }
+
+    private buildValueControl(value: string): FormControl {
+        let validators: ValidatorFn[] = [Validators.required]
+        let type: TagType = this.condition?.dicomTag?.type;
+        if (['Double', 'Float'].includes(type)) {
+            validators.push(Validators.pattern('[+-]?([0-9]*[.])?[0-9]+')); // reals : only numbers, with dot as decimal separator
+        } else if (['Integer', 'Long'].includes(type)) {
+            validators.push(Validators.pattern('[+-]?[0-9]+')); // only numbers w/o decimals 
+        } else if (type == 'String') {
+            validators.push(Validators.pattern('^[^\"]*$')); // exclude "
+        } else if (type == 'Date') {
+            validators.push(Validators.pattern((/^\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/))); // yyyyMMdd
+        } else if (type == 'FloatArray') {
+            validators.push(Validators.pattern('([+-]?([0-9]*[.])?[0-9]+)(,[+-]?([0-9]*[.])?[0-9]+)*')); // comma separated reals
+        }else if ( type == 'IntArray') {
+            validators.push(Validators.pattern('([+-]?[0-9]+)(,[+-]?[0-9]+)*')); // comma separated integers
+        }
+        return new FormControl(value, validators);
+    }
+            
+    ngOnInit(): void {
+        if (this.mode != 'view') {
+            this.dicomService.getDicomTags().then(tags => {
+                this.tagOptions = [];
+                for (let tag of tags) {
+                    let hexStr: string = tag.code.toString(16).padStart(8, '0').toUpperCase();
+                    let label: string = hexStr.substr(0, 4) + ',' + hexStr.substr(4, 4) + ' - ' + tag.label + ' <' + tag.type + '>';
+                    this.tagOptions.push(new Option<DicomTag>(tag, label));
+                }
+            });
+        }
+        setTimeout(() => this.init = true);
+    }
+            
+    ngOnDestroy(): void {
+        this.computeConditionOptionsSubscription?.unsubscribe();
+        this.conditionChangeSubscription?.unsubscribe();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.ruleScope && this.ruleScope) {
+            if (this.ruleScope == 'Dataset') {
+                this.conditionTypeOptions = [
+                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
+                    new Option('DatasetMetadataCondOnDataset', 'the dataset field'),
+                ];
+            } else if (this.ruleScope == 'DatasetAcquisition') {
+                this.conditionTypeOptions = [
+                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
+                    new Option('AcqMetadataCondOnAcq', 'the acquisition field'),
+                    new Option('AcqMetadataCondOnDatasets', 'the dataset field'),
+                ];
+            } else if (this.ruleScope == 'Examination') {
+                this.conditionTypeOptions = [
+                    new Option('StudyCardDICOMConditionOnDatasets', 'the DICOM field'),
+                    new Option('ExamMetadataCondOnAcq', 'the acquisition field'),
+                    new Option('ExamMetadataCondOnDatasets', 'the dataset field'),
+                ];
+            }
+        }
+        if (changes.parentForm && this.parentForm) {
+            this.parentFormPromise.resolve();
+        }
+    }
+
     onConditionChange() {
+        this.onChangeCallback(this.condition);
         this.conditionChange.emit(this.condition);
     }
 
@@ -259,6 +290,7 @@ export class StudyCardConditionComponent implements OnInit, OnDestroy, OnChanges
         this.filterOperations();
         this.resetValues();
         this.valueTouched = false;
+        this.onChangeCallback(this.condition);
         this.conditionChange.emit(this.condition);
     }
 

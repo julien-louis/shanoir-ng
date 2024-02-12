@@ -122,17 +122,17 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 						</ul>
 					</tool-tip>
 				</legend>
-				<study-card-rules class="rules" [formGroup]="form"
+				<study-card-rules class="rules"
 					cardType="studycard"
-					formControlName="rules"
-					[(ngModel)]="studyCard.rules"
+					
+					[(rules)]="studyCard.rules"
 					[mode]="selectMode ? 'select' : mode"
 					[manufModelId]="studyCard.acquisitionEquipment?.manufacturerModel?.id"
 					[allCoils]="allCoils"
 					[showErrors]="showRulesErrors"
 					(selectedRulesChange)="selectedRules = $event"
 					(importRules)="importRules()"
-					[addSubForm]="addConditionForm.bind(this)">
+					[parentForm]="form">
 				</study-card-rules>
 			</fieldset>
 			<form-footer

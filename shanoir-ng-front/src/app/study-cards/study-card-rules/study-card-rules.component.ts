@@ -24,7 +24,7 @@ import {
     SimpleChanges,
     ViewChildren,
 } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, FormArray, FormControl, FormGroup, NG_VALUE_ACCESSOR, UntypedFormBuilder, ValidationErrors } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { Coil } from '../../coils/shared/coil.model';
@@ -59,14 +59,13 @@ import { QualityCardRuleComponent } from './quality-card-rule.component';
         }
       ]
 })
-export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor {
+export class StudyCardRulesComponent implements OnChanges {
     
     @Input() mode: Mode | 'select';
     @Input() cardType: 'studycard' | 'qualitycard';
-    rules: (StudyCardRule | QualityCardRule)[];
+    @Input() rules: (StudyCardRule | QualityCardRule)[];
+    @Output() rulesChange: EventEmitter<(StudyCardRule | QualityCardRule)[]> = new EventEmitter();
     @ViewChildren('studyCardRule,qualityCardRule') ruleElements: QueryList<StudyCardRuleComponent | QualityCardRuleComponent>;
-    private onTouchedCallback = () => {};
-    onChangeCallback = (_: any) => {};
     @Input() manufModelId: number;
     @Input() allCoils: Coil[];
     assignmentFields: ShanoirMetadataField[];
@@ -79,18 +78,21 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
     @Output() selectedRulesChange: EventEmitter<(StudyCardRule | QualityCardRule)[]> = new EventEmitter();
     selectedRules: Map<number, StudyCardRule | QualityCardRule> = new Map();
     rulesToAnimate: Set<number> = new Set();
-    @Input() addSubForm: (FormGroup) => void;
-
+    @Input() parentForm: FormGroup;
+    form: FormGroup;
+    private rulePromise: SuperPromise<void> = new SuperPromise();
     
     constructor(
             private element: ElementRef,
             private confirmDialogService: ConfirmDialogService,
-            private breadcrumbService: BreadcrumbsService) {
+            private breadcrumbService: BreadcrumbsService,
+            private formBuilder: UntypedFormBuilder) {
 
-        if (this.breadcrumbService.currentStep.data.rulesToAnimate) 
+        if (this.breadcrumbService.currentStep.data.rulesToAnimate) {
             this.rulesToAnimate = this.breadcrumbService.currentStep.data.rulesToAnimate;
-        else
+        } else {
             this.breadcrumbService.currentStep.data.rulesToAnimate = this.rulesToAnimate;
+        }
     }
 
     initFields() {
@@ -136,6 +138,16 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
         if (changes.cardType && this.cardType && (!this.assignmentFields || !this.conditionFields)) {
             this.initFields();
         }
+        if (changes.parentForm?.isFirstChange()) {
+            this.rulePromise.then(() => {
+                this.form = this.formBuilder.group({'rules': this.formBuilder.array([])});
+                this.rules.forEach(rule => (this.form.controls.rules as FormArray).push(new FormControl(rule)));
+                this.parentForm.addControl('rules', this.form);
+            });
+        }
+        if (changes.rules?.isFirstChange()) {
+            this.rulePromise.resolve();
+        }
     }
 
     addNewRule(scope: MetadataFieldScope) {
@@ -144,7 +156,7 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
         rule.assignments = []; 
         this.rules.push(rule);
         this.animateRule(this.rules.length - 1);
-        this.onChangeCallback(this.rules);
+        this.rulesChange.emit(this.rules);
     }
 
     addNewExamRule() {
@@ -152,33 +164,21 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
         rule.conditions = [];
         this.rules.push(rule);
         this.animateRule(this.rules.length - 1);
-        this.onChangeCallback(this.rules);
-    }
-
-    writeValue(obj: any): void {
-        this.rules = obj;
+        this.rulesChange.emit(this.rules);
     }
 
     public animate
-
-    registerOnChange(fn: any): void {
-        this.onChangeCallback = fn;
-    }
-
-    registerOnTouched(fn: any): void {
-        this.onTouchedCallback = fn;
-    }
 
     setDisabledState?(isDisabled: boolean): void {
         
     }
 
-    @HostListener('focusout', ['$event']) 
-    private onFocusOut(event: FocusEvent) {
-        if (!this.element.nativeElement.contains(event.relatedTarget)) {
-            this.onTouchedCallback();
-        } 
-    }
+    // @HostListener('focusout', ['$event']) 
+    // private onFocusOut(event: FocusEvent) {
+    //     if (!this.element.nativeElement.contains(event.relatedTarget)) {
+    //         this.onTouchedCallback();
+    //     } 
+    // }
 
     moveUp(index: number) {
         if (index <= 0) return; 
@@ -204,7 +204,7 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
         b.style.transform = 'translateY(-' + aHeight + 'px)';
         setTimeout(() => {
             this.array_move(this.rules, index, index + 1);
-            this.onChangeCallback(this.rules);
+            this.rulesChange.emit(this.rules);
             a.style.transition = null;
             b.style.transition = null;
             a.style.transform = null;
@@ -233,13 +233,13 @@ export class StudyCardRulesComponent implements OnChanges, ControlValueAccessor 
         } 
         this.rules.push(copy);
         this.animateRule(this.rules.length - 1);
-        this.onChangeCallback(this.rules);
+        this.rulesChange.emit(this.rules);
     }
 
     delete(index: number) {
         this.confirmDialogService.confirm('Delete rule', 'Are you sure you want to delete this rule?').then(value => {
             if (value) this.rules.splice(index, 1);
-            this.onChangeCallback(this.rules);
+            this.rulesChange.emit(this.rules);
         })
     }
 

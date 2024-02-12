@@ -125,8 +125,6 @@ export class StudyCardComponent extends EntityComponent<StudyCard> {
             'study': [this.studyCard.study, [Validators.required]],
             'acquisitionEquipment': [this.studyCard.acquisitionEquipment, [Validators.required]],
             'niftiConverter': [this.studyCard.niftiConverter, [Validators.required]],
-            'rules': [this.studyCard.rules, [StudyCardRulesComponent.validator]],
-            'conditions': new FormArray([]),
         });
         this.subscriptions.push(
             form.get('study').valueChanges.subscribe(study => this.onStudyChange(study, form))
@@ -211,14 +209,6 @@ export class StudyCardComponent extends EntityComponent<StudyCard> {
         });
     }
 
-    addConditionForm(form: FormGroup) {
-        if (this.mode != 'view') {
-            setTimeout(() => { // prevent "changed after check" error
-                (this.form.get('conditions') as FormArray).push(form);
-            });
-        }
-    }
-
     importRules() {
         let currentStep: Step = this.breadcrumbsService.currentStep;
         this.router.navigate(['/study-card/select-rule/list/' + this.entity.id]).then(success => {
@@ -250,7 +240,7 @@ export class StudyCardComponent extends EntityComponent<StudyCard> {
                 }
             })
         })
-        this.form.get('rules').updateValueAndValidity();
+        //this.form.get('rules').updateValueAndValidity();
     }
 
     goToApply() {

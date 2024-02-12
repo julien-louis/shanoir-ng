@@ -19,6 +19,7 @@ import { SuperPromise } from '../../utils/super-promise';
 import { QualityCardRule } from '../shared/quality-card.model';
 import { StudyCardCondition } from '../shared/study-card.model';
 import { ShanoirMetadataField } from './action/action.component';
+import { ControlValueAccessor, FormArray, FormBuilder, FormGroup } from '@angular/forms';
 
 
 @Component({
@@ -26,10 +27,10 @@ import { ShanoirMetadataField } from './action/action.component';
     templateUrl: 'quality-card-rule.component.html',
     styleUrls: ['study-card-rule.component.css']
 })
-export class QualityCardRuleComponent implements OnChanges {
+export class QualityCardRuleComponent implements OnChanges, ControlValueAccessor {
 
     @Input() mode: Mode;
-    @Input() rule: QualityCardRule;
+    rule: QualityCardRule;
     private rulePromise: SuperPromise<QualityCardRule> = new SuperPromise(); 
     @Input() conditionFields: ShanoirMetadataField[];
     @Output() change: EventEmitter<QualityCardRule> = new EventEmitter();
@@ -43,9 +44,27 @@ export class QualityCardRuleComponent implements OnChanges {
             new Option('WARNING', 'Warning', undefined, 'chocolate', 'fa-solid fa-triangle-exclamation'), 
             new Option('ERROR', 'Error', undefined, 'red', 'fa-solid fa-times-circle')];
     conditionFieldOptions: Option<string>[];
-    @Input() addSubForm: (FormGroup) => void;
+    form: FormGroup;
+    @Input() parentForm: FormGroup;
+    private onTouchedCallback = () => {};
+    private onChangeCallback = (_: any) => {};
 
-    constructor(public elementRef: ElementRef) { }
+    constructor(public elementRef: ElementRef, formBuilder: FormBuilder) {
+        this.form = formBuilder.group({'conditions': new FormArray([])});  
+    }
+
+    writeValue(obj: any): void {
+        this.rule = obj;
+        this.rulePromise.resolve(this.rule);
+    }
+
+    registerOnChange(fn: any): void {
+        this.onChangeCallback = fn;
+    }
+
+    registerOnTouched(fn: any): void {
+        this.onTouchedCallback = fn;
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.rule && this.rule) {
@@ -61,17 +80,22 @@ export class QualityCardRuleComponent implements OnChanges {
                 }
             });
         }
+        if (changes.parentForm?.isFirstChange()) {
+            this.form.setParent(this.parentForm);
+        }
     }
 
     addNewCondition() {
         let cond = new StudyCardCondition('StudyCardDICOMConditionOnDatasets');
         cond.values = [null];
         this.rule.conditions.push(cond);
+        this.onChangeCallback(this.rule);
         this.change.emit(this.rule);
     }
 
     deleteCondition(index: number) {
         this.rule.conditions.splice(index, 1);
+        this.onChangeCallback(this.rule);
         this.change.emit(this.rule);
     }
 
