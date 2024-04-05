@@ -34,8 +34,11 @@ public enum MrScanningSequence {
 	// Echo Planar
 	EP(4),
 	
-	//Research Mode
-	RM(5);
+	// Research Mode
+	RM(5),
+
+	// UNKNOWN VALUE
+	UNKNOWN(6);
 	
 	private int id;
 
@@ -79,7 +82,11 @@ public enum MrScanningSequence {
 		if (type == null) {
 			return null;
 		}
-		return MrScanningSequence.valueOf(type);
+		try {
+			return MrScanningSequence.valueOf(type);
+		} catch (IllegalArgumentException e) {
+			return UNKNOWN;
+		}
 	}
 	
 	/**

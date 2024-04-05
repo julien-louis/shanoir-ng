@@ -44,7 +44,9 @@ public enum ContrastAgentUsed {
 	CLARISCAN(8),
 	
 	// Dotarem
-	DOTAREM(9);
+	DOTAREM(9),
+
+	UNKNOWN(10);
 
 	private int id;
 
@@ -88,7 +90,11 @@ public enum ContrastAgentUsed {
 		if (type == null) {
 			return null;
 		}
-		return ContrastAgentUsed.valueOf(type);
+		try {
+			return ContrastAgentUsed.valueOf(type);
+		} catch (IllegalArgumentException e) {
+			return UNKNOWN;
+		}
 	}
 	
 
