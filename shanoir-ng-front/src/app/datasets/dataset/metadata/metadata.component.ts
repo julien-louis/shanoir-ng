@@ -49,7 +49,7 @@ export class MetadataComponent {
             breadcrumbsService.nameStep('Dicom metadata');
             this.columnDefs = this.getColumnDefs();
             this.loadMetadata().then(() => {
-                this.table.maxResults = this.metadata.length
+                this.table.maxResults = this.metadata.length;
                 this.table.refresh();
         })
     }

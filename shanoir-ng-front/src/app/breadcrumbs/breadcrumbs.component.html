@@ -14,12 +14,19 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 
 <div id="my-breadcrumbs">
 	<ul>
-		<li><a (click)="goHome()"><span class="before-icon"><i class="fas fa-home"></i></span>Home</a></li>
-		<ng-container *ngFor="let step of steps; let i = index">
-			<li *ngIf="!step.disabled && step.label" [class.waiting]="step.isWaiting && step.displayWaitStatus">
-				<a (click)="clickStep(i)">{{step.label}}
-				<span class="after-icon" *ngIf="step.isWaiting && step.displayWaitStatus"><i class="fas fa-edit"></i></span></a>
-			</li>
-		</ng-container>
+		<span class="home" [class.is-home]="!(steps?.length > 0) || steps?.[steps.length - 1].route == '/home'">
+			<li><a (click)="goHome()"><span class="before-icon"><i class="fas fa-home"></i></span>Home</a></li>
+		</span>
+		<span class="steps-wrapper">
+			<span class="steps">
+				<ng-container *ngFor="let step of steps; let i = index">
+					<span class="spacer"></span>
+					<li *ngIf="!step.disabled && step.label && step.route != '/home'" [class.waiting]="step.isWaiting && step.displayWaitStatus">
+						<a (click)="clickStep(i)">{{step.label}}
+						<span class="after-icon" *ngIf="step.isWaiting && step.displayWaitStatus"><i class="fas fa-edit"></i></span></a>
+					</li>
+				</ng-container>
+			</span>
+		</span>
 	</ul>
 </div>

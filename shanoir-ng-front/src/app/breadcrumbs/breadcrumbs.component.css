@@ -1,8 +1,11 @@
 
 :host {
     display: block;
-    height: 30px;
+    height: 45x;
     margin: 15px 0; 
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
     
     --bg-color: var(--color-b);
     --bg-hover: var(--color-b-light2);
@@ -12,7 +15,10 @@
     --wl-color: var(--color-c-light);
 }
 
-ul li a {
+ul { display: inline-block; max-width: 100%; }
+ul li { display: inline-block; }
+
+ul li a, .spacer {
 	display: block;
 	float: left;
     height: 26px;
@@ -36,15 +42,25 @@ ul li.waiting a:hover { background-color: var(--wl-color) !important; }
 ul li.waiting a:hover:after { border-left: 13px solid var(--wl-color) !important; }
 ul li.waiting a:hover:before { border-color: var(--wl-color) var(--wl-color) var(--wl-color) transparent !important; }
 
-ul li:last-child a { background-color: var(--hl-color); }
-ul li:last-child a:after { border-left: 13px solid var(--hl-color); }
-ul li:last-child a:before { border-color: var(--hl-color) var(--hl-color) var(--hl-color) transparent; }
+.steps > li:last-child a, .is-home a { background-color: var(--hl-color); }
+.steps > li:last-child a:after, .is-home a:after { border-left: 13px solid var(--hl-color); }
+.steps > li:last-child a:before, .is-home a:before { border-color: var(--hl-color) var(--hl-color) var(--hl-color) transparent; }
+.is-home { background-color: red; }
+.steps > li:not(:last-child) a:hover, .is-home a:hover { background: var(--bg-hover); cursor: pointer; }
+.steps > li:not(:last-child) a:hover::before, .is-home a:hover::before { border-color: var(--bg-hover) var(--bg-hover) var(--bg-hover) transparent; }
+.steps > li:not(:last-child) a:hover::after, .is-home a:hover::after{ border-top: 13px solid transparent; border-bottom: 13px solid transparent; border-left: 13px solid var(--bg-hover); }
 
-ul li:not(:last-child) a:hover { background: var(--bg-hover); cursor: pointer; }
-ul li:not(:last-child) a:hover::before { border-color: var(--bg-hover) var(--bg-hover) var(--bg-hover) transparent; }
-ul li:not(:last-child) a:hover::after{ border-top: 13px solid transparent; border-bottom: 13px solid transparent; border-left: 13px solid var(--bg-hover); }
+.steps > li:last-child a:hover { cursor: default; }
 
-ul li:last-child a:hover { cursor: default; }
+.steps { float: right; display: inline-block; vertical-align: top; }
+.steps-wrapper {
+    max-width: calc(100% - 160px);
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.home { margin-right: 60px; }
 
 ul li a:after {
     content: "";  
@@ -63,13 +79,15 @@ ul li a:before {
     left: -13px;	
 }
 
+.spacer { padding: 0; }
+
 /* Hide the Before Pseudo Element */
-ul li:first-child a:before {
+.home a:before {
 	display: none; 
 }
 
 /* Add Border Radius */
-ul li:first-child a{
+.home a {
 	border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 1px;
 }
 
