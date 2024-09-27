@@ -1,0 +1,46 @@
+type Query {
+    studyById(id: Int): Study
+    studies: [Study]
+}
+
+type Study {
+    id: ID!
+    clinical: Boolean
+    coordinatorId: Int
+    downloadableByDefault: Boolean
+    # endDate: Date
+    # experimentalGroupsOfSubjects: [ExperimentalGroupOfSubjects]
+    # monoCenter: Boolean
+    # name: String
+    protocolFilePaths: [String]
+    # dataUserAgreementPaths: [String]
+    # startDate: Date;
+    # studyCenterList: [StudyCenter];
+    studyStatus: StudyStatus
+    # profile: Profile
+    # studyType: StudyType
+    # studyUserList: [StudyUser]
+    # examinations: [StudyExamination]
+    # subjectStudyList: [SubjectStudy]
+    # timepoints: [Timepoint]
+    # visibleByDefault: Boolean
+    # withExamination: Boolean
+    studyCardPolicy: StudyCardPolicy
+    challenge: Boolean
+    # tags: [Tag]
+    # description: String
+    # license: String
+    # studyTags: [StudyTag]
+    
+}
+
+enum StudyStatus {
+    IN_PROGRESS,
+    FINISHED
+}
+
+enum StudyCardPolicy {
+    MANDATORY
+    OPTIONAL
+    DISABLED
+}

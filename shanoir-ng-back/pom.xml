@@ -171,6 +171,12 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 			<scope>test</scope>
 		</dependency>
 
+		<!-- GraphQl-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-graphql</artifactId>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

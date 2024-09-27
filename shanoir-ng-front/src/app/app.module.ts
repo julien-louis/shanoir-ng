@@ -273,6 +273,8 @@ import {StudyHistoryComponent} from "./studies/study-history/study-history.compo
 import { StudyTreeComponent } from './studies/study/study-tree.component';
 import { TreeService } from './studies/study/tree.service';
 import { CoilNodeComponent } from './coils/coil/tree/coil-node.component';
+import { GraphQlComponent } from './graphql/graphql.component';
+import { GraphQlService } from './graphql/graphql.service';
 
 @NgModule({
     imports: [
@@ -463,7 +465,8 @@ import { CoilNodeComponent } from './coils/coil/tree/coil-node.component';
         DownloadSetupAltComponent,
         TestQualityCardOptionsComponent,
         StudyTreeComponent,
-        CoilNodeComponent
+        CoilNodeComponent,
+        GraphQlComponent
     ],
     providers: [
         AcquisitionEquipmentService,
@@ -551,6 +554,7 @@ import { CoilNodeComponent } from './coils/coil/tree/coil-node.component';
         SessionService,
         ShanoirEventService,
         TreeService,
+        GraphQlService,
         { provide: HTTP_INTERCEPTORS, useClass: ShanoirHttpInterceptor, multi: true }
     ],
     bootstrap: [AppComponent]
