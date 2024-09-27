@@ -275,6 +275,7 @@ import { TreeService } from './studies/study/tree.service';
 import { CoilNodeComponent } from './coils/coil/tree/coil-node.component';
 import { GraphQlComponent } from './graphql/graphql.component';
 import { GraphQlService } from './graphql/graphql.service';
+import { HIGHLIGHT_OPTIONS, HighlightModule } from 'ngx-highlightjs';
 
 @NgModule({
     imports: [
@@ -288,7 +289,8 @@ import { GraphQlService } from './graphql/graphql.service';
         AppRoutingModule,
         PreclinicalRoutingModule,
         RouterModule,
-        ClipboardModule
+        ClipboardModule,
+        HighlightModule
     ],
     declarations: [
         AccountRequestComponent,
@@ -555,7 +557,13 @@ import { GraphQlService } from './graphql/graphql.service';
         ShanoirEventService,
         TreeService,
         GraphQlService,
-        { provide: HTTP_INTERCEPTORS, useClass: ShanoirHttpInterceptor, multi: true }
+        { provide: HTTP_INTERCEPTORS, useClass: ShanoirHttpInterceptor, multi: true },
+        {
+            provide: HIGHLIGHT_OPTIONS,
+            useValue: {
+              fullLibraryLoader: () => import('highlight.js'),
+            }
+          }
     ],
     bootstrap: [AppComponent]
 })

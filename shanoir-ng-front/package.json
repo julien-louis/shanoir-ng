@@ -32,6 +32,7 @@
     "http-status-codes": "^2.1.4",
     "ng-autosize": "^1.1.0",
     "ng-event-source": "^1.0.14",
+    "ngx-highlightjs": "^8.0.0",
     "ngx-json-viewer": "3.2.1",
     "rxjs": "~6.6.3",
     "rxjs-compat": "^6.5.3",

@@ -14,12 +14,13 @@
 
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { GraphQlService } from './graphql.service';
-import { error } from 'console';
+import { Highlight } from 'ngx-highlightjs';
 
 @Component({
     selector: 'graphql',
     templateUrl: 'graphql.component.html',
-    styleUrls: ['graphql.component.css']
+    styleUrls: ['graphql.component.css'],
+    viewProviders: [Highlight]
 })
 
 export class GraphQlComponent {
