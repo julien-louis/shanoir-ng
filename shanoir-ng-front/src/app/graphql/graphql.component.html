@@ -13,7 +13,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 -->
 <h1>GraphQl</h1>
 
-<textarea [(ngModel)]="request" class="request prettyprint"></textarea>
+<textarea [(ngModel)]="request" class="request prettyprint" (keypress)="onKeyPress($event)" (input)="onChange()"></textarea>
 <button (click)="submit()">Submit</button>
 
 <pre class="response"><code [highlight]="response" [languages]="['json']"></code></pre>

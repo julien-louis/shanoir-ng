@@ -24,23 +24,36 @@ import { Highlight } from 'ngx-highlightjs';
 })
 
 export class GraphQlComponent {
-
+    
     protected request: string;
     protected response: string;
-
-    constructor(private graphQlService: GraphQlService) {}
-
+    
+    constructor(private graphQlService: GraphQlService) {
+        this.request = sessionStorage.getItem('lastGraphQl');
+        console.log(this.request)
+    }
+    
     protected submit() {
         this.graphQlService.postGraphQlRequest(this.request)
-            .then(response => {
-                if (response.errors) {
-                    this.response = JSON.stringify(response.errors, null, 4);
-                }
-                this.response = JSON.stringify(response, null, 4)
-            })
-            .catch(error => {
-                this.response = error.error.error;
-                console.log('error', error)
-            });
+        .then(response => {
+            if (response.errors) {
+                this.response = JSON.stringify(response.errors, null, 4);
+            }
+            this.response = JSON.stringify(response, null, 4)
+        })
+        .catch(error => {
+            this.response = error.error.error;
+            console.log('error', error)
+        });
+    }
+    
+    onKeyPress(event: any) {
+        if ((event.keyCode == 10 || event.keyCode == 13) && event.ctrlKey) {
+            this.submit();
+        }
+    }
+    
+    onChange() {
+        sessionStorage.setItem('lastGraphQl', this.request);
     }
 }

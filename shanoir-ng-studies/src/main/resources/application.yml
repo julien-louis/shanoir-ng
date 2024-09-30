@@ -79,9 +79,6 @@ spring:
           issuer-uri: ${SHANOIR_URL_SCHEME}://${SHANOIR_URL_HOST}/auth/realms/shanoir-ng
   graphql:
     path: /graphql
-    graphiql:
-      enabled: true
-      path: /graphiql
 
 springdoc:
   api-docs:
