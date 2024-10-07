@@ -24,7 +24,7 @@ export class GraphQlService {
 
 
     postGraphQlRequest(request: any): Promise<any> {
-        let body: any = {operationName: 'a', query: request};
+        let body: any = {operationName: 'a', query: 'query a {' + request + '}'};
 
         return this.http.post<any>(BACKEND_API_STUDIES_MS_URL + '/graphql', JSON.stringify(body).replace('\n', ' ').trim())
             .toPromise();
