@@ -16,6 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { slideDown } from '../../shared/animations/animations';
 import {TableComponent} from "../../shared/components/table/table.component";
 import {ToggleSwitchComponent} from "../../shared/switch/switch.component";
+import { doCheckLuceneQueryValue, Result } from './solrValidator';
 
 
 @Component({
@@ -46,10 +47,13 @@ export class SolrTextSearchComponent implements ControlValueAccessor {
     protected propagateTouched = () => {};
 
     inputTextChange() {
-        if (this.searchKeyWords.some(word => this.searchText.includes(word))) {
+        this.syntaxErrorMsg = null;
+        let checkResult: Result = doCheckLuceneQueryValue(this.searchText);
+        if (this.searchKeyWords.some(word => this.searchText.includes(word)) && checkResult.result) {
             this.expertModeChange.emit(true);
         } else {
             this.expertModeChange.emit(false);
+            this.syntaxErrorMsg = checkResult.message;
         }
     }
 
