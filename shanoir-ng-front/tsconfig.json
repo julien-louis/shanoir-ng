@@ -4,8 +4,8 @@
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "esModuleInterop": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -18,18 +18,18 @@
       "es2022",
       "dom"
     ],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "paths": {
+      "file-saver-es": [
+        "@types/file-saver"
+      ],
+      "wicg-file-system-access": [
+        "@types/wicg-file-system-access"
+      ]
+    } 
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
-  },
-  "paths": {
-    "file-saver-es": [
-      "@types/file-saver"
-    ],
-    "wicg-file-system-access": [
-      "@types/wicg-file-system-access"
-    ]
-  } 
+  }
 }
