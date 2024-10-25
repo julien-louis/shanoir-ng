@@ -21,7 +21,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Autosize } from 'ng-autosize';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { AcquisitionEquipmentListComponent } from './acquisition-equipments/acquisition-equipment-list/acquisition-equipment-list.component';
 import { AcquisitionEquipmentComponent } from './acquisition-equipments/acquisition-equipment/acquisition-equipment.component';
@@ -282,7 +281,6 @@ import { DoubleAwesomeComponent } from './shared/double-awesome/double-awesome.c
         AcquisitionEquipmentListComponent,
         AcquisitionEquipmentPipe,
         AppComponent,
-        Autosize,
         CenterComponent,
         CenterListComponent,
         ConfirmDialogComponent,
