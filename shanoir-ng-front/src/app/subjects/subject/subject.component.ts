@@ -32,6 +32,7 @@ import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.
 import { TaskState } from 'src/app/async-tasks/task.model';
 import { StudyUserRight } from 'src/app/studies/shared/study-user-right.enum';
 import { StudyRightsService } from 'src/app/studies/shared/study-rights.service';
+import { BidsService } from 'src/app/bids/bids.service';
 
 @Component({
     selector: 'subject-detail',
@@ -76,6 +77,7 @@ export class SubjectComponent extends EntityComponent<Subject> {
             private subjectService: SubjectService,
             private studyService: StudyService,
             private downloadService: MassDownloadService,
+            private bidsService: BidsService,
             private studyRightsService: StudyRightsService) {
 
         super(route, 'subject');
@@ -269,8 +271,11 @@ export class SubjectComponent extends EntityComponent<Subject> {
     }
 
     download() {
-        // TODO : select study
         this.downloadService.downloadAllByStudyIdAndSubjectId(this.treeService.study.id, this.subject.id, this.downloadState);
+    }
+
+    downloadAsBids() {
+        this.bidsService.downloadSubjectAsBids(this.subject, this.treeService.study.id, this.downloadState)
     }
 
     getOnDeleteConfirmMessage(entity: Subject): Promise<string> {

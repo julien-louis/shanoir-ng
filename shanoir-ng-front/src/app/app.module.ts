@@ -275,6 +275,7 @@ import { TreeService } from './studies/study/tree.service';
 import { CoilNodeComponent } from './coils/coil/tree/coil-node.component';
 import { DoubleAwesomeComponent } from './shared/double-awesome/double-awesome.component';
 import { MetadataNodeComponent } from './datasets/tree/metadata-node.component';
+import { BidsService } from './bids/bids.service';
 
 @NgModule({ 
     declarations: [
@@ -555,6 +556,7 @@ import { MetadataNodeComponent } from './datasets/tree/metadata-node.component';
         SessionService,
         ShanoirEventService,
         TreeService,
+        BidsService,
         { provide: HTTP_INTERCEPTORS, useClass: ShanoirHttpInterceptor, multi: true },
         provideHttpClient(withInterceptorsFromDi())
     ] 

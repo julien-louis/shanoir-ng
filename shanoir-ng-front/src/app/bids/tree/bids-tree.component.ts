@@ -24,6 +24,7 @@ import { StudyRightsService } from '../../studies/shared/study-rights.service';
 import { StudyUserRight } from '../../studies/shared/study-user-right.enum';
 import { KeycloakService } from '../../shared/keycloak/keycloak.service';
 import {DatasetService} from "../../datasets/shared/dataset.service";
+import { SingleDownloadService } from 'src/app/shared/mass-download/single-download.service';
 
 @Component({
     selector: 'bids-tree',
@@ -51,7 +52,8 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
                 private datasetService: DatasetService,
                 protected http: HttpClient,
                 private keycloakService: KeycloakService,
-                private studyRightsService: StudyRightsService) {
+                private studyRightsService: StudyRightsService,
+                private singleDownloadService: SingleDownloadService) {
         this.globalClickSubscription = globalService.onGlobalClick.subscribe(clickEvent => {
             if (!this.elementRef.nativeElement.contains(clickEvent.target)) {
                 this.selectedIndex = null;
@@ -154,27 +156,10 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
     public download(item: BidsElement): void {
         const endpoint = this.API_URL + "/exportBIDS/studyId/" + this.studyId;
         let params = new HttpParams().set("filePath", item.path);
-
-        this.http.get(endpoint, { observe: 'response', responseType: 'blob', params: params }).toPromise().then(response => {
-            if (response.status == 200) {
-                this.downloadIntoBrowser(response);
-            }
-        });
-    }
-
-    private getFilename(response: HttpResponse<any>): string {
-        const prefix = 'attachment;filename=';
-        let contentDispHeader: string = response.headers.get('Content-Disposition');
-        return contentDispHeader.slice(contentDispHeader.indexOf(prefix) + prefix.length, contentDispHeader.length);
-    }
-
-    private downloadIntoBrowser(response: HttpResponse<Blob>){
-        AppUtils.browserDownloadFile(response.body, this.getFilename(response));
+        this.singleDownloadService.downloadSingleFile(endpoint, params);
     }
 
     public hasDownloadRights(): boolean {
         return this.keycloakService.isUserAdmin() || this.hasDownloadRight;
     }
-
-
 }
