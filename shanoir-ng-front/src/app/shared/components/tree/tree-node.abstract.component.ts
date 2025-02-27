@@ -41,6 +41,7 @@ export class TreeNodeAbstractComponent<T extends ShanoirNode> implements AfterCo
         // the position is needed to auto scroll to the node
         setTimeout(() => {
             this.node.getTop = () => this.elementRef?.nativeElement?.offsetTop;
+            this.node.getBottom = () => this.elementRef?.nativeElement?.offsetTop + this.elementRef?.nativeElement?.offsetHeight;
         });
     }
 

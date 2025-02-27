@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -32,7 +32,7 @@ import { TreeService } from './tree.service';
     standalone: false
 })
 
-export class StudyTreeComponent implements OnDestroy {
+export class StudyTreeComponent implements OnDestroy, AfterViewInit {
 
     _selectedDatasetNodes: DatasetNode[] = [];
     selectedExaminationNodes: ExaminationNode[] = [];
@@ -56,10 +56,14 @@ export class StudyTreeComponent implements OnDestroy {
 
         this.subscriptions.push(
             treeService.onScrollToSelected.subscribe(node => {
-                console.log(3, node.label, Date.now())
+                console.log(3, node?.label, Date.now())
                 this.autoScrollTo(node);
             })
         );
+    }
+
+    ngAfterViewInit(): void {
+        this.treeService.treeElement = this.treeContainer;
     }
 
     ngOnDestroy(): void {
@@ -74,6 +78,10 @@ export class StudyTreeComponent implements OnDestroy {
         if (diff > 0 || nodeTop - currentScroll < 0) {
             this.treeContainer.nativeElement.scrollTop = diff + currentScroll + (containerHeight/2);
         }
+    }
+
+    protected onScroll(event: any) {
+        this.treeService.onScroll.next({top: event.target.scrollTop, bottom: event.target.scrollTop + event.target.offsetHeight});
     }
 
     protected set selectedDatasetNodes(selectedDatasetNodes: DatasetNode[]) {

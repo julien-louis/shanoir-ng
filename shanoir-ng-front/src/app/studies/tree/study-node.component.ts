@@ -75,10 +75,28 @@ export class StudyNodeComponent extends TreeNodeAbstractComponent<StudyNode> imp
                 this.rights = rights;
             });
         });
+        this.registerOnScroll();
     }
 
     get canAdmin(): boolean {
         return this.rights.includes(StudyUserRight.CAN_ADMINISTRATE);
+    }
+
+    private registerOnScroll() {
+        this.treeService.onScroll.subscribe(pos => {
+            console.log(pos)
+            if (!!this.node.subjectsNode?.subjects && this.node.subjectsNode.subjects != UNLOADED) {
+                this.node.subjectsNode.subjects.forEach((subjectNode, index) => {
+                    let nodeTop: number = !subjectNode.hidden ? subjectNode.getTop() : index * 23
+                    let nodeBottom: number = !subjectNode.hidden ? subjectNode.getBottom() : (index + 1) * 23
+                    subjectNode.hidden = !(
+                            (nodeTop >= pos.top && nodeTop <= pos.bottom)
+                            || (nodeBottom >= pos.top && nodeBottom <= pos.bottom)
+                    );
+                    console.log('hidden ? '+index, subjectNode.hidden, nodeTop, nodeBottom, pos.top, pos.bottom)
+                });
+            }
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -146,7 +164,7 @@ export class StudyNodeComponent extends TreeNodeAbstractComponent<StudyNode> imp
     onFilterChange() {
         console.log('on filter change')
         if (this.node.subjectsNode.subjects != 'UNLOADED' && this.filter?.trim().length > 0) {
-            this.filteredNodes = (this.node.subjectsNode.subjects as SubjectNode[]).slice(0, 100).filter(node => {
+            this.filteredNodes = (this.node.subjectsNode.subjects as SubjectNode[]).filter(node => {
                 return node.label.toLowerCase().includes(this.filter.toLowerCase());
             });
         } else {

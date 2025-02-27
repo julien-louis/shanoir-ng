@@ -35,6 +35,8 @@ export abstract class ShanoirNode {
     private openPromise: Promise<void>;
     protected readonly routeBase: string;
     getTop: () => number; // to scroll to the node
+    getBottom: () => number; // to scroll to the node
+    hidden: boolean = false;
 
     constructor(
         public parent: ShanoirNode,
@@ -45,28 +47,28 @@ export abstract class ShanoirNode {
     public selected: boolean = false;
 
     open(test?: boolean): Promise<void> {
-        if (test) console.log(21)
+        if (test) console.log(21, this.label)
         if (!this._opened) {
-            if (test) console.log(22)
+            if (test) console.log(22, this.label)
             if (this.parent) {
-                if (test) console.log(23)
+                if (test) console.log(23, this.label)
                 this.parent.open();
             }
-            if (test) console.log(24)
-            setTimeout(() => {
-                if (test) console.log(25)
+            if (test) console.log(24, this.label)
+           
+                if (test) console.log(25, this.label)
                 // removing timeout may cause random bugs in the tree
                 this._opened = true;
-            });
-            if (test && this.openPromise) this.openPromise.then(() => console.log(26))
-            return (this.openPromise || Promise.resolve()).then(() => {
-                if (test) console.log(26)
-                return SuperPromise.timeoutPromise().then(() => {
-                    if (test) console.log(27)
-                })
-            });
+                return (this.openPromise || Promise.resolve()).then(() => {
+                    if (test) console.log(26, this.label)
+                        let s = Date.now()
+                    SuperPromise.timeoutPromise().then(() => {
+                        if (test) console.log(27, Date.now() - s, this.label)
+                    })
+                });
+     
         } else {
-            if (test) console.log(28)
+            if (test) console.log(28, this.label)
             return Promise.resolve();
         }
     }

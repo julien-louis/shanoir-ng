@@ -12,6 +12,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 import {
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     EventEmitter,
@@ -83,14 +84,11 @@ export class TreeNodeComponent implements ControlValueAccessor, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.opened) {
+            if (this.label == 'SCANNING TEST (HEALTHY_VOLUNTEER)') console.log('change open', this.opened)
             if (!this.opened && this.isOpen) {
-                setTimeout(() => {
-                    this.close();
-                });
+                this.close();
             } else if (this.opened && !this.isOpen) {
-                setTimeout(() => {
-                    this.open();
-                });
+                this.open();
             }
         }
     }

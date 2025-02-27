@@ -12,7 +12,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Injectable } from "@angular/core";
+import { ElementRef, Injectable } from "@angular/core";
 import { ActivatedRoute, ActivationStart, Router } from '@angular/router';
 import { AcquisitionEquipment } from 'src/app/acquisition-equipments/shared/acquisition-equipment.model';
 import { Center } from 'src/app/centers/shared/center.model';
@@ -58,6 +58,8 @@ export class TreeService {
     private _treeAvailable: boolean = false;
     selectedNode: ShanoirNode;
     onScrollToSelected: RxjsSubject<ShanoirNode> = new RxjsSubject();
+    treeElement: ElementRef;
+    onScroll: RxjsSubject<{top: number, bottom: number}> = new RxjsSubject();
 
     isSelected(id: number, type: NodeType): boolean {
         return this.selection?.isSelected(id, type);
@@ -163,11 +165,24 @@ export class TreeService {
     }
 
     scrollTo(node: ShanoirNode) {
-        console.log(1, node.label, Date.now())
         setTimeout(() => {
-            console.log(2, node.label, Date.now())
-            this.onScrollToSelected.next(node);
+            console.log('scrollTo timeout')
+            this.onScrollToSelected?.next(node);
         })
+    }
+
+    /**
+     * get the current scroll position
+     */
+    get scrollTop(): number {
+        return this.treeElement.nativeElement.scrollTop;
+    }
+
+    /**
+     * get the current scroll position
+     */
+    get scrollBottom(): number {
+        return this.treeElement.nativeElement.scrollTop + this.treeElement.nativeElement.offsetHeight;
     }
 
     removeCurrentNode() {
@@ -274,22 +289,26 @@ export class TreeService {
                         });
                         console.log('e', Date.now())
                         if (subjectNode) {
-                            console.log('f', Date.now())
                             if (!subjectNode.opened) this.scrollTo(subjectNode);
-                            return subjectNode.open().then(() => {
+                            console.log('f OPEN SUBJECT NOW', Date.now())
+                            return subjectNode.open(true).then(() => {
+                                console.log('g', Date.now())
                                 if (subjectNode.examinations != UNLOADED) {
                                     let examNode: ExaminationNode = subjectNode.examinations?.find(exam => exam.id == ret.topParent.datasetAcquisition?.examination?.id);
                                     if (examNode) {
                                         if (!examNode.opened) this.scrollTo(examNode);
                                         return examNode.open().then(() => {
+                                            console.log('h', Date.now())
                                             if (examNode.datasetAcquisitions != UNLOADED) {
                                                 let acqNode: DatasetAcquisitionNode = examNode.datasetAcquisitions?.find(acq => acq.id == ret.topParent.datasetAcquisition?.id);
                                                 if (acqNode) {
                                                     return acqNode.open()?.then(() => {
+                                                        console.log('i', Date.now())
                                                         if (acqNode.datasets != UNLOADED) {
                                                             let dsNode: DatasetNode = acqNode.datasets?.find(acqDs => acqDs.id == ret.topParent.id);
                                                             if (dsNode) {
                                                                 return dsNode.open().then(() => {
+                                                                    console.log('j', Date.now())
                                                                     if (ret.topParent.id != (typeof dataset == 'number' ? dataset : dataset.id)) { // if sub processing/datasets 
                                                                         if (dsNode.processings != UNLOADED) {
                                                                             let procNode: ProcessingNode = dsNode.processings.find(proc => {
@@ -592,11 +611,24 @@ export class TreeService {
         members.sort((a: MemberNode, b: MemberNode) => {
             return a.label.toLowerCase().localeCompare(b.label.toLowerCase())
         })
-        studyNode.subjectsNode = new SubjectsNode(studyNode, null, 'Subjects', subjects);
+        let s = subjects.find(s => s.id == 3);
+        subjects = subjects.filter(s => s.id != 3);
+        studyNode.subjectsNode = new SubjectsNode(studyNode, null, 'Subjects', subjects.concat(this.generateSubs(100, studyNode.subjectsNode)));
+        (studyNode.subjectsNode.subjects as any[]).push(s);
         studyNode.centersNode = new CentersNode(studyNode, null, 'Centers', centers);
         studyNode.membersNode = new MembersNode(studyNode, null, 'Members', members);
         studyNode.membersNode.open();
         return studyNode;
+    }
+
+    generateSubs(times: number, parent: ShanoirNode): SubjectNode[] {
+        let res = [];
+        for (let i = 0; i < times; i++) {
+            let n: SubjectNode = new ClinicalSubjectNode(parent, 100000 + i, 'test ' + i, [], [], null, true, false);
+            (n.examinations as ExaminationNode[]).push(new ExaminationNode(n, 100000 + i, 'test', UNLOADED, UNLOADED, true, true, false));
+            res.push(n);
+        }
+        return res;
     }
 
     unSelectAll() {

@@ -63,7 +63,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 </div>
 
 
-<div class="tree" #tree>
+<div class="tree" #tree (scroll)="onScroll($event)">
 	<study-node *ngIf="treeService.studyNode"
 			[input]="treeService.studyNode"
 			[hasBox]="true"

@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
@@ -37,7 +37,7 @@ import { SubjectService } from '../shared/subject.service';
 @Component({
     selector: 'subject-node',
     templateUrl: 'subject-node.component.html',
-    standalone: false
+    standalone: false,
 })
 
 export class SubjectNodeComponent extends TreeNodeAbstractComponent<SubjectNode> implements OnChanges {
@@ -54,11 +54,13 @@ export class SubjectNodeComponent extends TreeNodeAbstractComponent<SubjectNode>
             protected treeService: TreeService,
             private consoleService: ConsoleService,
             private subjectService: SubjectService,
-            elementRef: ElementRef) {
+            elementRef: ElementRef,
+            private cdr: ChangeDetectorRef) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        console.log('change subject node inputs')
         if (changes['input']) {
             if (this.input instanceof SubjectNode) {
                 this.node = this.input;
@@ -95,8 +97,10 @@ export class SubjectNodeComponent extends TreeNodeAbstractComponent<SubjectNode>
     loadExaminations(): Promise<void> {
         if (this.node.examinations == UNLOADED) {
             setTimeout(() => this.loading = true);
+            console.log(31)
             return this.examinationService.findExaminationsBySubjectAndStudy(this.node.id, this.studyId)
                 .then(examinations => {
+                    console.log(32)
                     this.node.examinations = [];
                     if (examinations) {
                         let sortedExaminations = examinations.sort((a: SubjectExamination, b: SubjectExamination) => {
@@ -120,7 +124,10 @@ export class SubjectNodeComponent extends TreeNodeAbstractComponent<SubjectNode>
     }
 
     onFirstOpen() {
+        console.log('subject first open')
+        let s = Date.now();
         this.loadExaminations().then(() => {
+            console.log('exams loaded & subject opened in', Date.now() - s)
             this.contentLoaded.resolve();
         });
     }

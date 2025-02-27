@@ -1,3 +1,5 @@
 .overmenu input { height: 16px; }
 .overmenu .filter { margin-left: 10px; }
 .overmenu:has(input:focus) { visibility: visible; }
+.subject-dummy { height: 21px; background-color: lightgray; display: block; margin: 1px; }
+.ok { background-color: red; }
