@@ -18,9 +18,14 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.StringReader;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,6 +34,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -49,9 +56,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -280,9 +291,32 @@ public class WADODownloaderService {
 			String urlStr = url.toString();
 			if (urlStr.contains(WADO_REQUEST_STUDY_WADO_URI)) urlStr = wadoURLHandler.convertWADO_URI_TO_WADO_RS(urlStr);
 			urlStr = urlStr.split(CONTENT_TYPE)[0].concat("/metadata/");
+			System.out.println("########################################### url " + urlStr);
 			return downloadMetadataFromPACS(urlStr);
 		} else {
 			return null;
+		}
+	}
+
+	public void downloadDicomMetadataForURL(final URL url, Consumer<InputStream> streamConsumer) throws IOException, MessagingException, RestClientException {
+		if (url != null) {
+			String urlStr = url.toString();
+			if (urlStr.contains(WADO_REQUEST_STUDY_WADO_URI)) urlStr = wadoURLHandler.convertWADO_URI_TO_WADO_RS(urlStr);
+			urlStr = urlStr.split(CONTENT_TYPE)[0].concat("/metadata/");
+			System.out.println("########################################### !!! url " + urlStr);
+			downloadMetadataFromPACS(urlStr, streamConsumer);
+		}
+	}
+
+	public Supplier<InputStream> downloadDicomMetadataStreamForURL(final URL url) throws IOException, MessagingException, RestClientException {
+		if (url != null) {
+			String urlStr = url.toString();
+			if (urlStr.contains(WADO_REQUEST_STUDY_WADO_URI)) urlStr = wadoURLHandler.convertWADO_URI_TO_WADO_RS(urlStr);
+			urlStr = urlStr.split(CONTENT_TYPE)[0].concat("/metadata/");
+			System.out.println("########################################### !!!??? url " + urlStr);
+			return downloadMetadataStreamFromPACS(urlStr);
+		} else { 
+			throw new IllegalArgumentException("url can't be null");
 		}
 	}
 
@@ -290,11 +324,12 @@ public class WADODownloaderService {
 		try {
 			URL firstUrl = DatasetFileUtils.getDatasetFirstFilePathURLs(dataset, DatasetExpressionFormat.DICOM);
 			if (firstUrl != null) {
-				String jsonMetadataStr = downloadDicomMetadataForURL(firstUrl);
+
 				Attributes dicomAttributes;
+				Supplier<InputStream> inputStream = downloadDicomMetadataStreamForURL(firstUrl);
 				try (
-					StringReader strReader = new StringReader(jsonMetadataStr);
-					JsonParser parser = Json.createParser(strReader)
+					InputStreamReader isReader = new InputStreamReader(inputStream.get(), StandardCharsets.UTF_8);
+					JsonParser parser = Json.createParser(isReader);
 				) {
 					JSONReader reader = new JSONReader(parser);
 					dicomAttributes = reader.readDataset(null);
@@ -370,13 +405,78 @@ public class WADODownloaderService {
 		headers.add(HttpHeaders.ACCEPT, CONTENT_TYPE_DICOM_JSON);
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 		LOG.info("Download metadata from pacs, url : " + url);
-		ResponseEntity<String> response = restTemplate.exchange(url,
-				HttpMethod.GET, entity,String.class, "1");
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity,String.class, "1");
 		if (response.getStatusCode() == HttpStatus.OK) {
+			System.out.println("##################################################################");
+			System.out.println(response.getBody());
 			return response.getBody();
 		} else {
 			throw new IOException("Download did not work: wrong status code received.");
 		}
+	}
+
+	private void downloadMetadataFromPACS(final String url, Consumer<InputStream> streamConsumer) throws IOException {
+		LOG.info("Download metadata from pacs, url : " + url);
+		final ResponseExtractor responseExtractor =
+            (ClientHttpResponse clientHttpResponse) -> {
+                streamConsumer.accept(clientHttpResponse.getBody());
+                return null;
+            };
+		final RequestCallback requestCallback =
+            (ClientHttpRequest clientHttpRequest) -> {
+                clientHttpRequest.getHeaders().add(HttpHeaders.ACCEPT, CONTENT_TYPE_DICOM_JSON);
+            };
+    	restTemplate.execute(url, HttpMethod.GET, requestCallback, responseExtractor, "1");
+	}
+
+	private Supplier<InputStream> downloadMetadataStreamFromPACS(final String url) throws IOException {
+		LOG.info("Download metadata from pacs, url : " + url);
+
+		return () -> {
+			PipedInputStream pipedInputStream = new PipedInputStream();
+			PipedOutputStream pipedOutputStream;
+
+			try {
+				pipedOutputStream = new PipedOutputStream(pipedInputStream);
+			} catch (IOException e) {
+				throw new RuntimeException("Erreur lors de la création du flux", e);
+			}
+
+			new Thread(() -> {
+				try (InputStream responseStream = restTemplate.execute(
+					url, HttpMethod.GET, request -> request.getHeaders().add(HttpHeaders.ACCEPT, "application/dicom+json"),
+					ClientHttpResponse::getBody
+				)) {
+					responseStream.transferTo(pipedOutputStream);
+				} catch (IOException e) {
+					throw new RuntimeException("Erreur de transfert du flux", e);
+				} finally {
+					try {
+						pipedOutputStream.close();
+					} catch (IOException ignored) { }
+				}
+			}).start();
+
+			return pipedInputStream;
+		};
+
+
+
+		// return () -> {
+		// 	ResponseExtractor<InputStream> responseExtractor = (ClientHttpResponse response) -> {
+		// 		try {
+		// 			byte[] data = response.getBody().readAllBytes(); // Stocke les données en mémoire
+		// 			return new ByteArrayInputStream(data); // Crée un InputStream réutilisable
+		// 		} catch (IOException e) {
+		// 			throw new RuntimeException("Erreur de lecture du flux", e);
+		// 		}
+		// 	};
+		// 	RequestCallback requestCallback =
+		// 		(ClientHttpRequest clientHttpRequest) -> {
+		// 			clientHttpRequest.getHeaders().add(HttpHeaders.ACCEPT, CONTENT_TYPE_DICOM_JSON);
+		// 		};
+		// 	return restTemplate.execute(url, HttpMethod.GET, requestCallback, responseExtractor, "1");
+		// };
 	}
 
 	/**

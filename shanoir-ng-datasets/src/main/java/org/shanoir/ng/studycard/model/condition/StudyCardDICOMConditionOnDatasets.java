@@ -117,7 +117,10 @@ public class StudyCardDICOMConditionOnDatasets extends StudyCardCondition {
                 boolean alreadyFulfilled = getCardinality() >= 1 && nbOk >= getCardinality();
                 if (!alreadyFulfilled) {
                     if (!acqAttributes.has(dataset.getId())) {
-                        acqAttributes.addDatasetAttributes(dataset.getId(), downloadAttributes(dataset, downloader, errorMsg));
+                        System.out.println("################################################### 2 " + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+                        Attributes attr = downloadAttributes(dataset, downloader, errorMsg);
+                        System.out.println("################################################### 3 " + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+                        acqAttributes.addDatasetAttributes(dataset.getId(), attr);
                     }
                     if (acqAttributes.getDatasetAttributes(dataset.getId()) == null) { // in case of pacs error
                         nbUnknown++;
@@ -130,7 +133,7 @@ public class StudyCardDICOMConditionOnDatasets extends StudyCardCondition {
                             nbOk++;
                         }
                     }
-                }  
+                }
             }
         }
         boolean complies = cardinalityComplies(nbOk, nbUnknown, total);
