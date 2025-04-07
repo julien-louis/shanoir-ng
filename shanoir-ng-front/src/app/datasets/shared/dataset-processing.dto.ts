@@ -114,14 +114,14 @@ export class DatasetProcessingDTO {
         this.id = datasetProcessing.id;
         this.comment = datasetProcessing.comment;
         this.datasetProcessingType = datasetProcessing.datasetProcessingType;
-        this.inputDatasets = datasetProcessing.inputDatasets.map((dataset)=> {
+        this.inputDatasets = datasetProcessing.inputDatasets?.map((dataset)=> {
             let datasetDTO = new DatasetDTO(dataset);
-            datasetDTO.processings = datasetDTO.processings.map(p=> ({id: p.id} as any));
+            datasetDTO.processings = datasetDTO.processings?.map(p=> ({id: p.id} as any));
             return datasetDTO;
         });
-        this.outputDatasets = datasetProcessing.outputDatasets.map((dataset)=> {
+        this.outputDatasets = datasetProcessing.outputDatasets?.map((dataset)=> {
             let datasetDTO = new DatasetDTO(dataset);
-            datasetDTO.processings = datasetDTO.processings.map(p=> ({id: p.id} as any));
+            datasetDTO.processings = datasetDTO.processings?.map(p=> ({id: p.id} as any));
             return datasetDTO;
         });
         this.processingDate = datasetProcessing.processingDate;

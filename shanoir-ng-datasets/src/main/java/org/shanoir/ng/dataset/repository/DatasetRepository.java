@@ -14,17 +14,17 @@
 
 package org.shanoir.ng.dataset.repository;
 
+import java.util.List;
+
 import org.shanoir.ng.dataset.model.Dataset;
 import org.shanoir.ng.tag.model.StudyTag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-//import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
-
-import java.util.List;
+import org.springframework.data.repository.query.Param;
 
 public interface DatasetRepository extends PagingAndSortingRepository<Dataset, Long>, CrudRepository<Dataset, Long> {
 
@@ -84,4 +84,12 @@ public interface DatasetRepository extends PagingAndSortingRepository<Dataset, L
 			"INNER JOIN input_of_dataset_processing as input ON ds.id=input.dataset_id " +
 			"WHERE input.processing_id = :processingId or ds.dataset_processing_id = :processingId", nativeQuery = true)
 	List<Dataset> findDatasetsByProcessingId(Long processingId);
+
+    @Query(value = "SELECT e.study_id " +
+               "FROM dataset d " +
+               "JOIN dataset_acquisition da ON d.dataset_acquisition_id = da.id " +
+               "JOIN examination e ON da.examination_id = e.id " +
+               "WHERE d.id = :datasetId", 
+       nativeQuery = true)
+	Long findStudyIdByDataset(@Param("datasetId") Long datasetId);
 }

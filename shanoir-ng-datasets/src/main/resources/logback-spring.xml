@@ -15,7 +15,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 -->
 
 <configuration>
-    <property name="SHANOIR_CONSOLE_LOG_LEVEL" value="${SHANOIR_CONSOLE_LOG_LEVEL:-WARN}" />
+    <property name="SHANOIR_CONSOLE_LOG_LEVEL" value="${SHANOIR_CONSOLE_LOG_LEVEL:-INFO}" />
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />

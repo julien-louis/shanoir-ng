@@ -219,8 +219,8 @@ export class DatasetDTO {
             this.studyId = dataset.study ? dataset.study.id : null;
             this.subjectId = dataset.subject ? dataset.subject.id : null;
             this.updatedMetadata = dataset.updatedMetadata;
-            this.source = dataset.source;
-            this.copies = dataset.copies;
+            this.source = Number.isInteger(dataset.source) ? dataset.source as number : (dataset.source as {id: number})?.id;
+            this.copies = dataset.copies?.map(copy => Number.isInteger(copy.source) ? copy.source as number : (copy.source as {id: number})?.id);
             this.name = dataset.name;
             this.datasetProcessing = dataset.datasetProcessing;
             this.type = dataset.type;

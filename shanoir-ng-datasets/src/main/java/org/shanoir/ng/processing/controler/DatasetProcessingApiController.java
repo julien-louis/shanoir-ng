@@ -14,26 +14,29 @@
 
 package org.shanoir.ng.processing.controler;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import org.apache.poi.ss.extractor.ExcelExtractor;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.shanoir.ng.dataset.dto.DatasetDTO;
 import org.shanoir.ng.dataset.dto.mapper.DatasetMapper;
 import org.shanoir.ng.dataset.model.Dataset;
-import org.shanoir.ng.dataset.model.DatasetExpressionFormat;
-import org.shanoir.ng.dataset.service.DatasetService;
 import org.shanoir.ng.examination.model.Examination;
 import org.shanoir.ng.examination.service.ExaminationService;
 import org.shanoir.ng.processing.dto.DatasetProcessingDTO;
 import org.shanoir.ng.processing.dto.mapper.DatasetProcessingMapper;
 import org.shanoir.ng.processing.model.DatasetProcessing;
-import org.shanoir.ng.processing.model.DatasetProcessingType;
 import org.shanoir.ng.processing.service.DatasetProcessingService;
 import org.shanoir.ng.processing.service.ProcessingDownloaderServiceImpl;
 import org.shanoir.ng.shared.error.FieldErrorMap;
-import org.shanoir.ng.shared.exception.*;
+import org.shanoir.ng.shared.exception.EntityNotFoundException;
+import org.shanoir.ng.shared.exception.ErrorDetails;
+import org.shanoir.ng.shared.exception.ErrorModel;
+import org.shanoir.ng.shared.exception.RestServiceException;
+import org.shanoir.ng.shared.exception.ShanoirException;
 import org.shanoir.ng.utils.KeycloakUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +44,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @Controller
 public class DatasetProcessingApiController implements DatasetProcessingApi {
@@ -134,6 +133,9 @@ public class DatasetProcessingApiController implements DatasetProcessingApi {
 	public ResponseEntity<DatasetProcessingDTO> saveNewDatasetProcessing(
 			@Parameter(description = "dataset processing to create", required = true) @Valid @RequestBody DatasetProcessing datasetProcessing,
 			final BindingResult result) throws RestServiceException {
+
+
+		System.out.println("################################### " + datasetProcessing.getOutputDatasets().size());
 
 		/* set authenticated username */
 		datasetProcessing.setUsername(KeycloakUtil.getTokenUserName());

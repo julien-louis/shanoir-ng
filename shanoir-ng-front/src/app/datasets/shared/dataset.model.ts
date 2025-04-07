@@ -38,8 +38,8 @@ export abstract class Dataset extends Entity {
     processings: DatasetProcessing[] = [];
     inPacs: boolean;
     tags: Tag[];
-    copies: number[];
-    source: number;
+    copies: number[] | {id: number}[];
+    source: number | {id: number};
 }
 
 export class DatasetMetadata {

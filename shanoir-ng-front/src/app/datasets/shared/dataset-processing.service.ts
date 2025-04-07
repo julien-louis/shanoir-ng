@@ -48,6 +48,24 @@ export class DatasetProcessingService extends EntityService<DatasetProcessing> {
             .toPromise().then(dtos => this.datasetDTOService.toEntityList(dtos, [], 'lazy'));
     }
 
+    create(entity: DatasetProcessing): Promise<DatasetProcessing> {
+        entity.inputDatasets = entity.inputDatasets?.map(this.mapSource);
+        entity.outputDatasets = entity.outputDatasets?.map(this.mapSource);
+        return super.create(entity);
+    }
+
+    private mapSource(dataset: Dataset): Dataset {
+        if (Number.isInteger(dataset.source)) {
+            dataset.source = {id: dataset.source as number};
+        }
+        dataset.copies?.forEach(copy => {
+            if (Number.isInteger(copy.source)) {
+                copy.source = {id: copy.source as number};
+            }
+        });
+        return dataset;
+    }
+
     get(id: number): Promise<DatasetProcessing> {
         return this.http.get<any>(this.API_URL + '/' + id)
             .toPromise()
@@ -63,12 +81,5 @@ export class DatasetProcessingService extends EntityService<DatasetProcessing> {
     protected mapEntityList = (dtos: DatasetProcessingDTO[], result?: DatasetProcessing[]): Promise<DatasetProcessing[]> => {
         if (result == undefined) result = [];
         return this.datasetProcessingDTOService.toEntityList(dtos, result);
-    }
-    
-    public stringify(entity: DatasetProcessing) {
-        let dto = new DatasetProcessingDTO(entity);
-        return JSON.stringify(dto, (key, value) => {
-            return this.customReplacer(key, value, dto);
-        });
     }
 }
