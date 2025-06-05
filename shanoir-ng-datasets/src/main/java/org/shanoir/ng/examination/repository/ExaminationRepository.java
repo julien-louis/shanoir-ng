@@ -17,6 +17,7 @@ package org.shanoir.ng.examination.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.shanoir.ng.examination.dto.ExaminationForRightsDTO;
 import org.shanoir.ng.examination.model.Examination;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -126,4 +127,15 @@ public interface ExaminationRepository extends PagingAndSortingRepository<Examin
 	@EntityGraph(attributePaths = {"datasetAcquisitions"})
 	@Query("SELECT e FROM Examination e WHERE e.id = :id")
 	Optional<Examination> findByIdWithEagerAcquisitions(@Param("id") Long id);
+
+	@Query("""
+		SELECT DISTINCT 
+		ex.id                      AS id,
+		ex.study.id                AS studyId,
+		ex.centerId                AS centerId
+		FROM Examination ex
+		WHERE ex.id IN :ids
+	""")
+  	List<ExaminationForRightsDTO> findExaminationsForRights(@Param("ids") List<Long> ids);
+
 }
