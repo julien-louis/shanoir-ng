@@ -26,9 +26,11 @@ services:
       target: front-dev
     volumes:
       - "./shanoir-ng-front:/app/"
-    command: ng serve --host 0.0.0.0 --disable-host-check
+    command: npx vite --host 0.0.0.0
     environment:
+      - NODE_ENV=development
       - VITE_DEV_SERVER_URL=wss://shanoir-ng-nginx:443
+      - VITE_ALLOWED_HOSTS=shanoir-ng-nginx,localhost
     ports:
       - "4200:4200"
     tty: true

@@ -335,7 +335,6 @@ COPY --link common/entrypoint_common /usr/bin/
 COPY --link nginx/entrypoint         /usr/bin/
 
 COPY --link nginx/webapp/ /etc/nginx/html/
-COPY --link shanoir-ng-front/dist/browser/ /etc/nginx/html/
 
 ENTRYPOINT ["/bin/entrypoint"]
 CMD ["nginx", "-g", "daemon off;"]
@@ -345,6 +344,9 @@ CMD ["nginx", "-g", "daemon off;"]
 ################ front-dev #################################################
 
 FROM node:lts-alpine3.21 AS front-dev
+
+ENV NODE_ENV=development
+ENV VITE_ALLOWED_HOSTS=shanoir-ng-nginx,localhost
 
 WORKDIR /app
 
