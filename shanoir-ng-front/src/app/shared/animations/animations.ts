@@ -20,69 +20,19 @@ import {
     trigger,
 } from "@angular/animations";
 
-export const parent = trigger("parent", [transition(":enter", [])]);
-
-export const slideDown = trigger("slideDown", [
-    transition(":enter", [
-        style({
-            height: "0",
-            "min-height": 0,
-            "padding-bottom": "0",
-            "margin-bottom": "0",
-            overflow: "hidden",
-        }),
-        animate(
-            "500ms ease-in-out",
-            style({
-                height: "*",
-                "min-height": "*",
-                "padding-bottom": "*",
-                "margin-bottom": "*",
-                overflow: "hidden",
-            }),
-        ),
-    ]),
-    transition(":leave", [
-        style({
-            height: "*",
-            "min-height": "*",
-            "padding-bottom": "*",
-            "margin-bottom": "*",
-            overflow: "hidden",
-        }),
-        animate(
-            "500ms ease-in-out",
-            style({
-                height: "0",
-                "min-height": 0,
-                "padding-bottom": "0",
-                "margin-bottom": "0",
-                overflow: "hidden",
-            }),
-        ),
-    ]),
-]);
-
-export const disapearUp = trigger("disapearUp", [
-    transition(":leave", [
-        style({
-            height: "*",
-            "min-height": "*",
-            "padding-bottom": "*",
-            "margin-bottom": "*",
-            overflow: "hidden",
-        }),
-        animate(
-            "500ms ease-in-out",
-            style({
-                height: "0",
-                "min-height": 0,
-                "padding-bottom": "0",
-                "margin-bottom": "0",
-                overflow: "hidden",
-            }),
-        ),
-    ]),
+export const slideDown = trigger('slideDown', [
+    transition(
+        ':enter', [
+            style({height: '0', 'min-height': 0, 'padding-bottom': '0', 'margin-bottom': '0', overflow: 'hidden'}),
+            animate('500ms ease-in-out', style({height: '*', 'min-height': '*','padding-bottom': '*', 'margin-bottom': '*', overflow: 'hidden'}))
+        ]
+    ),
+    transition(
+        ':leave', [
+            style({height: '*', 'min-height': '*', 'padding-bottom': '*', 'margin-bottom': '*', overflow: 'hidden'}),
+            animate('500ms ease-in-out', style({height: '0', 'min-height': 0, 'padding-bottom': '0', 'margin-bottom': '0', overflow: 'hidden'}))
+        ]
+    )
 ]);
 
 export const slideRight = trigger("slideRight", [

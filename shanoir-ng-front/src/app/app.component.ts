@@ -12,44 +12,39 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import {
-    Component,
-    ElementRef,
-    HostBinding,
-    HostListener,
-    ViewChild,
-    ViewContainerRef,
-    OnInit,
-} from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, ElementRef, HostListener, ViewContainerRef, OnInit } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
-import {
-    parent,
-    slideMarginLeft,
-    slideRight,
-} from "./shared/animations/animations";
-import { ConfirmDialogService } from "./shared/components/confirm-dialog/confirm-dialog.service";
-import { ConsoleComponent } from "./shared/console/console.component";
-import { KeycloakService } from "./shared/keycloak/keycloak.service";
-import { GlobalService } from "./shared/services/global.service";
-import { WindowService } from "./shared/services/window.service";
-import { KeycloakSessionService } from "./shared/session/keycloak-session.service";
-import { StudyService } from "./studies/shared/study.service";
-import { TreeService } from "./studies/study/tree.service";
-import { UserService } from "./users/shared/user.service";
-import { ServiceLocator } from "./utils/locator.service";
-import { NotificationsService } from "./shared/notifications/notifications.service";
+
+import { ConfirmDialogService } from './shared/components/confirm-dialog/confirm-dialog.service';
+import { ConsoleComponent } from './shared/console/console.component';
+import { KeycloakService } from './shared/keycloak/keycloak.service';
+import { GlobalService } from './shared/services/global.service';
+import { WindowService } from './shared/services/window.service';
+import { KeycloakSessionService } from './shared/session/keycloak-session.service';
+import { StudyService } from './studies/shared/study.service';
+import { TreeService } from './studies/study/tree.service';
+import { UserService } from './users/shared/user.service';
+import { NotificationsService } from './shared/notifications/notifications.service';
+import { SideMenuComponent } from './shared/side-menu/side-menu.component';
+import { BreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
+import { StudyTreeComponent } from './studies/study/study-tree.component';
+import { MsgBoxComponent } from './shared/msg-box/msg-box.component';
+import { LoaderComponent } from './shared/loader/loader.component';
+import { ServiceLocator } from './utils/locator.service';
 
 @Component({
-    selector: "app-root",
-    templateUrl: "app.component.html",
-    styleUrls: ["app.component.css"],
-    animations: [slideRight, slideMarginLeft, parent],
-    standalone: false,
+    selector: 'app-root',
+    templateUrl: 'app.component.html',
+    styleUrls: ['app.component.css'],
+    imports: [SideMenuComponent, BreadcrumbsComponent, StudyTreeComponent, RouterOutlet, ConsoleComponent, MsgBoxComponent, LoaderComponent]
 })
 export class AppComponent implements OnInit {
-    @HostBinding("@parent") public menuOpen: boolean = true;
-    @ViewChild("console") consoleComponenent: ConsoleComponent;
+
+    protected menuOpen: boolean = true;
+    protected consoleToggle: (open: boolean) => void = () => { return };
+    protected consoleOpened: boolean = false;
+    protected consoleDeployed: boolean = false;
 
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -89,12 +84,30 @@ export class AppComponent implements OnInit {
         return !this.notificationsService.hasOnGoingDownloads();
     }
 
+    registerConsoleToggle(toggle: (open: boolean) => void) {
+        this.consoleToggle = toggle;
+    }
+
     toggleMenu(open: boolean) {
-        this.menuOpen = open;
+        if (!open && !this.consoleDeployed) {
+            this.consoleToggle(false);
+        }
+        setTimeout(() => { // so the console has time to close before the menu
+            this.menuOpen = open;
+        });
     }
 
     toggleTree(open: boolean) {
         this.treeService.treeOpened = open;
+    }
+
+    onConsoleDeployed(deployed: boolean) {
+        if (!deployed && !this.menuOpen) {
+            this.consoleDeployed = false;
+            this.consoleToggle(false);
+        } else {
+            this.consoleDeployed = deployed;
+        }
     }
 
     isAuthenticated(): boolean {

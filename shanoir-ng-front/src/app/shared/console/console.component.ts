@@ -13,35 +13,32 @@
  */
 
 import {
-    ApplicationRef,
     Component,
+    EventEmitter,
     HostBinding,
     Injector,
     OnDestroy,
+    Output,
 } from "@angular/core";
 import { Subscription } from "rxjs";
-
-import { slideDown } from "../animations/animations";
 
 import { ConsoleService, Message } from "./console.service";
 
 @Component({
-    selector: "shanoir-console",
-    templateUrl: "./console.component.html",
-    styleUrls: ["./console.component.css"],
-    animations: [slideDown],
-    standalone: false,
+    selector: 'shanoir-console',
+    templateUrl: './console.component.html',
+    styleUrls: ['./console.component.css'],
+    imports: []
 })
 export class ConsoleComponent implements OnDestroy {
     private _open: boolean = false;
     @HostBinding("class.deployed") deployed: boolean;
     contentOpen: boolean = this._open;
     messages: Message[] = [];
-    private closeTimeout: any;
-    private appRef: Promise<ApplicationRef> = new Promise(() => {
-        return;
-    });
     private subscription: Subscription;
+    @Output() registerToggle: EventEmitter<(open: boolean) => void> = new EventEmitter();
+    @Output() consoleOpened: EventEmitter<boolean> = new EventEmitter();
+    @Output() consoleDeployed: EventEmitter<boolean> = new EventEmitter();
 
     constructor(
         public consoleService: ConsoleService,
@@ -51,15 +48,8 @@ export class ConsoleComponent implements OnDestroy {
         this._open = consoleService.open;
         this.deployed = consoleService.deployed;
         this.contentOpen = this._open;
-        this.subscription = consoleService.messageObservable.subscribe(
-            this.processNewMsg,
-        );
-        setTimeout(
-            () =>
-                (this.appRef = Promise.resolve(
-                    this.injector.get(ApplicationRef),
-                )),
-        );
+        this.subscription = consoleService.messageObservable.subscribe(this.processNewMsg);
+        setTimeout(() => this.registerToggle.emit(this.toggle.bind(this)), 0);
     }
 
     private processNewMsg = (message: Message) => {
@@ -78,24 +68,10 @@ export class ConsoleComponent implements OnDestroy {
         } else {
             this.messages.unshift(message);
         }
-        // if (!this.open) {
-        //     this.open = true;
-        //     this.closeTimeout = this.setCloseTimeout();
-        // } else if (this.closeTimeout) {
-        //     this.closeTimeout = this.setCloseTimeout();
-        // }
         if (this.messages.length > this.consoleService.MAX) {
             this.messages.splice(this.consoleService.MAX);
         }
     };
-
-    private setCloseTimeout(): any {
-        clearTimeout(this.closeTimeout);
-        return setTimeout(() => {
-            this.open = false;
-            this.closeTimeout = null;
-        }, 5000);
-    }
 
     ngOnDestroy(): void {
         this.subscription.unsubscribe();
@@ -108,24 +84,27 @@ export class ConsoleComponent implements OnDestroy {
 
     set open(open: boolean) {
         if (this._open != open) {
-            clearTimeout(this.closeTimeout);
             this._open = open;
-            if (!open)
-                setTimeout(() => {
-                    this.contentOpen = open;
-                    this.appRef.then((appRef) => appRef.tick());
-                }, 1000);
-            else this.contentOpen = open;
-            this.appRef.then((appRef) => appRef.tick());
+            if (!open) {
+                this.contentOpen = open;
+            } else this.contentOpen = open;
         }
-        this.closeTimeout = null;
         this.consoleService.open = this._open;
         this.consoleService.deployed = this.deployed;
+        this.consoleOpened.emit(this._open);
+    }
+
+    private toggle(open: boolean) {
+        this.open = open;
+    }
+
+    toggleDeployed(deployed: boolean) {
+        this.deployed = deployed;
+        this.consoleService.deployed = this.deployed;
+        this.consoleDeployed.emit(this.deployed);
     }
 
     toggleDetails(message: Message) {
-        clearTimeout(this.closeTimeout);
         message.detailsOpened = !message.detailsOpened;
-        this.appRef.then((appRef) => appRef.tick());
     }
 }
