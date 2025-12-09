@@ -27,7 +27,7 @@ import { MrDataset, MrDatasetMetadata, MrDatasetNature } from './dataset.mr.mode
     standalone: false
 })
 
-export class MrDatasetComponent implements OnInit{
+export class MrDatasetComponent implements OnInit {
 
     @Input() mode: Mode;
     @Input() dataset: MrDataset;

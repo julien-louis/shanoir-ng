@@ -13,30 +13,9 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 -->
 
 <div #formContainer class="content-component">
-    <form *ngIf="form && examinationAnesthetic" [formGroup]="form" class="max-content" novalidate>
-		<div *ngIf="isStandalone">
-			<form-footer
-				[state]="footerState"
-				(save)="save()"
-				(edit)="goToEdit()"
-				(back)="goBack()">
-			</form-footer>
-		</div> 
-		<span *ngIf="isStandalone"  [ngSwitch]="mode">
-			<ng-template [ngSwitchCase]="'view'">
-				<h2 class="header command-zone"i18n="View examAnesthetic|Title@@examinationDetailViewTitle">Details on examination anesthetic</h2>
-			</ng-template>
-			<ng-template [ngSwitchCase]="'edit'">
-				<h2 class="header command-zone"i18n="Edit examAnesthetic|Title@@examinationDetailEditTitle">Edit examination anesthetic</h2>
-			</ng-template>
-			<ng-template [ngSwitchCase]="'create'">
-				<h2 class="header command-zone"i18n="Create examAnesthetic|Title@@examinationDetailCreateTitle">Create examination anesthetic</h2>
-			</ng-template>
-		</span>
-		
-
+    <form *ngIf="parentFormGroup" [formGroup]="parentFormGroup" class="max-content" novalidate>
 		<fieldset>
-			<legend *ngIf="!isStandalone">Examination anesthetic</legend>
+			<legend>Examination anesthetic</legend>
 			<ol>
 				<li >
 					<label i18n="Edit examAnesthetic|Anesthetic label" >Anesthetic</label>
@@ -45,10 +24,10 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 								{{examinationAnesthetic?.anesthetic?.name}}
 						</ng-template>
 						<ng-template ngSwitchDefault>
-							<select id="anesthetic"  formControlName="anesthetic">
+							<select id="anesthetic" formControlName="anesthetic">
 								<option *ngFor="let anesthetic of anesthetics" [ngValue]="anesthetic">{{anesthetic.name}}</option>
 							</select>
-							<button i18n="Edit examAnesthetic|Add a new anesthetic" (click)="goToAddAnesthetic()">
+							<button i18n="Edit examAnesthetic|Add a new anesthetic" (click)="onNewAnesthetic()" type="button" class="left-icon">
 								<i class="fas fa-plus-square"></i>
 								new anesthetic
 							</button>
@@ -63,7 +42,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 						</ng-template>
 						<ng-template ngSwitchDefault>
 							<select id="injectionInterval" formControlName="injectionInterval">
-								<option *ngFor="let interval of intervals" [value]="interval">{{interval | camel}}</option>
+								<option *ngFor="let interval of injectionIntervals" [value]="interval">{{interval | camel}}</option>
 							</select>
 						</ng-template>
 					</span>
@@ -76,7 +55,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 						</ng-template>
 						<ng-template ngSwitchDefault>
 							<select id="injectionSite" formControlName="injectionSite">
-								<option *ngFor="let site of sites" [value]="site">{{site | camel}}</option>
+								<option *ngFor="let site of injectionSites" [value]="site">{{site | camel}}</option>
 							</select>
 						</ng-template>
 					</span>
@@ -89,7 +68,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 						</ng-template>
 						<ng-template ngSwitchDefault>
 							<select id="injectionType" formControlName="injectionType">
-								<option *ngFor="let injtype of injtypes" [value]="injtype">{{injtype | camel}}</option>
+								<option *ngFor="let injtype of injectionTypes" [value]="injtype">{{injtype | camel}}</option>
 							</select>
 						</ng-template>
 					</span>
@@ -113,7 +92,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
 						</ng-template>
 						<ng-template ngSwitchDefault>
 							<select id="doseUnit" formControlName="doseUnit">
-								<option *ngFor="let unit of units" [ngValue]="unit">{{unit.value}}</option>
+								<option *ngFor="let unit of doseUnits" [ngValue]="unit">{{unit.value}}</option>
 							</select>
 						</ng-template>
 					</span> 							

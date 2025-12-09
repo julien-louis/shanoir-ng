@@ -39,12 +39,12 @@ import * as AppUtils from '../../../utils/app.utils';
 import { EntityComponent } from '../../../shared/components/entity/entity.component.abstract';
 import { DatepickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
-import { ExaminationService } from '../../../examinations/shared/examination.service';
 import { AnimalExaminationService } from '../shared/animal-examination.service';
 import { ExaminationNode } from '../../../tree/tree.model';
 import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 import {dateDisplay} from "../../../shared/./localLanguage/localDate.abstract";
 import {Subject} from "../../../subjects/shared/subject.model";
+import { AnimalExamination } from '../shared/animal-examination.model';
 
 @Component({
     selector: 'examination-preclinical-form',
@@ -52,7 +52,7 @@ import {Subject} from "../../../subjects/shared/subject.model";
     styleUrls: ['animal-examination.component.css'],
     standalone: false
 })
-export class AnimalExaminationFormComponent extends EntityComponent<Examination>{
+export class AnimalExaminationFormComponent extends EntityComponent<AnimalExamination>{
 
     @ViewChild('input', { static: false }) private fileInput: ElementRef;
 
@@ -79,7 +79,6 @@ export class AnimalExaminationFormComponent extends EntityComponent<Examination>
 
     constructor(
         private route: ActivatedRoute,
-        private examinationService: ExaminationService,
         private animalExaminationService: AnimalExaminationService,
         private examAnestheticService: ExaminationAnestheticService,
         private extradatasService: ExtraDataService,
@@ -94,11 +93,11 @@ export class AnimalExaminationFormComponent extends EntityComponent<Examination>
         this.manageSaveEntity();
     }
 
-    get examination(): Examination { return this.entity; }
-    set examination(examination: Examination) { this.entity = examination; }
+    get examination(): AnimalExamination { return this.entity; }
+    set examination(examination: AnimalExamination) { this.entity = examination; }
 
-    getService(): EntityService<Examination> {
-        return this.examinationService;
+    getService(): EntityService<AnimalExamination> {
+        return this.animalExaminationService;
     }
 
     protected getTreeSelection: () => Selection = () => {
@@ -336,6 +335,7 @@ export class AnimalExaminationFormComponent extends EntityComponent<Examination>
     }
 
     onExamAnestheticChange(event) {
+        ??? delete
         this.examAnesthetic = event;
     }
 
