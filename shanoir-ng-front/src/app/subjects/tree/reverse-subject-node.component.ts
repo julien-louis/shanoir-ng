@@ -11,37 +11,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
+import { Router } from "@angular/router";
 
-import { TreeNodeAbstractComponent } from '../../shared/components/tree/tree-node.abstract.component';
-import { TreeService } from '../../studies/study/tree.service';
-import { ReverseStudyNode, ReverseSubjectNode, ShanoirNode } from '../../tree/tree.model';
-import { Subject } from '../shared/subject.model';
-
+import { TreeNodeAbstractComponent } from "../../shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "../../studies/study/tree.service";
+import {
+    ReverseStudyNode,
+    ReverseSubjectNode,
+    ShanoirNode,
+} from "../../tree/tree.model";
+import { Subject } from "../shared/subject.model";
 
 @Component({
-    selector: 'reverse-subject-node',
-    templateUrl: 'reverse-subject-node.component.html',
-    standalone: false
+    selector: "reverse-subject-node",
+    templateUrl: "reverse-subject-node.component.html",
+    standalone: false,
 })
-
-export class ReverseSubjectNodeComponent extends TreeNodeAbstractComponent<ReverseSubjectNode> implements OnChanges {
-
-    @Input() input: ReverseSubjectNode | { subject: Subject, parentNode: ShanoirNode };
+export class ReverseSubjectNodeComponent
+    extends TreeNodeAbstractComponent<ReverseSubjectNode>
+    implements OnChanges
+{
+    @Input() input:
+        | ReverseSubjectNode
+        | { subject: Subject; parentNode: ShanoirNode };
     @Input() studyId: number;
     @Output() nodeInit: EventEmitter<ReverseSubjectNode> = new EventEmitter();
     awesome = "fas fa-user-injured";
 
     constructor(
-            private router: Router,
-            protected treeService: TreeService,
-            elementRef: ElementRef) {
+        private router: Router,
+        protected treeService: TreeService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input'] && this.input) {
+        if (changes["input"] && this.input) {
             if (this.input instanceof ReverseSubjectNode) {
                 this.node = this.input;
             } else {
@@ -49,21 +64,25 @@ export class ReverseSubjectNodeComponent extends TreeNodeAbstractComponent<Rever
                     this.input.parentNode,
                     this.input.subject.id,
                     this.input.subject.name,
-                    ReverseStudyNode.fromStudy(this.input.subject.study, this.input.subject.tags, this.node)
+                    ReverseStudyNode.fromStudy(
+                        this.input.subject.study,
+                        this.input.subject.tags,
+                        this.node,
+                    ),
                 );
-                if(this.input.subject.preclinical){
-                    this.awesome = "fas fa-hippo"
+                if (this.input.subject.preclinical) {
+                    this.awesome = "fas fa-hippo";
                 }
             }
             this.nodeInit.emit(this.node);
-            this.showDetails = this.router.url != '/subject/details/' + this.node.id;
+            this.showDetails =
+                this.router.url != "/subject/details/" + this.node.id;
         }
     }
 
-    hasChildren(): boolean | 'unknown' {
+    hasChildren(): boolean | "unknown" {
         if (!this.node.studies) return false;
-        else if (this.node.studies == 'UNLOADED') return 'unknown';
+        else if (this.node.studies == "UNLOADED") return "unknown";
         else return this.node.studies != null;
     }
-
 }

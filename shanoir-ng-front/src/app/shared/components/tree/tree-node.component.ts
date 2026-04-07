@@ -20,32 +20,33 @@ import {
     OnChanges,
     Output,
     SimpleChanges,
-    ViewChild, AfterViewInit,
-} from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+    ViewChild,
+    AfterViewInit,
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { QualityTag } from 'src/app/study-cards/shared/quality-card.model';
+import { QualityTag } from "src/app/study-cards/shared/quality-card.model";
 
-import { CheckboxComponent } from '../../checkbox/checkbox.component';
-import { Tag } from '../../../tags/tag.model';
-import { isDarkColor } from '../../../utils/app.utils';
+import { CheckboxComponent } from "../../checkbox/checkbox.component";
+import { Tag } from "../../../tags/tag.model";
+import { isDarkColor } from "../../../utils/app.utils";
 
 export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => TreeNodeComponent),
-    multi: true
+    multi: true,
 };
 
 @Component({
-    selector: 'node',
-    templateUrl: 'tree-node.component.html',
-    styleUrls: ['tree-node.component.css'],
+    selector: "node",
+    templateUrl: "tree-node.component.html",
+    styleUrls: ["tree-node.component.css"],
     providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR],
-    standalone: false
+    standalone: false,
 })
-
-export class TreeNodeComponent implements ControlValueAccessor, OnChanges, AfterViewInit {
-
+export class TreeNodeComponent
+    implements ControlValueAccessor, OnChanges, AfterViewInit
+{
     @Input() label: string;
     @Input() pictoUrl: string;
     @Input() awesome: string;
@@ -53,7 +54,7 @@ export class TreeNodeComponent implements ControlValueAccessor, OnChanges, After
     @Input() hasBox: boolean;
     @Input() editable: boolean = false;
     @Input() tooltip: string;
-    @Input() hasChildren: boolean | 'unknown' = 'unknown';
+    @Input() hasChildren: boolean | "unknown" = "unknown";
     @Input() clickable: boolean;
     @Input() buttonPicto: string;
     @Input() dataLoading: boolean = false;
@@ -66,18 +67,21 @@ export class TreeNodeComponent implements ControlValueAccessor, OnChanges, After
     @Input() opened: boolean = false;
     private neverOpened: boolean = true;
     @Output() openedChange: EventEmitter<boolean> = new EventEmitter();
-    public checked: boolean | 'indeterminate';
-    @ViewChild('box') boxElt: CheckboxComponent;
+    public checked: boolean | "indeterminate";
+    @ViewChild("box") boxElt: CheckboxComponent;
     @Output() labelChange = new EventEmitter();
     @Output() labelClick = new EventEmitter();
     @Output() chkbxChange = new EventEmitter();
     @Output() firstOpen = new EventEmitter();
     @Output() buttonClick = new EventEmitter();
-    private onTouchedCallback: () => void = () => { return; };
-    private onChangeCallback: (_: any) => void = () => { return; };
+    private onTouchedCallback: () => void = () => {
+        return;
+    };
+    private onChangeCallback: (_: any) => void = () => {
+        return;
+    };
 
-    constructor(private cdr: ChangeDetectorRef) {
-    }
+    constructor(private cdr: ChangeDetectorRef) {}
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.opened) {
@@ -116,7 +120,7 @@ export class TreeNodeComponent implements ControlValueAccessor, OnChanges, After
         this.dataLoading = false;
         this.isOpen = true;
         this.openedChange.emit(this.isOpen);
-        if (this.hasChildren == 'unknown' || this.neverOpened) {
+        if (this.hasChildren == "unknown" || this.neverOpened) {
             this.neverOpened = false;
             this.firstOpen.emit(this);
         }
@@ -134,11 +138,11 @@ export class TreeNodeComponent implements ControlValueAccessor, OnChanges, After
         }
     }
 
-    get value(): boolean | 'indeterminate' {
+    get value(): boolean | "indeterminate" {
         return this.checked;
-    };
+    }
 
-    set value(value: boolean | 'indeterminate') {
+    set value(value: boolean | "indeterminate") {
         if (value !== this.checked) {
             this.checked = value;
             this.onChangeCallback(value);

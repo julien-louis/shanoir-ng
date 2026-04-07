@@ -18,10 +18,9 @@ import { SubjectStudy } from "./subject-study.model";
 
 @Pipe({
     name: "subjectStudyLabel",
-    standalone: false
+    standalone: false,
 })
 export class SubjectStudyPipe implements PipeTransform {
-
     transform(subjectStudy: SubjectStudy) {
         let displayedIdentifier: string = "";
         if (subjectStudy) {
@@ -30,7 +29,9 @@ export class SubjectStudyPipe implements PipeTransform {
             } else {
                 displayedIdentifier = subjectStudy.subject.name;
             }
-            displayedIdentifier += (subjectStudy.subject.subjectType ? ' (' + subjectStudy.subject.subjectType + ')' : '')
+            displayedIdentifier += subjectStudy.subject.subjectType
+                ? " (" + subjectStudy.subject.subjectType + ")"
+                : "";
         }
         return displayedIdentifier;
     }

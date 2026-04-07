@@ -1,4 +1,3 @@
-
 /**
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
@@ -13,25 +12,35 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, ContentChildren, forwardRef, HostListener, Input, QueryList, AfterViewInit } from '@angular/core';
+import {
+    Component,
+    ContentChildren,
+    forwardRef,
+    HostListener,
+    Input,
+    QueryList,
+    AfterViewInit,
+} from "@angular/core";
 
-import { menuAnimDur, menuSlideRight } from '../../../../shared/animations/animations';
+import {
+    menuAnimDur,
+    menuSlideRight,
+} from "../../../../shared/animations/animations";
 
 @Component({
-    selector: 'menu-item',
-    templateUrl: 'menu-item.component.html',
-    styleUrls: ['menu-item.component.css'],
+    selector: "menu-item",
+    templateUrl: "menu-item.component.html",
+    styleUrls: ["menu-item.component.css"],
     animations: [menuSlideRight],
-    standalone: false
+    standalone: false,
 })
-
 export class MenuItemComponent implements AfterViewInit {
-
     @Input() label: string;
     @Input() boolVar: boolean;
     @Input() awesome: string;
     @Input() disabled: boolean;
-    @ContentChildren(forwardRef(() => MenuItemComponent)) itemMenus: QueryList<MenuItemComponent>;
+    @ContentChildren(forwardRef(() => MenuItemComponent))
+    itemMenus: QueryList<MenuItemComponent>;
 
     public opened: boolean = true;
     public siblings: QueryList<MenuItemComponent>;
@@ -45,7 +54,8 @@ export class MenuItemComponent implements AfterViewInit {
     ngAfterViewInit() {
         let doHasChildren: boolean = false;
         this.itemMenus.forEach((itemMenu, index) => {
-            if (index!= 0) { // TODO : THE IF INDEX != 0 HAS TO BE REMOVED ONCE THE BUG IS FIXED : https://github.com/angular/angular/issues/10098
+            if (index != 0) {
+                // TODO : THE IF INDEX != 0 HAS TO BE REMOVED ONCE THE BUG IS FIXED : https://github.com/angular/angular/issues/10098
                 itemMenu.siblings = this.itemMenus;
                 itemMenu.parent = this;
                 doHasChildren = true;
@@ -60,23 +70,27 @@ export class MenuItemComponent implements AfterViewInit {
         }, 100);
     }
 
-    @HostListener('click', []) 
+    @HostListener("click", [])
     onClick() {
         if (!this.hasChildren) this.cascadingClose();
     }
 
     public open() {
         this.closeSiblings(() => {
-            this.opened =  true;
-            setTimeout(() => this.overflow = false, menuAnimDur);
-        })
+            this.opened = true;
+            setTimeout(() => (this.overflow = false), menuAnimDur);
+        });
     }
 
-    public close(callback: () => void = () => { return; }) {
+    public close(
+        callback: () => void = () => {
+            return;
+        },
+    ) {
         if (this.hasChildren) {
             this.closeChildren(() => {
                 this.overflow = true;
-                this.opened =  false;
+                this.opened = false;
                 setTimeout(callback, menuAnimDur);
             });
         } else {
@@ -84,10 +98,15 @@ export class MenuItemComponent implements AfterViewInit {
         }
     }
 
-    private closeOpenedAmong(menus: QueryList<MenuItemComponent>, callback: () => void = () => { return; }) {
+    private closeOpenedAmong(
+        menus: QueryList<MenuItemComponent>,
+        callback: () => void = () => {
+            return;
+        },
+    ) {
         const toBeClosed: MenuItemComponent[] = [];
         menus.forEach((menu: MenuItemComponent, index: number) => {
-            if (index!= 0 && menu.hasChildren && menu.opened) {
+            if (index != 0 && menu.hasChildren && menu.opened) {
                 toBeClosed.push(menu);
             }
         });
@@ -99,11 +118,15 @@ export class MenuItemComponent implements AfterViewInit {
                 if (remaining == 0) {
                     callback();
                 }
-            })
+            });
         }
     }
 
-    public closeChildren(callback: () => void = () => { return;}) {
+    public closeChildren(
+        callback: () => void = () => {
+            return;
+        },
+    ) {
         this.closeOpenedAmong(this.itemMenus, callback);
     }
 

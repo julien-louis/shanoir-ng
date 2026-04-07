@@ -12,29 +12,27 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import {  Validators, UntypedFormGroup } from '@angular/forms';
-import {  ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { Validators, UntypedFormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { PathologyModel }    from '../shared/pathologyModel.model';
-import { PathologyModelService } from '../shared/pathologyModel.service';
-import { Pathology }   from '../../pathology/shared/pathology.model';
-import { PathologyService } from '../../pathology/shared/pathology.service';
-import { slideDown } from '../../../../shared/animations/animations';
-import { EntityComponent } from '../../../../shared/components/entity/entity.component.abstract';
-import { Step } from '../../../../breadcrumbs/breadcrumbs.service';
-
+import { PathologyModel } from "../shared/pathologyModel.model";
+import { PathologyModelService } from "../shared/pathologyModel.service";
+import { Pathology } from "../../pathology/shared/pathology.model";
+import { PathologyService } from "../../pathology/shared/pathology.service";
+import { slideDown } from "../../../../shared/animations/animations";
+import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
+import { Step } from "../../../../breadcrumbs/breadcrumbs.service";
 
 @Component({
-    selector: 'pathologyModel-form',
-    templateUrl: 'pathologyModel-form.component.html',
+    selector: "pathologyModel-form",
+    templateUrl: "pathologyModel-form.component.html",
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
-export class PathologyModelFormComponent extends EntityComponent<PathologyModel>{
-
+export class PathologyModelFormComponent extends EntityComponent<PathologyModel> {
     pathologies: Pathology[];
     uploadUrl: string;
     fileToUpload: File = null;
@@ -44,19 +42,22 @@ export class PathologyModelFormComponent extends EntityComponent<PathologyModel>
     constructor(
         private route: ActivatedRoute,
         private modelService: PathologyModelService,
-        private pathologyService: PathologyService)
-        {
-
-            super(route);
-            this.manageSaveEntity();
+        private pathologyService: PathologyService,
+    ) {
+        super(route);
+        this.manageSaveEntity();
     }
 
     protected getRoutingName(): string {
-        return 'preclinical-pathology-model';
+        return "preclinical-pathology-model";
     }
 
-    get model(): PathologyModel { return this.entity; }
-    set model(model: PathologyModel) { this.entity = model; }
+    get model(): PathologyModel {
+        return this.entity;
+    }
+    set model(model: PathologyModel) {
+        this.entity = model;
+    }
 
     getService(): EntityService<PathologyModel> {
         return this.modelService;
@@ -68,9 +69,9 @@ export class PathologyModelFormComponent extends EntityComponent<PathologyModel>
 
     initEdit(): Promise<void> {
         this.loadData();
-        if(this.pathologies){
-            for(const patho of this.pathologies){
-                if(patho.id == this.model.pathology.id)
+        if (this.pathologies) {
+            for (const patho of this.pathologies) {
+                if (patho.id == this.model.pathology.id)
                     this.model.pathology = patho;
             }
         }
@@ -87,49 +88,50 @@ export class PathologyModelFormComponent extends EntityComponent<PathologyModel>
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'name': [this.model.name, [Validators.required, this.registerOnSubmitValidator('unique', 'name')]],
-            'pathology': [this.model.pathology, Validators.required],
-            'comment': [this.model.comment],
-            'filename': [this.model.filename]
+            name: [
+                this.model.name,
+                [
+                    Validators.required,
+                    this.registerOnSubmitValidator("unique", "name"),
+                ],
+            ],
+            pathology: [this.model.pathology, Validators.required],
+            comment: [this.model.comment],
+            filename: [this.model.filename],
         });
     }
 
     manageSaveEntity(): void {
         this.subscriptions.push(
-            this.onSave.subscribe(response => {
-                if (this.fileToUpload){
+            this.onSave.subscribe((response) => {
+                if (this.fileToUpload) {
                     //Then upload specifications file
                     this.modelService.postFile(this.fileToUpload, response.id);
                 }
-            })
+            }),
         );
-
     }
 
-    goToAddPathology(){
+    goToAddPathology() {
         const currentStep: Step = this.breadcrumbsService.currentStep;
-        this.router.navigate(['/preclinical-pathology/create']).then(() => {
-            currentStep.waitFor(this.breadcrumbsService.currentStep).subscribe(entity => {
-                this.pathologies.push(entity as Pathology);
-                this.entity.pathology = entity as Pathology;
-            });
+        this.router.navigate(["/preclinical-pathology/create"]).then(() => {
+            currentStep
+                .waitFor(this.breadcrumbsService.currentStep)
+                .subscribe((entity) => {
+                    this.pathologies.push(entity as Pathology);
+                    this.entity.pathology = entity as Pathology;
+                });
         });
     }
 
     loadData() {
-        this.pathologyService.getAll().then(pathologies => {
+        this.pathologyService.getAll().then((pathologies) => {
             this.pathologies = pathologies;
         });
     }
 
-    fileChangeEvent(files: FileList){
-    	this.fileToUpload = files.item(0);
-    	this.model.filename = this.fileToUpload.name;
+    fileChangeEvent(files: FileList) {
+        this.fileToUpload = files.item(0);
+        this.model.filename = this.fileToUpload.name;
     }
-
-
-
-
-
-
 }

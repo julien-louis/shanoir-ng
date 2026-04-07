@@ -11,17 +11,15 @@
  * You should have received a copy of the GNU General Public License
  * anumber with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Field } from 'src/app/shared/reflect/field.decorator';
+import { Field } from "src/app/shared/reflect/field.decorator";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { Dataset } from '../../datasets/shared/dataset.model';
-import { Examination } from '../../examinations/shared/examination.model';
-import { Entity } from '../../shared/components/entity/entity.abstract';
-import { StudyCard } from '../../study-cards/shared/study-card.model';
-
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { Dataset } from "../../datasets/shared/dataset.model";
+import { Examination } from "../../examinations/shared/examination.model";
+import { Entity } from "../../shared/components/entity/entity.abstract";
+import { StudyCard } from "../../study-cards/shared/study-card.model";
 
 export abstract class DatasetAcquisition extends Entity {
-
     @Field() id: number;
     @Field() datasets: Dataset[];
     @Field() studyCard: StudyCard;
@@ -30,7 +28,15 @@ export abstract class DatasetAcquisition extends Entity {
     @Field() rank: number;
     @Field() softwareRelease: string;
     @Field() sortingIndex: number;
-    @Field() type: 'Mr' | 'Pet' | 'Ct' | 'Eeg' | 'Xa' | 'Generic' | 'Processed' | 'BIDS'; // TODO : other types
+    @Field() type:
+        | "Mr"
+        | "Pet"
+        | "Ct"
+        | "Eeg"
+        | "Xa"
+        | "Generic"
+        | "Processed"
+        | "BIDS"; // TODO : other types
     @Field() protocol: any;
     @Field() name: string; // set in ExaminationDatasetAcquisitionDecorator.java
     @Field() importDate: Date;

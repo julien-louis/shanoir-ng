@@ -2,17 +2,17 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Examination } from '../shared/examination.model'
+import { Examination } from "../shared/examination.model";
 
 export class InstrumentBasedAssessment {
     id: number;
@@ -22,7 +22,7 @@ export class InstrumentBasedAssessment {
 }
 
 export class Instrument {
-    id:number;
+    id: number;
     acronym: string;
     childInstruments: Instrument[];
     instrumentBasedAssessments: InstrumentBasedAssessment[];
@@ -34,7 +34,6 @@ export class Instrument {
     name: string;
     parentInstrument: Instrument;
     passationMode: number;
-
 }
 
 export class InstrumentVariable {
@@ -66,7 +65,7 @@ export class VariableAssessment {
     id: number;
     instrumentBasedAssessment: InstrumentBasedAssessment;
     instrumentVariable: InstrumentVariable;
-    scoreList: Score[];
+    scoreList: CodedScore[];
 }
 
 export class ScientificArticle {
@@ -85,18 +84,18 @@ export class CodedScore extends Score {
 }
 
 export class NumericalScore extends Score {
-     isScoreWithUnitOfMeasure: boolean;
-     refNumericalScoreType: string;
-     refUnitOfMeasure: string;
-     scoreStandardisationArticle: ScientificArticle;
-     value: number;
+    isScoreWithUnitOfMeasure: boolean;
+    refNumericalScoreType: string;
+    refUnitOfMeasure: string;
+    scoreStandardisationArticle: ScientificArticle;
+    value: number;
 }
 
 export class ScaleItem {
-     id: number;
-     codedVariable: CodedVariable;
-     correspondingNumber: number;
-     qualitativeScaleItem: string;
-     quantitativeScaleItem: string;
-     refScaleItemType: string;
+    id: number;
+    codedVariable: CodedVariable;
+    correspondingNumber: number;
+    qualitativeScaleItem: string;
+    quantitativeScaleItem: string;
+    refScaleItemType: string;
 }

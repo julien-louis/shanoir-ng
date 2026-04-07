@@ -11,32 +11,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { CardinalityOfRelatedSubjects } from '../../enum/cardinality-of-related-subjects.enum';
-import { ExploredEntity } from '../../enum/explored-entity.enum';
-import { ProcessedDatasetType } from '../../enum/processed-dataset-type.enum';
-import { Entity } from '../../shared/components/entity/entity.abstract';
-import { Study } from '../../studies/shared/study.model';
-import { Subject } from '../../subjects/shared/subject.model';
-import { DatasetAcquisition } from '../../dataset-acquisitions/shared/dataset-acquisition.model';
-import { BidsDataType } from '../../enum/bids-data-type.enum';
+import { CardinalityOfRelatedSubjects } from "../../enum/cardinality-of-related-subjects.enum";
+import { ExploredEntity } from "../../enum/explored-entity.enum";
+import { ProcessedDatasetType } from "../../enum/processed-dataset-type.enum";
+import { Entity } from "../../shared/components/entity/entity.abstract";
+import { Study } from "../../studies/shared/study.model";
+import { Subject } from "../../subjects/shared/subject.model";
+import { DatasetAcquisition } from "../../dataset-acquisitions/shared/dataset-acquisition.model";
+import { BidsDataType } from "../../enum/bids-data-type.enum";
 import { Tag } from "../../tags/tag.model";
-import { Field } from '../../shared/reflect/field.decorator';
+import { Field } from "../../shared/reflect/field.decorator";
 
-import { DatasetType } from './dataset-type.model';
-import { DatasetProcessing } from './dataset-processing.model';
+import { DatasetType } from "./dataset-type.model";
+import { DatasetProcessing } from "./dataset-processing.model";
 
 export abstract class Dataset extends Entity {
-
     @Field() id: number;
     @Field() creationDate: Date;
     @Field() name: string;
     @Field() type: DatasetType;
-    @Field() datasetAcquisition: DatasetAcquisition
-    @Field() datasetProcessing: DatasetProcessing
-    @Field() study : Study;
-    @Field() subject : Subject;
+    @Field() datasetAcquisition: DatasetAcquisition;
+    @Field() datasetProcessing: DatasetProcessing;
+    @Field() study: Study;
+    @Field() subject: Subject;
     @Field() originMetadata: DatasetMetadata;
-    @Field() updatedMetadata : DatasetMetadata = new DatasetMetadata();
+    @Field() updatedMetadata: DatasetMetadata = new DatasetMetadata();
     @Field() processings: DatasetProcessing[] = [];
     @Field() inPacs: boolean;
     @Field() tags: Tag[];
@@ -53,7 +52,9 @@ export abstract class Dataset extends Entity {
     }
 
     get hasProcessing(): boolean {
-        return this._hasProcessing != undefined ? this._hasProcessing : !!this.datasetProcessing;
+        return this._hasProcessing != undefined
+            ? this._hasProcessing
+            : !!this.datasetProcessing;
     }
 }
 
@@ -63,6 +64,7 @@ export class DatasetMetadata {
     exploredEntity: ExploredEntity;
     name: string;
     processedDatasetType: ProcessedDatasetType;
-    cardinalityOfRelatedSubjects: CardinalityOfRelatedSubjects = CardinalityOfRelatedSubjects.SINGLE_SUBJECT_DATASET;
-	bidsDataType: BidsDataType;
+    cardinalityOfRelatedSubjects: CardinalityOfRelatedSubjects =
+        CardinalityOfRelatedSubjects.SINGLE_SUBJECT_DATASET;
+    bidsDataType: BidsDataType;
 }

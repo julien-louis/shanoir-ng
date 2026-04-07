@@ -12,30 +12,33 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import {Injectable, Injector} from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Injectable, Injector } from "@angular/core";
+import { HttpClient, HttpResponse } from "@angular/common/http";
 
-import { EntityService } from '../shared/components/entity/entity.abstract.service';
-import * as AppUtils from '../utils/app.utils';
-import {MassDownloadService} from "../shared/mass-download/mass-download.service";
+import { EntityService } from "../shared/components/entity/entity.abstract.service";
+import * as AppUtils from "../utils/app.utils";
+import { MassDownloadService } from "../shared/mass-download/mass-download.service";
 
-import {Task, TaskState} from './task.model';
+import { Task, TaskState } from "./task.model";
 
 @Injectable()
 export class TaskService extends EntityService<Task> {
-
     API_URL = AppUtils.BACKEND_API_TASKS_URL;
 
-
-    constructor(protected http: HttpClient,
-                protected injector: Injector) {
+    constructor(
+        protected http: HttpClient,
+        protected injector: Injector,
+    ) {
         super(http);
     }
 
-    getEntityInstance() { return new Task(); }
+    getEntityInstance() {
+        return new Task();
+    }
 
     getTasks(): Promise<Task[]> {
-        return this.http.get<Task[]>(this.API_URL)
+        return this.http
+            .get<Task[]>(this.API_URL)
             .toPromise()
             .then(this.mapEntityList);
     }
@@ -43,10 +46,10 @@ export class TaskService extends EntityService<Task> {
     public toRealObject(entity: any): Task {
         const trueObject = Object.assign(new Task(), entity);
         trueObject.completeId = entity.idAsString;
-        Object.keys(entity).forEach(key => {
-            if (key != 'idAsString') {
+        Object.keys(entity).forEach((key) => {
+            if (key != "idAsString") {
                 const value = entity[key];
-                if (['creationDate', 'lastUpdate'].includes(key) && value) {
+                if (["creationDate", "lastUpdate"].includes(key) && value) {
                     trueObject[key] = new Date(value);
                 }
             }
@@ -56,19 +59,30 @@ export class TaskService extends EntityService<Task> {
 
     public downloadStats(item: Task) {
         const endpoint = AppUtils.BACKEND_API_DATASET_MS_URL + item.route;
-        this.http.get(endpoint, { observe: 'response', responseType: 'blob' })
+        this.http
+            .get(endpoint, { observe: "response", responseType: "blob" })
             .toPromise()
             .then((response: HttpResponse<Blob>) => {
                 if (response.status == 200 || response.status == 204) {
                     AppUtils.browserDownloadFileFromResponse(response);
                 } else {
-                    this.consoleService.log('error', 'Statistics file not found or deleted (after 6 hours).');
+                    this.consoleService.log(
+                        "error",
+                        "Statistics file not found or deleted (after 6 hours).",
+                    );
                 }
             });
     }
 
     public downloadProcessingOutputs(item: Task) {
         const downloadService = this.injector.get(MassDownloadService);
-        downloadService.downloadProcessingOutputsByIds(item.message.replace(/^[^:]*:\s*/, "").split(",").map(Number), new TaskState(), item.message.match(/sorted by\s+([^,]+)/i)?.[1])
+        downloadService.downloadProcessingOutputsByIds(
+            item.message
+                .replace(/^[^:]*:\s*/, "")
+                .split(",")
+                .map(Number),
+            new TaskState(),
+            item.message.match(/sorted by\s+([^,]+)/i)?.[1],
+        );
     }
 }

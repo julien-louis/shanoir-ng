@@ -13,19 +13,20 @@
  */
 
 import { Option } from "../shared/select/select.component";
-import { capitalsAndUnderscoresToDisplayable, allOfEnum } from "../utils/app.utils";
+import {
+    capitalsAndUnderscoresToDisplayable,
+    allOfEnum,
+} from "../utils/app.utils";
 
 export enum BidsDataType {
-
-	FUNC = 'FUNC',
-	DWI = 'DWI',
-	FMAP = 'FMAP',
-	ANAT = 'ANAT',
-	PERF = 'PERF',
-    NIRS = 'NIRS'
-
-} export namespace BidsDataType {
-
+    FUNC = "FUNC",
+    DWI = "DWI",
+    FMAP = "FMAP",
+    ANAT = "ANAT",
+    PERF = "PERF",
+    NIRS = "NIRS",
+}
+export namespace BidsDataType {
     export function all(): BidsDataType[] {
         return allOfEnum<BidsDataType>(BidsDataType);
     }
@@ -34,5 +35,7 @@ export enum BidsDataType {
         return capitalsAndUnderscoresToDisplayable(type);
     }
 
-    export const options: Option<BidsDataType>[] = all().map(prop => new Option<BidsDataType>(prop, getLabel(prop)));
+    export const options: Option<BidsDataType>[] = all().map(
+        (prop) => new Option<BidsDataType>(prop, getLabel(prop)),
+    );
 }

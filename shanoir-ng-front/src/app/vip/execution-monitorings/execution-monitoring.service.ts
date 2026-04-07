@@ -21,30 +21,37 @@ import { EntityService } from "src/app/shared/components/entity/entity.abstract.
 import { ExecutionMonitoring } from "../models/execution-monitoring.model";
 import * as AppUtils from "../../utils/app.utils";
 
-
 @Injectable()
-export class ExecutionMonitoringService extends EntityService<ExecutionMonitoring>{
-
+export class ExecutionMonitoringService extends EntityService<ExecutionMonitoring> {
     API_URL: string = AppUtils.BACKEND_API_VIP_EXEC_MONITORING_URL;
 
     constructor(protected httpClient: HttpClient) {
         super(httpClient);
     }
 
-    getEntityInstance() { return new ExecutionMonitoring(); }
-
-    public getAllExecutionMonitorings(): Observable<ExecutionMonitoring[]>{
-        return this.httpClient.get<ExecutionMonitoring[]>(`${this.API_URL}/all`);
+    getEntityInstance() {
+        return new ExecutionMonitoring();
     }
 
-    public getExecutionMonitoring(id: number): Observable<ExecutionMonitoring>{
-        return this.httpClient.get<ExecutionMonitoring>(`${this.API_URL}/${id}`)
+    public getAllExecutionMonitorings(): Observable<ExecutionMonitoring[]> {
+        return this.httpClient.get<ExecutionMonitoring[]>(
+            `${this.API_URL}/all`,
+        );
     }
 
-    public updateAndStart(monitoring: ExecutionMonitoring){
-        return this.http.put<any>(this.API_URL + '/' + monitoring.id + '?start=true', this.stringify(monitoring), {reportProgress: true,
-            observe: 'events'})
+    public getExecutionMonitoring(id: number): Observable<ExecutionMonitoring> {
+        return this.httpClient.get<ExecutionMonitoring>(
+            `${this.API_URL}/${id}`,
+        );
+    }
+
+    public updateAndStart(monitoring: ExecutionMonitoring) {
+        return this.http
+            .put<any>(
+                this.API_URL + "/" + monitoring.id + "?start=true",
+                this.stringify(monitoring),
+                { reportProgress: true, observe: "events" },
+            )
             .toPromise();
     }
-
 }

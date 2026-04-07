@@ -11,11 +11,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {Option} from '../../../shared/select/select.component';
-import {allOfEnum, capitalsAndUnderscoresToDisplayable} from '../../../utils/app.utils';
-import {Dataset} from '../../shared/dataset.model';
-import {DiffusionGradient} from '../../../dataset-acquisitions/modality/mr/mr-protocol.model';
-import {DatasetType} from '../../shared/dataset-type.model';
+import { Option } from "../../../shared/select/select.component";
+import {
+    allOfEnum,
+    capitalsAndUnderscoresToDisplayable,
+} from "../../../utils/app.utils";
+import { Dataset } from "../../shared/dataset.model";
+import { DiffusionGradient } from "../../../dataset-acquisitions/modality/mr/mr-protocol.model";
+import { DatasetType } from "../../shared/dataset-type.model";
 
 export class MrDataset extends Dataset {
     diffusionGradients: DiffusionGradient[];
@@ -26,7 +29,7 @@ export class MrDataset extends Dataset {
     mrQualityProcedureType: MrQualityProcedureType;
     originMrMetadata: MrDatasetMetadata;
     updatedMrMetadata: MrDatasetMetadata = new MrDatasetMetadata();
-	firstImageAcquisitionTime: string;
+    firstImageAcquisitionTime: string;
     lastImageAcquisitionTime: string;
     constructor() {
         super();
@@ -53,7 +56,6 @@ export class InversionTime {
 export class RepetitionTime {
     id: number;
     repetitionTimeValue: number;
-
 }
 
 export class MrDatasetMetadata {
@@ -61,32 +63,30 @@ export class MrDatasetMetadata {
 }
 
 export enum MrDatasetNature {
-
     T1_WEIGHTED_MR_DATASET = "T1_WEIGHTED_MR_DATASET",
-    T2_WEIGHTED_MR_DATASET = 'T2_WEIGHTED_MR_DATASET',
-    T2_STAR_WEIGHTED_MR_DATASET = 'T2_STAR_WEIGHTED_MR_DATASET',
-    PROTON_DENSITY_WEIGHTED_MR_DATASET = 'PROTON_DENSITY_WEIGHTED_MR_DATASET',
-    DIFFUSION_WEIGHTED_MR_DATASET = 'DIFFUSION_WEIGHTED_MR_DATASET',
-    VELOCITY_ENCODED_ANGIO_MR_DATASET = 'VELOCITY_ENCODED_ANGIO_MR_DATASET',
-    TIME_OF_FLIGHT_MR_DATASET = 'TIME_OF_FLIGHT_MR_DATASET',
-    CONTRAST_AGENT_USED_ANGIO_MR_DATASET = 'CONTRAST_AGENT_USED_ANGIO_MR_DATASET',
-    SPIN_TAGGING_PERFUSION_MR_DATASET = 'SPIN_TAGGING_PERFUSION_MR_DATASET',
-    T1_WEIGHTED_DCE_MR_DATASET = 'T1_WEIGHTED_DCE_MR_DATASET',
-    T2_WEIGHTED_DCE_MR_DATASET = 'T2_WEIGHTED_DCE_MR_DATASET',
-    T2_STAR_WEIGHTED_DCE_MR_DATASET = 'T2_STAR_WEIGHTED_DCE_MR_DATASET',
-    FIELD_MAP_DATASET_SHORT_ECHO_TIME = 'FIELD_MAP_DATASET_SHORT_ECHO_TIME',
-    FIELD_MAP_DATASET_LONG_ECHO_TIME = 'FIELD_MAP_DATASET_LONG_ECHO_TIME',
-    H1_SINGLE_VOXEL_SPECTROSCOPY_DATASET = 'H1_SINGLE_VOXEL_SPECTROSCOPY_DATASET',
-    H1_SPECTROSCOPIC_IMAGING_DATASET = 'H1_SPECTROSCOPIC_IMAGING_DATASET',
-    APPARENT_DIFFUSION_COEFFICIENT_MR_DATASET = 'APPARENT_DIFFUSION_COEFFICIENT_MR_DATASET',
-    FLAIR_MR_DATASET = 'FLAIR_MR_DATASET',
-    FLAIR_DCE_MR_DATASET = 'FLAIR_DCE_MR_DATASET',
-    PERFUSION_WEIGHTED_MR_DATASET = 'PERFUSION_WEIGHTED_MR_DATASET',
-    SUSCEPTIBILITY_WEIGHTED_ANGIOGRAPHY_MR_DATASET = 'SUSCEPTIBILITY_WEIGHTED_ANGIOGRAPHY_MR_DATASET',
-    SUSCEPTIBILITY_WEIGHTED_MR_DATASET = 'SUSCEPTIBILITY_WEIGHTED_MR_DATASET'
-
-} export namespace MrDatasetNature {
-
+    T2_WEIGHTED_MR_DATASET = "T2_WEIGHTED_MR_DATASET",
+    T2_STAR_WEIGHTED_MR_DATASET = "T2_STAR_WEIGHTED_MR_DATASET",
+    PROTON_DENSITY_WEIGHTED_MR_DATASET = "PROTON_DENSITY_WEIGHTED_MR_DATASET",
+    DIFFUSION_WEIGHTED_MR_DATASET = "DIFFUSION_WEIGHTED_MR_DATASET",
+    VELOCITY_ENCODED_ANGIO_MR_DATASET = "VELOCITY_ENCODED_ANGIO_MR_DATASET",
+    TIME_OF_FLIGHT_MR_DATASET = "TIME_OF_FLIGHT_MR_DATASET",
+    CONTRAST_AGENT_USED_ANGIO_MR_DATASET = "CONTRAST_AGENT_USED_ANGIO_MR_DATASET",
+    SPIN_TAGGING_PERFUSION_MR_DATASET = "SPIN_TAGGING_PERFUSION_MR_DATASET",
+    T1_WEIGHTED_DCE_MR_DATASET = "T1_WEIGHTED_DCE_MR_DATASET",
+    T2_WEIGHTED_DCE_MR_DATASET = "T2_WEIGHTED_DCE_MR_DATASET",
+    T2_STAR_WEIGHTED_DCE_MR_DATASET = "T2_STAR_WEIGHTED_DCE_MR_DATASET",
+    FIELD_MAP_DATASET_SHORT_ECHO_TIME = "FIELD_MAP_DATASET_SHORT_ECHO_TIME",
+    FIELD_MAP_DATASET_LONG_ECHO_TIME = "FIELD_MAP_DATASET_LONG_ECHO_TIME",
+    H1_SINGLE_VOXEL_SPECTROSCOPY_DATASET = "H1_SINGLE_VOXEL_SPECTROSCOPY_DATASET",
+    H1_SPECTROSCOPIC_IMAGING_DATASET = "H1_SPECTROSCOPIC_IMAGING_DATASET",
+    APPARENT_DIFFUSION_COEFFICIENT_MR_DATASET = "APPARENT_DIFFUSION_COEFFICIENT_MR_DATASET",
+    FLAIR_MR_DATASET = "FLAIR_MR_DATASET",
+    FLAIR_DCE_MR_DATASET = "FLAIR_DCE_MR_DATASET",
+    PERFUSION_WEIGHTED_MR_DATASET = "PERFUSION_WEIGHTED_MR_DATASET",
+    SUSCEPTIBILITY_WEIGHTED_ANGIOGRAPHY_MR_DATASET = "SUSCEPTIBILITY_WEIGHTED_ANGIOGRAPHY_MR_DATASET",
+    SUSCEPTIBILITY_WEIGHTED_MR_DATASET = "SUSCEPTIBILITY_WEIGHTED_MR_DATASET",
+}
+export namespace MrDatasetNature {
     export function all(): MrDatasetNature[] {
         return allOfEnum<MrDatasetNature>(MrDatasetNature);
     }
@@ -95,16 +95,16 @@ export enum MrDatasetNature {
         return capitalsAndUnderscoresToDisplayable(type);
     }
 
-    export const options: Option<MrDatasetNature>[] = all().map(prop => new Option<MrDatasetNature>(prop, getLabel(prop)));
+    export const options: Option<MrDatasetNature>[] = all().map(
+        (prop) => new Option<MrDatasetNature>(prop, getLabel(prop)),
+    );
 }
 
 export enum MrQualityProcedureType {
-
     MAGNETIC_FIELD_QUALITY_DATASET_LONG_ECHO_TIME = "MAGNETIC_FIELD_QUALITY_DATASET_LONG_ECHO_TIME",
-    MAGNETIC_FIELD_QUALITY_DATASET_SHORT_ECHO_TIME = 'MAGNETIC_FIELD_QUALITY_DATASET_SHORT_ECHO_TIME'
-
-} export namespace MrQualityProcedureType {
-
+    MAGNETIC_FIELD_QUALITY_DATASET_SHORT_ECHO_TIME = "MAGNETIC_FIELD_QUALITY_DATASET_SHORT_ECHO_TIME",
+}
+export namespace MrQualityProcedureType {
     export function all(): MrQualityProcedureType[] {
         return allOfEnum<MrQualityProcedureType>(MrQualityProcedureType);
     }
@@ -113,5 +113,7 @@ export enum MrQualityProcedureType {
         return capitalsAndUnderscoresToDisplayable(type);
     }
 
-    export const options: Option<MrQualityProcedureType>[] = all().map(prop => new Option<MrQualityProcedureType>(prop, getLabel(prop)));
+    export const options: Option<MrQualityProcedureType>[] = all().map(
+        (prop) => new Option<MrQualityProcedureType>(prop, getLabel(prop)),
+    );
 }

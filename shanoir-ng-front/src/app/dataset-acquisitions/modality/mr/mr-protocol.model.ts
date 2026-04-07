@@ -13,7 +13,6 @@
  */
 
 export class MrProtocol {
-
     acquisitionDuration: number;
     acquisitionResolutionX: number;
     acquisitionResolutionY: number;
@@ -42,18 +41,14 @@ export class MrProtocol {
     updatedMetadata: MrProtocolMetadata;
 }
 
-
 export class DiffusionGradient {
-
     diffusionGradientBValue: number;
     diffusionGradientOrientationX: number;
     diffusionGradientOrientationY: number;
     diffusionGradientOrientationZ: number;
 }
 
-
 export class MrProtocolMetadata {
-
     serialVersionUID: number;
     acquisitionContrast: number;
     contrastAgentConcentration: number;

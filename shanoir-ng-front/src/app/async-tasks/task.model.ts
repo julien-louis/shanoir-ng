@@ -12,9 +12,9 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Entity } from '../shared/components/entity/entity.abstract';
-import { Field } from '../shared/reflect/field.decorator';
-import { camelToSpaces } from '../utils/app.utils';
+import { Entity } from "../shared/components/entity/entity.abstract";
+import { Field } from "../shared/reflect/field.decorator";
+import { camelToSpaces } from "../utils/app.utils";
 
 export enum TaskStatus {
     ERROR = -1,
@@ -22,22 +22,27 @@ export enum TaskStatus {
     IN_PROGRESS = 2,
     DONE_BUT_WARNING = 3,
     QUEUED = 4,
-    IN_PROGRESS_BUT_WARNING = 5
+    IN_PROGRESS_BUT_WARNING = 5,
 }
 
 export class TaskState {
-
     errors: any;
 
-    constructor(public status?: TaskStatus, public progress?: number) {}
+    constructor(
+        public status?: TaskStatus,
+        public progress?: number,
+    ) {}
 
     isActive(): boolean {
-        return [TaskStatus.IN_PROGRESS, TaskStatus.QUEUED, TaskStatus.IN_PROGRESS_BUT_WARNING].includes(this.status);
+        return [
+            TaskStatus.IN_PROGRESS,
+            TaskStatus.QUEUED,
+            TaskStatus.IN_PROGRESS_BUT_WARNING,
+        ].includes(this.status);
     }
 }
 
 export class Task extends Entity {
-
     @Field() debugTs: number = Date.now();
     @Field() id: number;
     @Field() completeId: bigint;
@@ -55,11 +60,25 @@ export class Task extends Entity {
     @Field() sessionId: string;
     _idAsString: string;
     @Field() hideFromMenu: boolean;
-    private readonly FIELDS: string[] = ['id', 'creationDate', 'lastUpdate','_status','_message', '_progress', '_eventType', 'eventLabel', 'objectId', 'route', 'report', 'sessionId', '_idAsString'];
+    private readonly FIELDS: string[] = [
+        "id",
+        "creationDate",
+        "lastUpdate",
+        "_status",
+        "_message",
+        "_progress",
+        "_eventType",
+        "eventLabel",
+        "objectId",
+        "route",
+        "report",
+        "sessionId",
+        "_idAsString",
+    ];
 
     set eventType(eventType: string) {
         this._eventType = eventType;
-        this.eventLabel = camelToSpaces(this.eventType.replace('.event', ''));
+        this.eventLabel = camelToSpaces(this.eventType.replace(".event", ""));
     }
 
     @Field() get eventType(): string {
@@ -103,24 +122,60 @@ export class Task extends Entity {
     }
 
     private buildRoute(): string {
-        if (this.eventType === 'importDataset.event' && this.status != -1) {
-            if (this.message.lastIndexOf('examination [') != -1) {
+        if (this.eventType === "importDataset.event" && this.status != -1) {
+            if (this.message.lastIndexOf("examination [") != -1) {
                 const substring = this.message.match(/examination \[\d+\]/g)[0];
-                return '/examination/details/' + substring.slice(substring.lastIndexOf("[") + 1, substring.lastIndexOf("]"));
-            } else if (this.message.indexOf('dataset [') != -1) {
+                return (
+                    "/examination/details/" +
+                    substring.slice(
+                        substring.lastIndexOf("[") + 1,
+                        substring.lastIndexOf("]"),
+                    )
+                );
+            } else if (this.message.indexOf("dataset [") != -1) {
                 const substring = this.message.match(/dataset \[\d+\]/g)[0];
-                return '/dataset/details/' + substring.slice(substring.lastIndexOf("[") + 1, substring.lastIndexOf("]"));
+                return (
+                    "/dataset/details/" +
+                    substring.slice(
+                        substring.lastIndexOf("[") + 1,
+                        substring.lastIndexOf("]"),
+                    )
+                );
             }
-        } else if (this.eventType === 'executionMonitoring.event' && this.status != -1) {
-            return '/dataset-processing/details/' + this.objectId
-        } else if (this.eventType === 'solrIndexAll.event' && this.status != -1) {
-            return '/solr-search';
-        } else if (this.eventType === 'copyDataset.event' && this.status != -1 && this.message.lastIndexOf('study [') != -1) {
-            return '/study/details/' + this.message.slice(this.message.lastIndexOf("[") + 1, this.message.lastIndexOf("]"));
-        } else if (this.eventType === 'downloadStatistics.event' && this.status != -1 && this.status != 2) {
-            return '/datasets/download/event/' + this.idAsString;
-        } else if (this.eventType === 'massiveOutputsDownload.event' && this.status != -1 && this.status != 2) {
-            return '/datasets/massiveProcessingOutputsDownload';
+        } else if (
+            this.eventType === "executionMonitoring.event" &&
+            this.status != -1
+        ) {
+            return "/dataset-processing/details/" + this.objectId;
+        } else if (
+            this.eventType === "solrIndexAll.event" &&
+            this.status != -1
+        ) {
+            return "/solr-search";
+        } else if (
+            this.eventType === "copyDataset.event" &&
+            this.status != -1 &&
+            this.message.lastIndexOf("study [") != -1
+        ) {
+            return (
+                "/study/details/" +
+                this.message.slice(
+                    this.message.lastIndexOf("[") + 1,
+                    this.message.lastIndexOf("]"),
+                )
+            );
+        } else if (
+            this.eventType === "downloadStatistics.event" &&
+            this.status != -1 &&
+            this.status != 2
+        ) {
+            return "/datasets/download/event/" + this.idAsString;
+        } else if (
+            this.eventType === "massiveOutputsDownload.event" &&
+            this.status != -1 &&
+            this.status != 2
+        ) {
+            return "/datasets/massiveProcessingOutputsDownload";
         }
         return null;
     }
@@ -131,7 +186,9 @@ export class Task extends Entity {
 
     clone(): Task {
         const clone: Task = new Task();
-        this.FIELDS.forEach(fieldName => clone[fieldName] = this[fieldName]);
+        this.FIELDS.forEach(
+            (fieldName) => (clone[fieldName] = this[fieldName]),
+        );
         return clone;
     }
 
@@ -146,11 +203,13 @@ export class Task extends Entity {
         if (task.status != undefined) this.status = task.status;
         if (task.progress != undefined) this.progress = task.progress;
         if (task.lastUpdate) this.lastUpdate = task.lastUpdate;
-        if (!this.creationDate && task.creationDate) this.creationDate = task.creationDate;
+        if (!this.creationDate && task.creationDate)
+            this.creationDate = task.creationDate;
         if (task.report) this.report = task.report;
         if (task.message) this.message = task.message;
         if (task.idAsString) this.idAsString = task.idAsString;
-        if (task.hideFromMenu != undefined) this.hideFromMenu = task.hideFromMenu;
+        if (task.hideFromMenu != undefined)
+            this.hideFromMenu = task.hideFromMenu;
         if (task.sessionId) this.sessionId = task.sessionId;
         if (task.eventLabel) this.eventLabel = task.eventLabel;
         if (task.debugTs) this.debugTs = task.debugTs;
@@ -160,5 +219,3 @@ export class Task extends Entity {
         return this;
     }
 }
-
-

@@ -11,60 +11,83 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, EventEmitter, forwardRef, Input, Output, OnInit, DestroyRef } from '@angular/core';
-import { ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    Output,
+    OnInit,
+    DestroyRef,
+} from "@angular/core";
+import {
+    ControlValueAccessor,
+    UntypedFormBuilder,
+    UntypedFormGroup,
+    NG_VALUE_ACCESSOR,
+    Validators,
+} from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { Location } from "@angular/common";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { ConfirmDialogService } from 'src/app/shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService } from "src/app/shared/components/confirm-dialog/confirm-dialog.service";
 
-import { StudyService } from '../../studies/shared/study.service';
-import { Option } from '../../shared/select/select.component';
+import { StudyService } from "../../studies/shared/study.service";
+import { Option } from "../../shared/select/select.component";
 
-import { AccountRequestInfo } from './account-request-info.model';
+import { AccountRequestInfo } from "./account-request-info.model";
 
-@Component ({
-    selector: 'account-request-info',
-    templateUrl: 'account-request-info.component.html',
+@Component({
+    selector: "account-request-info",
+    templateUrl: "account-request-info.component.html",
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => AccountRequestInfoComponent),
             multi: true,
-        }
+        },
     ],
-    standalone: false
+    standalone: false,
 })
-export class AccountRequestInfoComponent implements ControlValueAccessor, OnInit {
-
+export class AccountRequestInfoComponent
+    implements ControlValueAccessor, OnInit
+{
     @Input() editMode: boolean = false;
     @Output() valid: EventEmitter<boolean> = new EventEmitter();
     info: AccountRequestInfo = new AccountRequestInfo();
     form: UntypedFormGroup;
-    onChange: (any) => void = () => { return; };
-    onTouch: () => void = () => { return; };
-    public studyOptions:  Option<number>[];
+    onChange: (any) => void = () => {
+        return;
+    };
+    onTouch: () => void = () => {
+        return;
+    };
+    public studyOptions: Option<number>[];
     studyName: string;
     presetStudyId: boolean;
 
-    constructor(private formBuilder: UntypedFormBuilder,
-                private studyService: StudyService,
-                private activatedRoute: ActivatedRoute,
-                private location: Location,
-                private confirmDialogService: ConfirmDialogService,
-                private destroyRef: DestroyRef
-            ) { }
+    constructor(
+        private formBuilder: UntypedFormBuilder,
+        private studyService: StudyService,
+        private activatedRoute: ActivatedRoute,
+        private location: Location,
+        private confirmDialogService: ConfirmDialogService,
+        private destroyRef: DestroyRef,
+    ) {}
 
-    setDisabledState?(_isDisabled: boolean): void { 
-        return; 
+    setDisabledState?(_isDisabled: boolean): void {
+        return;
     }
 
     writeValue(obj: any): void {
         this.info = obj;
-        if (this.activatedRoute.snapshot.params['id'] && this.activatedRoute.snapshot.params['id'] != 0) {
+        if (
+            this.activatedRoute.snapshot.params["id"] &&
+            this.activatedRoute.snapshot.params["id"] != 0
+        ) {
             this.presetStudyId = true;
-            this.info.studyId = this.activatedRoute.snapshot.params['id'];
+            this.info.studyId = this.activatedRoute.snapshot.params["id"];
         }
     }
 
@@ -78,32 +101,44 @@ export class AccountRequestInfoComponent implements ControlValueAccessor, OnInit
 
     ngOnInit() {
         // If study is preselected (from invitation), do not load available studies
-        if (this.activatedRoute.snapshot.params['id'] && this.activatedRoute.snapshot.params['id'] != 0) {
+        if (
+            this.activatedRoute.snapshot.params["id"] &&
+            this.activatedRoute.snapshot.params["id"] != 0
+        ) {
             this.presetStudyId = true;
-            this.info.studyId = this.activatedRoute.snapshot.params['id'];
+            this.info.studyId = this.activatedRoute.snapshot.params["id"];
         } else {
-            this.studyService.getPublicStudiesData().then(result => {
+            this.studyService.getPublicStudiesData().then((result) => {
                 if (result && result.length > 0) {
-                    this.studyOptions = result.map(element => new Option(element.id, element.name));
+                    this.studyOptions = result.map(
+                        (element) => new Option(element.id, element.name),
+                    );
                 } else {
                     this.studyOptions = [];
-                    this.confirmDialogService.error("ERROR","No public studies available for the moment. Please ask a direct link to a study manager to create your account.")
-                    .then(() => this.location.back());
+                    this.confirmDialogService
+                        .error(
+                            "ERROR",
+                            "No public studies available for the moment. Please ask a direct link to a study manager to create your account.",
+                        )
+                        .then(() => this.location.back());
                 }
             });
         }
         this.form = this.formBuilder.group({
-            'institution': [this.info.institution, [Validators.required, Validators.maxLength(200)]],
+            institution: [
+                this.info.institution,
+                [Validators.required, Validators.maxLength(200)],
+            ],
             // 'function': [this.info.function, [Validators.required, Validators.maxLength(200)]],
             // 'contact': [this.info.contact, [Validators.maxLength(200)]],
-            'studyId': [this.info.studyId, [Validators.required]],
-            'studyName': [this.info.studyName]
+            studyId: [this.info.studyId, [Validators.required]],
+            studyName: [this.info.studyName],
         });
         this.form.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-            this.valid.emit(this.form.valid);
-        });
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.valid.emit(this.form.valid);
+            });
     }
 
     onInfoChange() {
@@ -138,8 +173,8 @@ export class AccountRequestInfoComponent implements ControlValueAccessor, OnInit
     hasError(fieldName: string, errors: string[]) {
         const formError = this.formErrors(fieldName);
         if (formError) {
-            for(const errorName of errors) {
-                if(formError[errorName]) return true;
+            for (const errorName of errors) {
+                if (formError[errorName]) return true;
             }
         }
         return false;

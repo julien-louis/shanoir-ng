@@ -11,39 +11,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { EntityListComponent } from '../../shared/components/entity/entity-list.component.abstract';
-import { Page, Pageable } from '../../shared/components/table/pageable.model';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
-import { StudyService } from '../../studies/shared/study.service';
-import { Examination } from '../shared/examination.model';
-import { ExaminationService } from '../shared/examination.service';
-import { StudyUserRight } from '../../studies/shared/study-user-right.enum';
-
+import { EntityListComponent } from "../../shared/components/entity/entity-list.component.abstract";
+import { Page, Pageable } from "../../shared/components/table/pageable.model";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
+import { StudyService } from "../../studies/shared/study.service";
+import { Examination } from "../shared/examination.model";
+import { ExaminationService } from "../shared/examination.service";
+import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
 
 @Component({
-    selector: 'examination-list',
-    templateUrl: 'examination-list.component.html',
-    styleUrls: ['examination-list.component.css'],
-    standalone: false
+    selector: "examination-list",
+    templateUrl: "examination-list.component.html",
+    styleUrls: ["examination-list.component.css"],
+    standalone: false,
 })
-export class ExaminationListComponent extends EntityListComponent<Examination>{
-    @ViewChild('table', { static: false }) table: TableComponent;
+export class ExaminationListComponent extends EntityListComponent<Examination> {
+    @ViewChild("table", { static: false }) table: TableComponent;
 
     private studiesICanAdmin: number[];
     private studyIdsForCurrentUser: number[];
 
     constructor(
         private examinationService: ExaminationService,
-        private studyService: StudyService
+        private studyService: StudyService,
     ) {
-        super('examination');
-        this.studyService.findStudyIdsIcanAdmin().then(ids => this.studiesICanAdmin = ids);
-        this.studyService.getStudiesByRight(StudyUserRight.CAN_IMPORT).then( studies => this.studyIdsForCurrentUser = studies);
+        super("examination");
+        this.studyService
+            .findStudyIdsIcanAdmin()
+            .then((ids) => (this.studiesICanAdmin = ids));
+        this.studyService
+            .getStudiesByRight(StudyUserRight.CAN_IMPORT)
+            .then((studies) => (this.studyIdsForCurrentUser = studies));
     }
 
     getService(): EntityService<Examination> {
@@ -51,29 +54,65 @@ export class ExaminationListComponent extends EntityListComponent<Examination>{
     }
 
     getPage(pageable: Pageable): Promise<Page<Examination>> {
-        return this.examinationService.getPage(pageable, false, this.table.filter.searchStr? this.table.filter.searchStr : "", this.table.filter.searchField ? this.table.filter.searchField : "").then(page => {
-            return page;
-        });
+        return this.examinationService
+            .getPage(
+                pageable,
+                false,
+                this.table.filter.searchStr ? this.table.filter.searchStr : "",
+                this.table.filter.searchField
+                    ? this.table.filter.searchField
+                    : "",
+            )
+            .then((page) => {
+                return page;
+            });
     }
 
     getColumnDefs(): ColumnDefinition[] {
         const colDef: ColumnDefinition[] = [
-            {headerName: "Id", field: "id", type: "number", width: "60px", defaultSortCol: true, defaultAsc: false},
             {
-                headerName: "Subject", field: "subject.name", cellRenderer: function (params: any) {
-                    return (params.data.subject) ? params.data.subject.name : '';
-                }
-            },{
-                headerName: "Comment", field: "comment"
-            },{
-                headerName: "Examination date", field: "examinationDate", type: "date", width: "100px"
-            },{
-                headerName: "Research study", field: "study.name", orderBy: ['study.name'],
-                route: (examination: Examination) => examination.study ? '/study/details/' + examination.study.id : null
-            },{
-                headerName: "Acquisition Center", field: "center.name", orderBy: ['centerId'],
-                route: (examination: Examination) => examination.center ? '/center/details/' + examination.center.id : null
-            }
+                headerName: "Id",
+                field: "id",
+                type: "number",
+                width: "60px",
+                defaultSortCol: true,
+                defaultAsc: false,
+            },
+            {
+                headerName: "Subject",
+                field: "subject.name",
+                cellRenderer: function (params: any) {
+                    return params.data.subject ? params.data.subject.name : "";
+                },
+            },
+            {
+                headerName: "Comment",
+                field: "comment",
+            },
+            {
+                headerName: "Examination date",
+                field: "examinationDate",
+                type: "date",
+                width: "100px",
+            },
+            {
+                headerName: "Research study",
+                field: "study.name",
+                orderBy: ["study.name"],
+                route: (examination: Examination) =>
+                    examination.study
+                        ? "/study/details/" + examination.study.id
+                        : null,
+            },
+            {
+                headerName: "Acquisition Center",
+                field: "center.name",
+                orderBy: ["centerId"],
+                route: (examination: Examination) =>
+                    examination.center
+                        ? "/center/details/" + examination.center.id
+                        : null,
+            },
         ];
         return colDef;
     }
@@ -87,19 +126,23 @@ export class ExaminationListComponent extends EntityListComponent<Examination>{
             new: this.keycloakService.isUserAdminOrExpert(),
             view: true,
             edit: this.keycloakService.isUserAdminOrExpert(),
-            delete: this.keycloakService.isUserAdminOrExpert()
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
     canEdit(ex: Examination): boolean {
-        return this.keycloakService.isUserAdmin() || this.studyIdsForCurrentUser.includes(ex.study.id);
+        return (
+            this.keycloakService.isUserAdmin() ||
+            this.studyIdsForCurrentUser.includes(ex.study.id)
+        );
     }
 
     canDelete(exam: Examination): boolean {
-        return this.keycloakService.isUserAdmin() || (
-            exam.study
-            && this.studiesICanAdmin
-            && this.studiesICanAdmin.includes(exam.study.id)
+        return (
+            this.keycloakService.isUserAdmin() ||
+            (exam.study &&
+                this.studiesICanAdmin &&
+                this.studiesICanAdmin.includes(exam.study.id))
         );
     }
 }

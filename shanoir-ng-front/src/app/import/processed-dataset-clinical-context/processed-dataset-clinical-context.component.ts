@@ -11,29 +11,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
-import { Step } from '../../breadcrumbs/breadcrumbs.service';
-import { DatasetProcessingPipe } from '../../datasets/dataset-processing/dataset-processing.pipe';
-import { DatasetProcessing } from '../../datasets/shared/dataset-processing.model';
-import { DatasetProcessingService } from '../../datasets/shared/dataset-processing.service';
-import { DatasetType } from '../../datasets/shared/dataset-type.model';
-import { ProcessedDatasetType } from '../../enum/processed-dataset-type.enum';
-import { preventInitialChildAnimations, slideDown } from '../../shared/animations/animations';
-import { ServiceLocator } from '../../utils/locator.service';
-import { AbstractClinicalContextComponent } from '../clinical-context/clinical-context.abstract.component';
-import { ProcessedContextData } from '../shared/import.data-service';
-import { ProcessedDatasetImportJob } from '../shared/processed-dataset-data.model';
+import { Step } from "../../breadcrumbs/breadcrumbs.service";
+import { DatasetProcessingPipe } from "../../datasets/dataset-processing/dataset-processing.pipe";
+import { DatasetProcessing } from "../../datasets/shared/dataset-processing.model";
+import { DatasetProcessingService } from "../../datasets/shared/dataset-processing.service";
+import { DatasetType } from "../../datasets/shared/dataset-type.model";
+import { ProcessedDatasetType } from "../../enum/processed-dataset-type.enum";
+import {
+    preventInitialChildAnimations,
+    slideDown,
+} from "../../shared/animations/animations";
+import { ServiceLocator } from "../../utils/locator.service";
+import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
+import { ProcessedContextData } from "../shared/import.data-service";
+import { ProcessedDatasetImportJob } from "../shared/processed-dataset-data.model";
 
 @Component({
-    selector: 'processed-dataset-clinical-context',
-    templateUrl: 'processed-dataset-clinical-context.component.html',
-    styleUrls: ['../clinical-context/clinical-context.component.css', '../shared/import.step.css','./processed-dataset-clinical-context.component.css'],
+    selector: "processed-dataset-clinical-context",
+    templateUrl: "processed-dataset-clinical-context.component.html",
+    styleUrls: [
+        "../clinical-context/clinical-context.component.css",
+        "../shared/import.step.css",
+        "./processed-dataset-clinical-context.component.css",
+    ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false
+    standalone: false,
 })
 export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalContextComponent {
-
     DatasetType = DatasetType;
     ProcessedDatasetType = ProcessedDatasetType;
     public datasetType: DatasetType;
@@ -44,11 +50,13 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
     public datasetProcessing: DatasetProcessing;
     public datasetProcessings: DatasetProcessing[] = [];
     public useStudyCard: boolean = false;
-    private datasetProcessingService: DatasetProcessingService = ServiceLocator.injector.get(DatasetProcessingService);
-    public datasetProcessingLabelPipe: DatasetProcessingPipe = ServiceLocator.injector.get(DatasetProcessingPipe);
+    private datasetProcessingService: DatasetProcessingService =
+        ServiceLocator.injector.get(DatasetProcessingService);
+    public datasetProcessingLabelPipe: DatasetProcessingPipe =
+        ServiceLocator.injector.get(DatasetProcessingPipe);
 
     getNextUrl(): string {
-        return '/imports/processed-dataset';
+        return "/imports/processed-dataset";
     }
 
     protected exitCondition(): boolean {
@@ -73,24 +81,34 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
     }
 
     public postConstructor(): void {
-        this.breadcrumbsService.nameStep('2. Context');
-        if(this.importDataService.processedDatasetImportJob != null) {
-            this.processedDatasetFilePath = this.importDataService.processedDatasetImportJob.processedDatasetFilePath;
+        this.breadcrumbsService.nameStep("2. Context");
+        if (this.importDataService.processedDatasetImportJob != null) {
+            this.processedDatasetFilePath =
+                this.importDataService.processedDatasetImportJob.processedDatasetFilePath;
         }
     }
 
     public openCreateDatasetProcessing() {
         const importStep: Step = this.breadcrumbsService.currentStep;
-        const createDatasetProcessingRoute: string = '/dataset-processing/create';
-        this.breadcrumbsService.addNextStepPrefilled('study', this.study, true);
-        this.breadcrumbsService.addNextStepPrefilled('subject', this.subject, true);
+        const createDatasetProcessingRoute: string =
+            "/dataset-processing/create";
+        this.breadcrumbsService.addNextStepPrefilled("study", this.study, true);
+        this.breadcrumbsService.addNextStepPrefilled(
+            "subject",
+            this.subject,
+            true,
+        );
         this.router.navigate([createDatasetProcessingRoute]).then(() => {
             this.subscriptions.push(
-                importStep.waitFor(this.breadcrumbsService.currentStep, false).subscribe(entity => {
-                    this.datasetProcessing = entity;
-                    this.onContextChange();
-                    this.importDataService.contextBackup(this.stepTs).datasetProcessing = entity;
-                })
+                importStep
+                    .waitFor(this.breadcrumbsService.currentStep, false)
+                    .subscribe((entity) => {
+                        this.datasetProcessing = entity;
+                        this.onContextChange();
+                        this.importDataService.contextBackup(
+                            this.stepTs,
+                        ).datasetProcessing = entity;
+                    }),
             );
         });
     }
@@ -98,12 +116,26 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
     protected reloadSavedData(): Promise<void> {
         if (this.importDataService.contextBackup(this.stepTs)) {
             this.reloading = true;
-            const processedDatasetFilePath = this.importDataService.contextBackup(this.stepTs).processedDatasetFilePath;
-            const datasetType = this.importDataService.contextBackup(this.stepTs).datasetType;
-            const processedDatasetType = this.importDataService.contextBackup(this.stepTs).processedDatasetType;
-            const processedDatasetName = this.importDataService.contextBackup(this.stepTs).processedDatasetName;
-            const processedDatasetComment = this.importDataService.contextBackup(this.stepTs).processedDatasetComment;
-            const datasetProcessing = this.importDataService.contextBackup(this.stepTs).datasetProcessing;
+            const processedDatasetFilePath =
+                this.importDataService.contextBackup(
+                    this.stepTs,
+                ).processedDatasetFilePath;
+            const datasetType = this.importDataService.contextBackup(
+                this.stepTs,
+            ).datasetType;
+            const processedDatasetType = this.importDataService.contextBackup(
+                this.stepTs,
+            ).processedDatasetType;
+            const processedDatasetName = this.importDataService.contextBackup(
+                this.stepTs,
+            ).processedDatasetName;
+            const processedDatasetComment =
+                this.importDataService.contextBackup(
+                    this.stepTs,
+                ).processedDatasetComment;
+            const datasetProcessing = this.importDataService.contextBackup(
+                this.stepTs,
+            ).datasetProcessing;
             if (processedDatasetFilePath) {
                 this.processedDatasetFilePath = processedDatasetFilePath;
             }
@@ -119,8 +151,12 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
             if (processedDatasetComment) {
                 this.processedDatasetComment = processedDatasetComment;
             }
-            const study = this.importDataService.contextBackup(this.stepTs).study;
-            const subject = this.importDataService.contextBackup(this.stepTs).subject;
+            const study = this.importDataService.contextBackup(
+                this.stepTs,
+            ).study;
+            const subject = this.importDataService.contextBackup(
+                this.stepTs,
+            ).subject;
 
             this.study = study;
             return this.onSelectStudy().then(() => {
@@ -135,27 +171,29 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
     }
 
     protected getContext(): ProcessedContextData {
-        return new ProcessedContextData(this.study,
-                            this.subject,
-                            this.datasetType,
-                            this.processedDatasetFilePath,
-                            this.processedDatasetType,
-                            this.processedDatasetName,
-                            this.processedDatasetComment,
-                            this.datasetProcessing);
+        return new ProcessedContextData(
+            this.study,
+            this.subject,
+            this.datasetType,
+            this.processedDatasetFilePath,
+            this.processedDatasetType,
+            this.processedDatasetName,
+            this.processedDatasetComment,
+            this.datasetProcessing,
+        );
     }
 
     get valid(): boolean {
         const context = this.getContext();
         return (
-            context.study != null
-            && context.subject != null
-            && context.datasetType != null
-			&& context.processedDatasetName != null && context.processedDatasetName != ""
-            && context.processedDatasetFilePath != null
-            && context.processedDatasetType != null
-            && context.datasetProcessing != null
+            context.study != null &&
+            context.subject != null &&
+            context.datasetType != null &&
+            context.processedDatasetName != null &&
+            context.processedDatasetName != "" &&
+            context.processedDatasetFilePath != null &&
+            context.processedDatasetType != null &&
+            context.datasetProcessing != null
         );
     }
-
 }

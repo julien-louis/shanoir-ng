@@ -13,37 +13,41 @@
  */
 
 import { Option } from "../../shared/select/select.component";
-import { allOfEnum, capitalsAndUnderscoresToDisplayable } from "../../utils/app.utils";
-
+import {
+    allOfEnum,
+    capitalsAndUnderscoresToDisplayable,
+} from "../../utils/app.utils";
 
 export enum DatasetType {
-  Calibration = 'Calibration',
-  Ct = 'Ct',
-  Eeg = 'Eeg',
-  Meg = 'Meg',
-  Mesh = 'Mesh',
-  Mr = 'Mr',
-  Generic = 'Generic',
-  ParameterQuantification = 'ParameterQuantification',
-  Pet = 'Pet',
-  Registration = 'Registration',
-  Segmentation = 'Segmentation',
-  Spect = 'Spect',
-  Statistical = 'Statistical',
-  Template = 'Template',
-  BIDS = 'BIDS',
-  Measurement = 'Measurement',
-  Xa = 'Xa',
-  Sr = 'Sr'
-} export namespace DatasetType {
+    Calibration = "Calibration",
+    Ct = "Ct",
+    Eeg = "Eeg",
+    Meg = "Meg",
+    Mesh = "Mesh",
+    Mr = "Mr",
+    Generic = "Generic",
+    ParameterQuantification = "ParameterQuantification",
+    Pet = "Pet",
+    Registration = "Registration",
+    Segmentation = "Segmentation",
+    Spect = "Spect",
+    Statistical = "Statistical",
+    Template = "Template",
+    BIDS = "BIDS",
+    Measurement = "Measurement",
+    Xa = "Xa",
+    Sr = "Sr",
+}
+export namespace DatasetType {
+    export function all(): DatasetType[] {
+        return allOfEnum<DatasetType>(DatasetType);
+    }
 
-  export function all(): DatasetType[] {
-      return allOfEnum<DatasetType>(DatasetType);
-  }
+    export function getLabel(type: DatasetType): string {
+        return capitalsAndUnderscoresToDisplayable(type);
+    }
 
-  export function getLabel(type: DatasetType): string {
-      return capitalsAndUnderscoresToDisplayable(type);
-  }
-
-  export const options: Option<DatasetType>[] = all().map(prop => new Option<DatasetType>(prop, getLabel(prop)));
+    export const options: Option<DatasetType>[] = all().map(
+        (prop) => new Option<DatasetType>(prop, getLabel(prop)),
+    );
 }

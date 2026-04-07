@@ -11,34 +11,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {Component, forwardRef, Input} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import { Component, forwardRef, Input } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import {Mode} from '../../../shared/components/entity/entity.component.abstract';
-import {UnitOfMeasure} from "../../../enum/unitofmeasure.enum";
+import { Mode } from "../../../shared/components/entity/entity.component.abstract";
+import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 
-import {CtProtocol} from './ct-protocol.model';
-
+import { CtProtocol } from "./ct-protocol.model";
 
 @Component({
-    selector: 'ct-protocol',
-    templateUrl: 'ct-protocol.component.html',
+    selector: "ct-protocol",
+    templateUrl: "ct-protocol.component.html",
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => CtProtocolComponent),
             multi: true,
-        }
+        },
     ],
-    standalone: false
+    standalone: false,
 })
 export class CtProtocolComponent implements ControlValueAccessor {
-
     public protocol: CtProtocol;
     @Input() private mode: Mode;
     protected disabled: boolean = false;
-    protected propagateChange: (any) => void = () => { return; };
-    protected propagateTouched = () => { return; };
+    protected propagateChange: (any) => void = () => {
+        return;
+    };
+    protected propagateTouched = () => {
+        return;
+    };
 
     writeValue(obj: any): void {
         this.protocol = obj;

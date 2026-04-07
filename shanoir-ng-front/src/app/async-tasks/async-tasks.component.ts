@@ -12,47 +12,48 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from "@angular/core";
 
-import { TableComponent } from '../shared/components/table/table.component';
-import { ColumnDefinition } from '../shared/components/table/column.definition.type';
-import { EntityService } from '../shared/components/entity/entity.abstract.service';
-import { NotificationsService } from '../shared/notifications/notifications.service';
-import { EntityListComponent } from '../shared/components/entity/entity-list.component.abstract';
-import { Pageable, Page } from '../shared/components/table/pageable.model';
-import { BrowserPaging } from '../shared/components/table/browser-paging.model';
+import { TableComponent } from "../shared/components/table/table.component";
+import { ColumnDefinition } from "../shared/components/table/column.definition.type";
+import { EntityService } from "../shared/components/entity/entity.abstract.service";
+import { NotificationsService } from "../shared/notifications/notifications.service";
+import { EntityListComponent } from "../shared/components/entity/entity-list.component.abstract";
+import { Pageable, Page } from "../shared/components/table/pageable.model";
+import { BrowserPaging } from "../shared/components/table/browser-paging.model";
 
-import { TaskService } from './task.service';
-import { Task } from './task.model';
-
+import { TaskService } from "./task.service";
+import { Task } from "./task.model";
 
 @Component({
-    selector: 'async-tasks',
-    templateUrl: 'async-tasks.component.html',
-    styleUrls: ['async-tasks.component.css'],
-    standalone: false
+    selector: "async-tasks",
+    templateUrl: "async-tasks.component.html",
+    styleUrls: ["async-tasks.component.css"],
+    standalone: false,
 })
-
-export class AsyncTasksComponent extends EntityListComponent<Task> implements AfterViewInit {
-
-    @ViewChild('table', { static: false }) table: TableComponent;
+export class AsyncTasksComponent
+    extends EntityListComponent<Task>
+    implements AfterViewInit
+{
+    @ViewChild("table", { static: false }) table: TableComponent;
     private tasks: Task[] = [];
     protected selected: Task;
 
     constructor(
-            private taskService: TaskService,
-            private notificationsService: NotificationsService) {
-        super('task');
+        private taskService: TaskService,
+        private notificationsService: NotificationsService,
+    ) {
+        super("task");
         notificationsService.nbNew = 0;
         notificationsService.nbNewError = 0;
     }
 
     ngAfterViewInit(): void {
         this.subscriptions.push(
-            this.notificationsService.getNotifications().subscribe(tasks => {
+            this.notificationsService.getNotifications().subscribe((tasks) => {
                 this.tasks = tasks;
                 this.table.refresh();
-            })
+            }),
         );
     }
 
@@ -61,25 +62,57 @@ export class AsyncTasksComponent extends EntityListComponent<Task> implements Af
     }
 
     getOptions() {
-        return {'new': false, 'edit': false, 'view': false, 'delete': false, 'reload': true, id: false};
+        return {
+            new: false,
+            edit: false,
+            view: false,
+            delete: false,
+            reload: true,
+            id: false,
+        };
     }
 
     getPage = (pageable: Pageable): Promise<Page<Task>> => {
-        return Promise.resolve(new BrowserPaging(this.tasks, this.columnDefs).getPage(pageable));
-    }
+        return Promise.resolve(
+            new BrowserPaging(this.tasks, this.columnDefs).getPage(pageable),
+        );
+    };
 
     getColumnDefs(): ColumnDefinition[] {
         return [
             {
-               headerName: 'Message', field: 'message', width: '100%', type:'link', route: (task: Task) => task.route
-            }, {
-               headerName: 'Progress', field: 'progress', width: '110px', type: 'progress',
-               cellRenderer: params => { return {progress: params.data?.progress, status: params.data?.status}; }
-            }, {
-               headerName: "Creation", field: "creationDate", width: '130px', type: 'dateTime', defaultSortCol: true, defaultAsc: false,
-            }, {
-                headerName: "Last update", field: "lastUpdate", width: '130px', type: 'dateTime'
-            }
+                headerName: "Message",
+                field: "message",
+                width: "100%",
+                type: "link",
+                route: (task: Task) => task.route,
+            },
+            {
+                headerName: "Progress",
+                field: "progress",
+                width: "110px",
+                type: "progress",
+                cellRenderer: (params) => {
+                    return {
+                        progress: params.data?.progress,
+                        status: params.data?.status,
+                    };
+                },
+            },
+            {
+                headerName: "Creation",
+                field: "creationDate",
+                width: "130px",
+                type: "dateTime",
+                defaultSortCol: true,
+                defaultAsc: false,
+            },
+            {
+                headerName: "Last update",
+                field: "lastUpdate",
+                width: "130px",
+                type: "dateTime",
+            },
         ];
     }
 
@@ -88,7 +121,11 @@ export class AsyncTasksComponent extends EntityListComponent<Task> implements Af
     }
 
     downloadStats(item: any) {
-        if (item instanceof Task && item.eventType == "downloadStatistics.event" && item.progress == 1) {
+        if (
+            item instanceof Task &&
+            item.eventType == "downloadStatistics.event" &&
+            item.progress == 1
+        ) {
             this.taskService.downloadStats(item);
         }
     }
@@ -101,7 +138,9 @@ export class AsyncTasksComponent extends EntityListComponent<Task> implements Af
         if (lightTask.report || !lightTask.hasReport) {
             this.selected = lightTask;
         } else {
-            this.taskService.get(lightTask.completeId).then(task => this.selected = task);
+            this.taskService
+                .get(lightTask.completeId)
+                .then((task) => (this.selected = task));
         }
     }
 }

@@ -11,19 +11,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Entity } from '../../shared/components/entity/entity.abstract';
-import { IdName } from '../../shared/models/id-name.model';
-import { Profile } from '../../shared/models/profile.model';
-import { StudyCard } from '../../study-cards/shared/study-card.model';
-import { Tag } from '../../tags/tag.model';
-import { User } from '../../users/shared/user.model';
-import { Field } from '../../shared/reflect/field.decorator';
+import { Entity } from "../../shared/components/entity/entity.abstract";
+import { IdName } from "../../shared/models/id-name.model";
+import { Profile } from "../../shared/models/profile.model";
+import { StudyCard } from "../../study-cards/shared/study-card.model";
+import { Tag } from "../../tags/tag.model";
+import { User } from "../../users/shared/user.model";
+import { Field } from "../../shared/reflect/field.decorator";
 import { Subject } from "../../subjects/shared/subject.model";
 
-import { StudyCenter } from './study-center.model';
-import { StudyType } from './study-type.enum';
-import { StudyUser } from './study-user.model';
-import { Timepoint } from './timepoint.model';
+import { StudyCenter } from "./study-center.model";
+import { StudyType } from "./study-type.enum";
+import { StudyUser } from "./study-user.model";
+import { Timepoint } from "./timepoint.model";
 
 export class Study extends Entity {
     @Field() clinical: boolean;
@@ -40,7 +40,7 @@ export class Study extends Entity {
     @Field() dataUserAgreementPaths: string[];
     @Field() startDate: Date;
     @Field() studyCenterList: StudyCenter[] = [];
-    @Field() studyStatus: 'IN_PROGRESS' | 'FINISHED' = 'IN_PROGRESS';
+    @Field() studyStatus: "IN_PROGRESS" | "FINISHED" = "IN_PROGRESS";
     @Field() profile: Profile;
     @Field() detailedSizes: Map<string, number> = null;
     totalSize: number;
@@ -62,7 +62,12 @@ export class Study extends Entity {
     @Field() estimatedTotalVolume: number = null;
     @Field() expectedNbOfCenters: number = null;
     @Field() inclusionRate: number = null;
-    @Field() inclusionRateUnit: null | 'PER_DAY' | 'PER_WEEK' | 'PER_MONTH' | 'PER_YEAR' = null;
+    @Field() inclusionRateUnit:
+        | null
+        | "PER_DAY"
+        | "PER_WEEK"
+        | "PER_MONTH"
+        | "PER_YEAR" = null;
     @Field() sponsor: string = null;
     @Field() principalInvestigator: string = null;
     @Field() scientificAdvisor: string = null;

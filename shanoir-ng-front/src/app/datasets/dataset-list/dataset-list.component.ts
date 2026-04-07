@@ -12,43 +12,44 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { EntityListComponent } from '../../shared/components/entity/entity-list.component.abstract';
-import { Page, Pageable } from '../../shared/components/table/pageable.model';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
-import { Study } from '../../studies/shared/study.model';
-import { StudyService } from '../../studies/shared/study.service';
-import { Subject } from '../../subjects/shared/subject.model';
-import { SubjectService } from '../../subjects/shared/subject.service';
-import { Dataset } from '../shared/dataset.model';
-import { DatasetService } from '../shared/dataset.service';
-import { StudyUserRight } from '../../studies/shared/study-user-right.enum';
+import { EntityListComponent } from "../../shared/components/entity/entity-list.component.abstract";
+import { Page, Pageable } from "../../shared/components/table/pageable.model";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
+import { Study } from "../../studies/shared/study.model";
+import { StudyService } from "../../studies/shared/study.service";
+import { Subject } from "../../subjects/shared/subject.model";
+import { SubjectService } from "../../subjects/shared/subject.service";
+import { Dataset } from "../shared/dataset.model";
+import { DatasetService } from "../shared/dataset.service";
+import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
 
 @Component({
-    selector: 'dataset-list',
-    templateUrl: 'dataset-list.component.html',
-    standalone: false
+    selector: "dataset-list",
+    templateUrl: "dataset-list.component.html",
+    standalone: false,
 })
-
-export class DatasetListComponent extends EntityListComponent<Dataset>{
+export class DatasetListComponent extends EntityListComponent<Dataset> {
     private subjects: Subject[] = [];
     private studies: Study[] = [];
-    @ViewChild('table', { static: false }) table: TableComponent;
+    @ViewChild("table", { static: false }) table: TableComponent;
     private studyIdsForCurrentUser: number[];
 
     constructor(
-            private datasetService: DatasetService,
-            private studyService: StudyService,
-            private subjectService: SubjectService) {
-
-        super('dataset');
+        private datasetService: DatasetService,
+        private studyService: StudyService,
+        private subjectService: SubjectService,
+    ) {
+        super("dataset");
         this.fetchStudies();
         this.fetchSubjects();
-        this.studyService.getStudiesByRight(StudyUserRight.CAN_ADMINISTRATE).then( studies => this.studyIdsForCurrentUser = studies);
+        this.studyService
+            .getStudiesByRight(StudyUserRight.CAN_ADMINISTRATE)
+            .then((studies) => (this.studyIdsForCurrentUser = studies));
     }
 
     getService(): EntityService<Dataset> {
@@ -62,30 +63,54 @@ export class DatasetListComponent extends EntityListComponent<Dataset>{
     // Grid columns definition
     getColumnDefs(): ColumnDefinition[] {
         return [
-            {headerName: "Id", field: "id", type: "number", width: "60px", defaultSortCol: true, defaultAsc: false},
-            {headerName: "Name", field: "name", orderBy: ["updatedMetadata.name", "originMetadata.name", "id"]},
-            {headerName: "Type", field: "type", width: "50px", disableSorting: true},
-            {headerName: "Subject", field: "subject.name",
-				route: (ds: Dataset) =>  '/subject/details/' + ds.subject.id,
-                disableSorting: true
-			},
-            {headerName: "Study", field: "study.name",
-				route: (ds: Dataset) => '/study/details/' + ds.study.id,
-                disableSorting: true
-			},
-            {headerName: "Creation date", field: "creationDate", type: "date"},
-            {headerName: "Comment", field: "originMetadata.comment", },
+            {
+                headerName: "Id",
+                field: "id",
+                type: "number",
+                width: "60px",
+                defaultSortCol: true,
+                defaultAsc: false,
+            },
+            {
+                headerName: "Name",
+                field: "name",
+                orderBy: ["updatedMetadata.name", "originMetadata.name", "id"],
+            },
+            {
+                headerName: "Type",
+                field: "type",
+                width: "50px",
+                disableSorting: true,
+            },
+            {
+                headerName: "Subject",
+                field: "subject.name",
+                route: (ds: Dataset) => "/subject/details/" + ds.subject.id,
+                disableSorting: true,
+            },
+            {
+                headerName: "Study",
+                field: "study.name",
+                route: (ds: Dataset) => "/study/details/" + ds.study.id,
+                disableSorting: true,
+            },
+            {
+                headerName: "Creation date",
+                field: "creationDate",
+                type: "date",
+            },
+            { headerName: "Comment", field: "originMetadata.comment" },
         ];
     }
 
     private fetchSubjects() {
-        this.subjectService.getAll().then(subjects => {
+        this.subjectService.getAll().then((subjects) => {
             this.subjects = subjects;
         });
     }
 
     private fetchStudies() {
-        this.studyService.getAll().then(studies => {
+        this.studyService.getAll().then((studies) => {
             this.studies = studies;
         });
     }
@@ -99,12 +124,15 @@ export class DatasetListComponent extends EntityListComponent<Dataset>{
             new: false,
             view: true,
             edit: this.keycloakService.isUserAdminOrExpert(),
-            delete: this.keycloakService.isUserAdminOrExpert()
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
     canEdit(ds: Dataset): boolean {
-        return this.keycloakService.isUserAdmin() || this.studyIdsForCurrentUser.includes(ds.study.id);
+        return (
+            this.keycloakService.isUserAdmin() ||
+            this.studyIdsForCurrentUser.includes(ds.study.id)
+        );
     }
 
     canDelete(ds: Dataset): boolean {

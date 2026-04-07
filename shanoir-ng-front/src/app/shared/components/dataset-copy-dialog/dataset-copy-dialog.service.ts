@@ -12,30 +12,35 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { ComponentRef, Injectable } from '@angular/core';
+import { ComponentRef, Injectable } from "@angular/core";
 
-import { ServiceLocator } from 'src/app/utils/locator.service';
-import { DatasetService } from 'src/app/datasets/shared/dataset.service';
+import { ServiceLocator } from "src/app/utils/locator.service";
+import { DatasetService } from "src/app/datasets/shared/dataset.service";
 
-import { DatasetCopyDialogComponent, InputDataset } from './dataset-copy-dialog.component';
+import {
+    DatasetCopyDialogComponent,
+    InputDataset,
+} from "./dataset-copy-dialog.component";
 
 @Injectable()
 export class DatasetCopyDialogService {
-
-    constructor(private datasetService: DatasetService) { }
+    constructor(private datasetService: DatasetService) {}
 
     public open(inputDatasets: InputDataset[]) {
-        const modalRef: ComponentRef<DatasetCopyDialogComponent> = ServiceLocator.rootViewContainerRef.createComponent(DatasetCopyDialogComponent);
+        const modalRef: ComponentRef<DatasetCopyDialogComponent> =
+            ServiceLocator.rootViewContainerRef.createComponent(
+                DatasetCopyDialogComponent,
+            );
         modalRef.instance.setUp(inputDatasets, modalRef);
     }
 
     public openWithIds(datasetIds: Set<number>) {
-        this.datasetService.getByIds(datasetIds).then(datasets => {
-            const inputDatasets: InputDataset[] = datasets.map(ds => ({
+        this.datasetService.getByIds(datasetIds).then((datasets) => {
+            const inputDatasets: InputDataset[] = datasets.map((ds) => ({
                 datasetId: ds.id,
                 centerId: ds.centerId,
                 subjectId: ds.subject?.id,
-                studyId: ds.study?.id
+                studyId: ds.study?.id,
             }));
             this.open(inputDatasets);
         });

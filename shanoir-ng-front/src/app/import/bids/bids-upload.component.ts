@@ -12,30 +12,29 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { BreadcrumbsService } from '../../breadcrumbs/breadcrumbs.service';
-import { Center } from '../../centers/shared/center.model';
-import { CenterService } from '../../centers/shared/center.service';
-import { slideDown } from '../../shared/animations/animations';
-import { Option } from '../../shared/select/select.component';
-import { Study } from '../../studies/shared/study.model';
-import { StudyService } from '../../studies/shared/study.service';
-import { ImportService } from '../shared/import.service';
+import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
+import { Center } from "../../centers/shared/center.model";
+import { CenterService } from "../../centers/shared/center.service";
+import { slideDown } from "../../shared/animations/animations";
+import { Option } from "../../shared/select/select.component";
+import { Study } from "../../studies/shared/study.model";
+import { StudyService } from "../../studies/shared/study.service";
+import { ImportService } from "../shared/import.service";
 
-type Status = 'none' | 'uploading' | 'uploaded' | 'error';
+type Status = "none" | "uploading" | "uploaded" | "error";
 
 @Component({
-    selector: 'bids-upload',
-    templateUrl: 'bids-upload.component.html',
-    styleUrls: ['bids-upload.component.css'],
+    selector: "bids-upload",
+    templateUrl: "bids-upload.component.html",
+    styleUrls: ["bids-upload.component.css"],
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class BidsUploadComponent {
-
-    public archiveStatus: Status = 'none';
+    public archiveStatus: Status = "none";
     protected extensionError: boolean;
     public errorMessage: string;
     public studyOptions: Option<Study>[] = [];
@@ -44,20 +43,27 @@ export class BidsUploadComponent {
     public centerOptions: Option<Center>[] = [];
 
     constructor(
-            private importService: ImportService,
-            private centerService: CenterService,
-            private router: Router,
-            private breadcrumbsService: BreadcrumbsService,
-            private studyService: StudyService) {
-
-    Promise.all([this.studyService.getAll(), this.centerService.getAll()])
-        .then(([allStudies, allCenters]) => {
+        private importService: ImportService,
+        private centerService: CenterService,
+        private router: Router,
+        private breadcrumbsService: BreadcrumbsService,
+        private studyService: StudyService,
+    ) {
+        Promise.all([
+            this.studyService.getAll(),
+            this.centerService.getAll(),
+        ]).then(([allStudies, allCenters]) => {
             this.studyOptions = [];
             for (const study of allStudies) {
-                const studyOption: Option<Study> = new Option(study, study.name);
+                const studyOption: Option<Study> = new Option(
+                    study,
+                    study.name,
+                );
                 if (study.studyCenterList) {
                     for (const studyCenter of study.studyCenterList) {
-                        const center: Center = allCenters.find(center => center.id === studyCenter.center.id);
+                        const center: Center = allCenters.find(
+                            (center) => center.id === studyCenter.center.id,
+                        );
                         if (center) {
                             studyCenter.center = center;
                         }
@@ -73,9 +79,9 @@ export class BidsUploadComponent {
 
         setTimeout(() => {
             breadcrumbsService.currentStepAsMilestone();
-            breadcrumbsService.currentStep.label = '1. Upload';
+            breadcrumbsService.currentStep.label = "1. Upload";
             breadcrumbsService.currentStep.importStart = true;
-            breadcrumbsService.currentStep.importMode = 'BIDS';
+            breadcrumbsService.currentStep.importMode = "BIDS";
         });
     }
 
@@ -83,7 +89,10 @@ export class BidsUploadComponent {
         this.centerOptions = [];
         if (this.study && this.study.id && this.study.studyCenterList) {
             for (const studyCenter of this.study.studyCenterList) {
-                const centerOption = new Option<Center>(studyCenter.center, studyCenter.center.name);
+                const centerOption = new Option<Center>(
+                    studyCenter.center,
+                    studyCenter.center.name,
+                );
                 this.centerOptions.push(centerOption);
             }
         }
@@ -94,27 +103,38 @@ export class BidsUploadComponent {
 
     public uploadArchive(fileEvent: any): void {
         if (fileEvent.target.files.length > 0) {
-            this.setArchiveStatus('uploading');
+            this.setArchiveStatus("uploading");
             this.uploadToServer(fileEvent.target.files);
         } else {
-            this.setArchiveStatus('none');
+            this.setArchiveStatus("none");
         }
     }
 
     private uploadToServer(file: any) {
-        this.extensionError = file[0].name.substring(file[0].name.lastIndexOf("."), file[0].name.length) != '.zip';
+        this.extensionError =
+            file[0].name.substring(
+                file[0].name.lastIndexOf("."),
+                file[0].name.length,
+            ) != ".zip";
 
         const formData: FormData = new FormData();
-        formData.append('file', file[0], file[0].name);
-        this.importService.uploadBidsFile(formData, this.study.id, this.study.name, this.center.id)
+        formData.append("file", file[0], file[0].name);
+        this.importService
+            .uploadBidsFile(
+                formData,
+                this.study.id,
+                this.study.name,
+                this.center.id,
+            )
             .then(() => {
-                this.setArchiveStatus('uploaded');
+                this.setArchiveStatus("uploaded");
                 this.errorMessage = "";
-            }).catch(error => {
-                this.setArchiveStatus('error');
+            })
+            .catch((error) => {
+                this.setArchiveStatus("error");
                 if (error && error.error && error.error.message) {
-                        this.errorMessage = error.error.message;
-                    }
+                    this.errorMessage = error.error.message;
+                }
             });
     }
 
@@ -123,6 +143,6 @@ export class BidsUploadComponent {
     }
 
     get valid(): boolean {
-        return this.archiveStatus == 'uploaded';
+        return this.archiveStatus == "uploaded";
     }
 }

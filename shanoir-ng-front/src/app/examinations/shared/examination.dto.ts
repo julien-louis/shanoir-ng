@@ -11,37 +11,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { Center } from '../../centers/shared/center.model';
-import { CenterService } from '../../centers/shared/center.service';
-import { IdName } from '../../shared/models/id-name.model';
-import { Study } from '../../studies/shared/study.model';
-import { StudyService } from '../../studies/shared/study.service';
-import { Subject } from '../../subjects/shared/subject.model';
-import { InstrumentBasedAssessment } from "../instrument-assessment/instrument.model"
-import {UnitOfMeasure} from "../../enum/unitofmeasure.enum";
+import { Center } from "../../centers/shared/center.model";
+import { CenterService } from "../../centers/shared/center.service";
+import { IdName } from "../../shared/models/id-name.model";
+import { Study } from "../../studies/shared/study.model";
+import { StudyService } from "../../studies/shared/study.service";
+import { Subject } from "../../subjects/shared/subject.model";
+import { InstrumentBasedAssessment } from "../instrument-assessment/instrument.model";
+import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
 
-import { Examination } from './examination.model';
+import { Examination } from "./examination.model";
 
 @Injectable()
 export class ExaminationDTOService {
-
     constructor(
         private studyService: StudyService,
-        private centerService: CenterService) {}
+        private centerService: CenterService,
+    ) {}
 
     /**
      * Convert from a DTO to an Entity
      * Warning : DO NOT USE THIS IN A LOOP, use toEntityList instead
      * @param result can be used to get an immediate temporary result without async data
      */
-    public toEntity(dto: ExaminationDTO, result?: Examination): Promise<Examination> {
+    public toEntity(
+        dto: ExaminationDTO,
+        result?: Examination,
+    ): Promise<Examination> {
         if (!result) result = new Examination();
         ExaminationDTOService.mapSyncFields(dto, result);
         const promises: Promise<any>[] = [];
-        if (dto.studyId) promises.push(this.studyService.get(dto.studyId).then(study => result.study = study));
-        if (dto.centerId) promises.push(this.centerService.get(dto.centerId).then(center => result.center = center));
+        if (dto.studyId)
+            promises.push(
+                this.studyService
+                    .get(dto.studyId)
+                    .then((study) => (result.study = study)),
+            );
+        if (dto.centerId)
+            promises.push(
+                this.centerService
+                    .get(dto.centerId)
+                    .then((center) => (result.center = center)),
+            );
         return Promise.all(promises).then(() => result);
     }
 
@@ -49,7 +62,10 @@ export class ExaminationDTOService {
      * Convert from a DTO list to an Entity list
      * @param result can be used to get an immediate temporary result without async data
      */
-    public toEntityList(dtos: ExaminationDTO[], result?: Examination[]): Promise<Examination[]> {
+    public toEntityList(
+        dtos: ExaminationDTO[],
+        result?: Examination[],
+    ): Promise<Examination[]> {
         if (!result) result = [];
         if (dtos) {
             for (const dto of dtos ? dtos : []) {
@@ -63,14 +79,23 @@ export class ExaminationDTOService {
             this.centerService.getCentersNames(),
         ]).then(([studies, centers]: [IdName[], IdName[]]) => {
             for (const entity of result) {
-                if (entity.study) entity.study = studies.find(study => study.id == entity.study.id);
-                if (entity.center) entity.center = centers.find(center => center.id == entity.center.id);
+                if (entity.study)
+                    entity.study = studies.find(
+                        (study) => study.id == entity.study.id,
+                    );
+                if (entity.center)
+                    entity.center = centers.find(
+                        (center) => center.id == entity.center.id,
+                    );
             }
             return result;
         });
     }
 
-    static mapSyncFields(dto: ExaminationDTO, entity: Examination): Examination {
+    static mapSyncFields(
+        dto: ExaminationDTO,
+        entity: Examination,
+    ): Examination {
         entity.id = dto.id;
         entity.examinationDate = new Date(dto.examinationDate);
         entity.studyInstanceUID = dto.studyInstanceUID;
@@ -83,7 +108,8 @@ export class ExaminationDTOService {
         entity.weightUnitOfMeasure = dto.weightUnitOfMeasure;
         entity.preclinical = dto.preclinical;
         entity.extraDataFilePathList = dto.extraDataFilePathList;
-        entity.instrumentBasedAssessmentList = dto.instrumentBasedAssessmentList;
+        entity.instrumentBasedAssessmentList =
+            dto.instrumentBasedAssessmentList;
         if (dto.studyId) {
             entity.study = new Study();
             entity.study.id = dto.studyId;
@@ -104,7 +130,7 @@ export class ExaminationDTOService {
 export class ExaminationDTO {
     id: number;
     centerId: number;
-	comment: string;
+    comment: string;
     dataReuseAgreement: boolean;
     examinationDate: Date;
     studyInstanceUID: string;
@@ -133,7 +159,8 @@ export class ExaminationDTO {
             this.weightUnitOfMeasure = examination.weightUnitOfMeasure;
             this.preclinical = examination.preclinical;
             this.extraDataFilePathList = examination.extraDataFilePathList;
-            this.instrumentBasedAssessmentList = examination.instrumentBasedAssessmentList;
+            this.instrumentBasedAssessmentList =
+                examination.instrumentBasedAssessmentList;
             this.source = examination.source;
             this.copies = examination.copies;
         }

@@ -2,33 +2,44 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { Observable, Subscription , of } from 'rxjs';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
+import { Observable, Subscription, of } from "rxjs";
 
-import { Mode } from '../../../shared/components/entity/entity.component.abstract';
-import { Option } from '../../../shared/select/select.component';
-import { MetadataFieldScope, StudyCardAssignment } from '../../shared/study-card.model';
-
+import { Mode } from "../../../shared/components/entity/entity.component.abstract";
+import { Option } from "../../../shared/select/select.component";
+import {
+    MetadataFieldScope,
+    StudyCardAssignment,
+} from "../../shared/study-card.model";
 
 @Component({
-    selector: 'action',
-    templateUrl: 'action.component.html',
-    styleUrls: ['action.component.css'],
-    standalone: false
+    selector: "action",
+    templateUrl: "action.component.html",
+    styleUrls: ["action.component.css"],
+    standalone: false,
 })
 export class StudyCardActionComponent implements OnChanges, OnDestroy {
     @Input() assignment: StudyCardAssignment;
-    @Output() actionChange: EventEmitter<StudyCardAssignment> = new EventEmitter();
-    @Input() mode: Mode = 'view';
+    @Output() actionChange: EventEmitter<StudyCardAssignment> =
+        new EventEmitter();
+    @Input() mode: Mode = "view";
     @Input() fieldOptions: Option<string>[];
     @Input() fields: ShanoirMetadataField[];
     assigmentOptions: Option<any>[];
@@ -62,49 +73,68 @@ export class StudyCardActionComponent implements OnChanges, OnDestroy {
                 this.assignmentChangeSubscription.unsubscribe();
                 this.assignmentChangeSubscription = null;
             }
-            const assignmentField: ShanoirMetadataField = this.fields.find(assF => assF.field == this.assignment.field);
-            if (this.mode == 'view') {
+            const assignmentField: ShanoirMetadataField = this.fields.find(
+                (assF) => assF.field == this.assignment.field,
+            );
+            if (this.mode == "view") {
                 this.fieldLabel = assignmentField?.label;
                 if (assignmentField && assignmentField.options) {
-                    this.assignmentChangeSubscription = assignmentField.options.subscribe(opts => {
-                        if (opts && opts.length > 0) {
-                            const valueOption: Option<any> = opts.find(opt => {
-                                return opt.value == this.assignment.value 
-                                    || (opt.value.id && this.assignment.value['id'] && opt.value.id == this.assignment.value['id'])
-                            });
-                            if (valueOption) {
-                                this.valueIsString = false;
-                                this.valueLabel = valueOption.label;
-                                this.badValueRef = false;
-                            } else {
-                                this.badValueRef = true;
+                    this.assignmentChangeSubscription =
+                        assignmentField.options.subscribe((opts) => {
+                            if (opts && opts.length > 0) {
+                                const valueOption: Option<any> = opts.find(
+                                    (opt) => {
+                                        return (
+                                            opt.value ==
+                                                this.assignment.value ||
+                                            (opt.value.id &&
+                                                this.assignment.value["id"] &&
+                                                opt.value.id ==
+                                                    this.assignment.value["id"])
+                                        );
+                                    },
+                                );
+                                if (valueOption) {
+                                    this.valueIsString = false;
+                                    this.valueLabel = valueOption.label;
+                                    this.badValueRef = false;
+                                } else {
+                                    this.badValueRef = true;
+                                }
                             }
-                        }
-                    });
+                        });
                 } else {
                     this.valueIsString = true;
-                } 
+                }
             } else {
                 if (assignmentField && assignmentField.options) {
-                    this.assignmentChangeSubscription = assignmentField.options.subscribe(opts => {
-                        this.assigmentOptions = opts;
-                        if (opts && opts.length > 0) {
-                            const valueOption: Option<any> = opts.find(opt => {
-                                return opt.value == this.assignment.value 
-                                    || (opt.value.id && this.assignment.value['id'] && opt.value.id == this.assignment.value['id'])
-                            });
-                            if (valueOption) {
-                                this.assignment.value = valueOption.value;
-                                this.badValueRef = false;
-                            } else {
-                                this.badValueRef = true;
+                    this.assignmentChangeSubscription =
+                        assignmentField.options.subscribe((opts) => {
+                            this.assigmentOptions = opts;
+                            if (opts && opts.length > 0) {
+                                const valueOption: Option<any> = opts.find(
+                                    (opt) => {
+                                        return (
+                                            opt.value ==
+                                                this.assignment.value ||
+                                            (opt.value.id &&
+                                                this.assignment.value["id"] &&
+                                                opt.value.id ==
+                                                    this.assignment.value["id"])
+                                        );
+                                    },
+                                );
+                                if (valueOption) {
+                                    this.assignment.value = valueOption.value;
+                                    this.badValueRef = false;
+                                } else {
+                                    this.badValueRef = true;
+                                }
                             }
-                        }
-                    });
-                    
+                        });
                 } else {
                     this.assigmentOptions = null;
-                } 
+                }
             }
         }
     }
@@ -114,23 +144,26 @@ export class StudyCardActionComponent implements OnChanges, OnDestroy {
             this.computeAssignmentOptionsSubscription.unsubscribe();
             this.computeAssignmentOptionsSubscription = null;
         }
-        const assignmentField: ShanoirMetadataField = this.fields.find(assF => assF.field == this.assignment.field);
+        const assignmentField: ShanoirMetadataField = this.fields.find(
+            (assF) => assF.field == this.assignment.field,
+        );
         if (assignmentField && assignmentField.options) {
-            this.computeAssignmentOptionsSubscription = assignmentField.options.subscribe(opts => {
-                this.assigmentOptions = opts;
-            });
+            this.computeAssignmentOptionsSubscription =
+                assignmentField.options.subscribe((opts) => {
+                    this.assigmentOptions = opts;
+                });
         } else {
             this.assigmentOptions = null;
-        }    
+        }
     }
 
     onSelectFieldOption(option: Option<any>) {
         if (option) {
             option.disabled = true;
-            if (option.section == 'Dataset') {
-                this.assignment.scope = 'Dataset';
-            } else if (option.section == 'DatasetAcquisition') {
-                this.assignment.scope = 'DatasetAcquisition';
+            if (option.section == "Dataset") {
+                this.assignment.scope = "Dataset";
+            } else if (option.section == "DatasetAcquisition") {
+                this.assignment.scope = "DatasetAcquisition";
             }
         }
     }
@@ -145,29 +178,30 @@ export class StudyCardActionComponent implements OnChanges, OnDestroy {
     }
 
     get fieldError(): boolean {
-        return !this.assignment.field && (this.fieldTouched || this.showErrors)
+        return !this.assignment.field && (this.fieldTouched || this.showErrors);
     }
 
     get valueError(): boolean {
-        return !this.assignment.value && (this.valueTouched || this.showErrors)
+        return !this.assignment.value && (this.valueTouched || this.showErrors);
     }
 
     ngOnDestroy(): void {
-        if (this.assignmentChangeSubscription) this.assignmentChangeSubscription.unsubscribe();
-        if (this.computeAssignmentOptionsSubscription) this.computeAssignmentOptionsSubscription.unsubscribe();
+        if (this.assignmentChangeSubscription)
+            this.assignmentChangeSubscription.unsubscribe();
+        if (this.computeAssignmentOptionsSubscription)
+            this.computeAssignmentOptionsSubscription.unsubscribe();
     }
 }
 
 export class ShanoirMetadataField {
-
     public options?: Observable<Option<any>[]>;
 
     constructor(
-            public label: string, 
-            public field: string,
-            public scope: MetadataFieldScope, 
-            options?: Observable<Option<any>[]> | Option<any>[]) {
-
+        public label: string,
+        public field: string,
+        public scope: MetadataFieldScope,
+        options?: Observable<Option<any>[]> | Option<any>[],
+    ) {
         if (options instanceof Observable) {
             this.options = options;
         } else {
@@ -175,4 +209,3 @@ export class ShanoirMetadataField {
         }
     }
 }
-

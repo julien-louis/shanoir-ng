@@ -11,37 +11,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { HttpClient } from '@angular/common/http';
-import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable, OnDestroy } from "@angular/core";
+import { Observable, Subscription } from "rxjs";
 
-import { TaskState } from 'src/app/async-tasks/task.model';
-import { SingleDownloadService } from 'src/app/shared/mass-download/single-download.service';
-import { Tag } from 'src/app/tags/tag.model';
+import { TaskState } from "src/app/async-tasks/task.model";
+import { SingleDownloadService } from "src/app/shared/mass-download/single-download.service";
+import { Tag } from "src/app/tags/tag.model";
 
-import { DataUserAgreement } from '../../dua/shared/dua.model';
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import { KeycloakService } from '../../shared/keycloak/keycloak.service';
-import { IdName } from '../../shared/models/id-name.model';
-import { Profile } from '../../shared/models/profile.model';
-import * as AppUtils from '../../utils/app.utils';
+import { DataUserAgreement } from "../../dua/shared/dua.model";
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { IdName } from "../../shared/models/id-name.model";
+import { Profile } from "../../shared/models/profile.model";
+import * as AppUtils from "../../utils/app.utils";
 import { SubjectDTO } from "../../subjects/shared/subject.dto";
 import { Subject } from "../../subjects/shared/subject.model";
 
-import { StudyUserRight } from './study-user-right.enum';
+import { StudyUserRight } from "./study-user-right.enum";
 import { StudyUser } from "./study-user.model";
 import {
     CenterStudyDTO,
     StudyDTO,
     StudyDTOService,
     StudyLight,
-    StudyStorageVolumeDTO
-} from './study.dto';
-import { Study } from './study.model';
+    StudyStorageVolumeDTO,
+} from "./study.dto";
+import { Study } from "./study.model";
 
 @Injectable()
 export class StudyService extends EntityService<Study> implements OnDestroy {
-
     API_URL = AppUtils.BACKEND_API_STUDY_URL;
     private _duasToSign: number = 0;
     private _draftStudies: number = 0;
@@ -49,114 +48,190 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     fileUploads: Map<number, Promise<void>> = new Map(); // current uploads
     private studyVolumesCache: Map<number, StudyStorageVolumeDTO> = new Map();
 
-    constructor(protected http: HttpClient, private keycloakService: KeycloakService, private studyDTOService: StudyDTOService,
-            private downloadService: SingleDownloadService) {
+    constructor(
+        protected http: HttpClient,
+        private keycloakService: KeycloakService,
+        private studyDTOService: StudyDTOService,
+        private downloadService: SingleDownloadService,
+    ) {
         super(http);
     }
 
-    getEntityInstance() { return new Study(); }
+    getEntityInstance() {
+        return new Study();
+    }
 
-    get(id: number, _mode: 'eager' | 'lazy' = 'eager', withStorageVolume = false): Promise<Study> {
-        return this.http.get<any>(this.API_URL + '/' + id
-            + (withStorageVolume ? '?withStorageVolume=true' : ''))
+    get(
+        id: number,
+        _mode: "eager" | "lazy" = "eager",
+        withStorageVolume = false,
+    ): Promise<Study> {
+        return this.http
+            .get<any>(
+                this.API_URL +
+                    "/" +
+                    id +
+                    (withStorageVolume ? "?withStorageVolume=true" : ""),
+            )
             .toPromise()
             .then(this.mapEntity);
     }
 
     getStudiesLight(): Promise<StudyLight[]> {
-      return this.http.get<StudyLight[]>(AppUtils.BACKEND_API_STUDY_STUDIES_LIGHT_URL)
-        .toPromise().then((typeResult: StudyLight[]) => {
-          return typeResult;
-        });
+        return this.http
+            .get<StudyLight[]>(AppUtils.BACKEND_API_STUDY_STUDIES_LIGHT_URL)
+            .toPromise()
+            .then((typeResult: StudyLight[]) => {
+                return typeResult;
+            });
     }
 
     findStudiesByUserId(): Promise<Study[]> {
-        return this.http.get<Study[]>(AppUtils.BACKEND_API_STUDY_URL)
-        .toPromise()
-        .then(entities => entities?.map((entity) => Object.assign(new Study(), entity)) || []);
+        return this.http
+            .get<Study[]>(AppUtils.BACKEND_API_STUDY_URL)
+            .toPromise()
+            .then(
+                (entities) =>
+                    entities?.map((entity) =>
+                        Object.assign(new Study(), entity),
+                    ) || [],
+            );
     }
 
     getStudiesNames(): Promise<IdName[]> {
-        return this.http.get<IdName[]>(AppUtils.BACKEND_API_STUDY_ALL_NAMES_URL)
+        return this.http
+            .get<IdName[]>(AppUtils.BACKEND_API_STUDY_ALL_NAMES_URL)
             .toPromise();
     }
 
     getStudyNamesAndCenters(): Promise<Study[]> {
-        return this.http.get<CenterStudyDTO[]>(AppUtils.BACKEND_API_STUDY_URL + '/namesAndCenters')
-            .toPromise().then(dtos => dtos.map(dto => StudyDTOService.centerStudyDTOtoStudy(dto)));
+        return this.http
+            .get<CenterStudyDTO[]>(
+                AppUtils.BACKEND_API_STUDY_URL + "/namesAndCenters",
+            )
+            .toPromise()
+            .then((dtos) =>
+                dtos.map((dto) => StudyDTOService.centerStudyDTOtoStudy(dto)),
+            );
     }
 
     getStudiesProfiles(): Promise<Profile[]> {
-      return this.http.get<Profile[]>(AppUtils.BACKEND_API_PROFILE_ALL_PROFILES_URL)
-        .toPromise();
+        return this.http
+            .get<Profile[]>(AppUtils.BACKEND_API_PROFILE_ALL_PROFILES_URL)
+            .toPromise();
     }
 
     getPublicStudiesData(): Promise<StudyLight[]> {
-      return this.http.get<StudyLight[]>(AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_DATA_URL)
-        .toPromise().then((typeResult: StudyLight[]) => {
-          return typeResult;
-        });
+        return this.http
+            .get<StudyLight[]>(
+                AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_DATA_URL,
+            )
+            .toPromise()
+            .then((typeResult: StudyLight[]) => {
+                return typeResult;
+            });
     }
 
     getChallenges(): Promise<IdName[]> {
-        return this.http.get<IdName[]>(AppUtils.BACKEND_API_STUDY_CHALLENGES_URL)
-            .toPromise().then((typeResult: IdName[]) => {
+        return this.http
+            .get<IdName[]>(AppUtils.BACKEND_API_STUDY_CHALLENGES_URL)
+            .toPromise()
+            .then((typeResult: IdName[]) => {
                 return typeResult;
             });
     }
 
     getPublicStudiesConnected(): Promise<IdName[]> {
-        return this.http.get<IdName[]>(AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_CONNECTED_URL)
-            .toPromise().then((typeResult: IdName[]) => {
+        return this.http
+            .get<IdName[]>(
+                AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_CONNECTED_URL,
+            )
+            .toPromise()
+            .then((typeResult: IdName[]) => {
                 return typeResult;
             });
     }
 
     getStudyUserFromStudyId(studyId: number): Promise<StudyUser[]> {
-        return this.http.get<StudyUser[]>(AppUtils.BACKEND_API_STUDY_DELETE_USER + '/' + studyId)
-            .toPromise().then((su : StudyUser[]) => {
+        return this.http
+            .get<StudyUser[]>(
+                AppUtils.BACKEND_API_STUDY_DELETE_USER + "/" + studyId,
+            )
+            .toPromise()
+            .then((su: StudyUser[]) => {
                 return su;
             });
     }
 
     findSubjectsByStudyId(studyId: number): Promise<Subject[]> {
-        return this.http.get<SubjectDTO[]>(AppUtils.BACKEND_API_SUBJECT_URL + '/' + studyId + '/allSubjects')
-            .toPromise().then(this.mapSubjectList);
+        return this.http
+            .get<SubjectDTO[]>(
+                AppUtils.BACKEND_API_SUBJECT_URL +
+                    "/" +
+                    studyId +
+                    "/allSubjects",
+            )
+            .toPromise()
+            .then(this.mapSubjectList);
     }
 
-    findSubjectsByStudyIdPreclinical(studyId: number, preclinical: boolean): Promise<Subject[]> {
-        return this.http.get<SubjectDTO[]>(AppUtils.BACKEND_API_SUBJECT_URL + '/' + studyId + '/allSubjects?preclinical=' + preclinical)
-            .toPromise().then(this.mapSubjectList);
+    findSubjectsByStudyIdPreclinical(
+        studyId: number,
+        preclinical: boolean,
+    ): Promise<Subject[]> {
+        return this.http
+            .get<SubjectDTO[]>(
+                AppUtils.BACKEND_API_SUBJECT_URL +
+                    "/" +
+                    studyId +
+                    "/allSubjects?preclinical=" +
+                    preclinical,
+            )
+            .toPromise()
+            .then(this.mapSubjectList);
     }
 
     private findStudiesIcanAdmin(): Promise<Study[]> {
         if (this.keycloakService.isUserAdmin()) {
             return this.getAll();
         } else {
-            return this.getAll().then(studies => {
+            return this.getAll().then((studies) => {
                 const myId: number = KeycloakService.auth.userId;
-                return studies?.filter(study => {
-                    return study.studyUserList.filter(su => su.userId == myId && su.studyUserRights.includes(StudyUserRight.CAN_ADMINISTRATE)).length > 0;
+                return studies?.filter((study) => {
+                    return (
+                        study.studyUserList.filter(
+                            (su) =>
+                                su.userId == myId &&
+                                su.studyUserRights.includes(
+                                    StudyUserRight.CAN_ADMINISTRATE,
+                                ),
+                        ).length > 0
+                    );
                 });
             });
         }
     }
 
     findStudyIdsIcanAdmin(): Promise<number[]> {
-        return this.findStudiesIcanAdmin().then(studies => studies?.map(study => study.id));
+        return this.findStudiesIcanAdmin().then((studies) =>
+            studies?.map((study) => study.id),
+        );
     }
 
     findStudyIdNamesIcanAdmin(): Promise<IdName[]> {
-        return this.findStudiesIcanAdmin().then(studies => studies?.map(study => new IdName(study.id, study.name)));
+        return this.findStudiesIcanAdmin().then((studies) =>
+            studies?.map((study) => new IdName(study.id, study.name)),
+        );
     }
 
     findDraftStudies(): Promise<Study[]> {
-        return this.http.get<Study[]>(AppUtils.BACKEND_API_STUDY_URL + '/draft')
+        return this.http
+            .get<Study[]>(AppUtils.BACKEND_API_STUDY_URL + "/draft")
             .toPromise()
             .then((studies) => {
                 this._draftStudies = studies ? studies.length : 0;
                 return studies;
-            })
+            });
     }
 
     get draftStudies(): number {
@@ -164,59 +239,83 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     decreaseDraftStudies() {
-        this._draftStudies --;
+        this._draftStudies--;
     }
 
-    uploadFile(fileToUpload: File, studyId: number, fileType: 'protocol-file'|'dua'): Promise<any> {
-        const endpoint = this.API_URL + '/' + fileType + '-upload/' + studyId;
+    uploadFile(
+        fileToUpload: File,
+        studyId: number,
+        fileType: "protocol-file" | "dua",
+    ): Promise<any> {
+        const endpoint = this.API_URL + "/" + fileType + "-upload/" + studyId;
         const formData: FormData = new FormData();
-        if (fileType == 'dua') {
-            formData.append('file', fileToUpload, 'DUA-' + fileToUpload.name);
-        } else if (fileType == 'protocol-file') {
-            formData.append('file', fileToUpload, fileToUpload.name);
+        if (fileType == "dua") {
+            formData.append("file", fileToUpload, "DUA-" + fileToUpload.name);
+        } else if (fileType == "protocol-file") {
+            formData.append("file", fileToUpload, fileToUpload.name);
         }
-        const promise: Promise<void> = this.http.post<any>(endpoint, formData).toPromise();
+        const promise: Promise<void> = this.http
+            .post<any>(endpoint, formData)
+            .toPromise();
         // keep a track on the current uploadings
         if (this.fileUploads.has(studyId)) {
-            this.fileUploads.set(studyId, Promise.all([this.fileUploads.get(studyId), promise]).then(() => null));
+            this.fileUploads.set(
+                studyId,
+                Promise.all([this.fileUploads.get(studyId), promise]).then(
+                    () => null,
+                ),
+            );
         } else {
             this.fileUploads.set(studyId, promise);
         }
         return promise;
     }
 
-
-    deleteFile(studyId: number, fileType: 'protocol-file'|'dua'): Observable<any> {
-        const endpoint = this.API_URL + '/' + fileType + '-delete/' + studyId;
+    deleteFile(
+        studyId: number,
+        fileType: "protocol-file" | "dua",
+    ): Observable<any> {
+        const endpoint = this.API_URL + "/" + fileType + "-delete/" + studyId;
         return this.http.delete(endpoint);
     }
 
     downloadProtocolFile(fileName: string, studyId: number, state?: TaskState) {
-        const endpoint = this.API_URL + '/protocol-file-download/' + studyId + "/" + fileName + "/";
+        const endpoint =
+            this.API_URL +
+            "/protocol-file-download/" +
+            studyId +
+            "/" +
+            fileName +
+            "/";
         return this.downloadService.downloadSingleFile(endpoint, null, state);
     }
 
     buildProtocolFileUrl(fileName: string, studyId: number): string {
-        return this.API_URL + '/protocol-file-download/' + studyId + "/" + fileName;
+        return (
+            this.API_URL + "/protocol-file-download/" + studyId + "/" + fileName
+        );
     }
 
     downloadDuaFile(fileName: string, studyId: number, state?: TaskState) {
-        const endpoint = this.API_URL + '/dua-download/' + studyId + "/" + fileName + "/";
+        const endpoint =
+            this.API_URL + "/dua-download/" + studyId + "/" + fileName + "/";
         return this.downloadService.downloadSingleFile(endpoint, null, state);
     }
 
     downloadDuaBlob(fileName: string, studyId: number): Promise<Blob> {
-        const endpoint = this.API_URL + '/dua-download/' + studyId + "/" + fileName + "/";
+        const endpoint =
+            this.API_URL + "/dua-download/" + studyId + "/" + fileName + "/";
         return AppUtils.downloadBlob(endpoint);
     }
 
     getMyDUA(): Promise<DataUserAgreement[]> {
-        return this.http.get<DataUserAgreement[]>(AppUtils.BACKEND_API_STUDY_URL + '/dua')
-                .toPromise()
-                .then(duas => {
-                    this._duasToSign = duas ? duas.length : 0;
-                    return duas;
-                });
+        return this.http
+            .get<DataUserAgreement[]>(AppUtils.BACKEND_API_STUDY_URL + "/dua")
+            .toPromise()
+            .then((duas) => {
+                this._duasToSign = duas ? duas.length : 0;
+                return duas;
+            });
     }
 
     get duasToSign(): number {
@@ -224,37 +323,51 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     acceptDUA(duaId: number): Promise<void> {
-        return this.http.put<any>(AppUtils.BACKEND_API_STUDY_URL + '/dua/' + duaId, null)
-                .toPromise()
-                .then(() => {
-                    this.getMyDUA();
-                });
+        return this.http
+            .put<any>(AppUtils.BACKEND_API_STUDY_URL + "/dua/" + duaId, null)
+            .toPromise()
+            .then(() => {
+                this.getMyDUA();
+            });
     }
 
     hasDUAByStudyId(studyId: number): Promise<boolean> {
-        return this.http.get<boolean>(AppUtils.BACKEND_API_STUDY_URL + '/dua/study/' + studyId)
+        return this.http
+            .get<boolean>(
+                AppUtils.BACKEND_API_STUDY_URL + "/dua/study/" + studyId,
+            )
             .toPromise()
-            .then(dua => {
+            .then((dua) => {
                 return dua;
             });
     }
 
     deleteUserFromStudy(studyId: number, userId: number): Promise<void> {
-      return this.http.delete<void>(AppUtils.BACKEND_API_STUDY_DELETE_USER + "/" + studyId + "/" + userId)
-        .toPromise();
+        return this.http
+            .delete<void>(
+                AppUtils.BACKEND_API_STUDY_DELETE_USER +
+                    "/" +
+                    studyId +
+                    "/" +
+                    userId,
+            )
+            .toPromise();
     }
 
     exportBIDSByStudyId(studyId: number) {
-        if (!studyId) throw Error('study id is required');
-        this.http.get(AppUtils.BACKEND_API_BIDS_EXPORT_URL + '/studyId/' + studyId, {
-            reportProgress: true,
-            observe: 'events',
-            responseType: 'blob'
-        });
+        if (!studyId) throw Error("study id is required");
+        this.http.get(
+            AppUtils.BACKEND_API_BIDS_EXPORT_URL + "/studyId/" + studyId,
+            {
+                reportProgress: true,
+                observe: "events",
+                responseType: "blob",
+            },
+        );
     }
 
     protected static getIgnoreList(): string[] {
-        return super.getIgnoreList().concat(['completeMembers']);
+        return super.getIgnoreList().concat(["completeMembers"]);
     }
 
     public stringify(entity: Study) {
@@ -266,65 +379,91 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     protected mapEntity = (dto: StudyDTO, result?: Study): Promise<Study> => {
         if (result == undefined) result = this.getEntityInstance();
         return this.studyDTOService.toEntity(dto, result);
-    }
+    };
 
-    protected mapEntityList = (dtos: StudyDTO[], result?: Study[]): Promise<Study[]> => {
+    protected mapEntityList = (
+        dtos: StudyDTO[],
+        result?: Study[],
+    ): Promise<Study[]> => {
         if (result == undefined) result = [];
         if (dtos) return this.studyDTOService.toEntityList(dtos, result);
-    }
+    };
 
-    private mapSubjectList = (dtos: SubjectDTO[], result?: Subject[]): Promise<Subject[]> => {
+    private mapSubjectList = (
+        dtos: SubjectDTO[],
+        result?: Subject[],
+    ): Promise<Subject[]> => {
         if (result == undefined) result = [];
         if (dtos) return this.studyDTOService.toSubjectList(dtos, result);
-    }
+    };
 
     ngOnDestroy() {
-        for(const subscribtion of this.subscriptions) {
+        for (const subscribtion of this.subscriptions) {
             subscribtion.unsubscribe();
         }
     }
 
     getStudyDetailedStorageVolume(id: number): Promise<StudyStorageVolumeDTO> {
-        return this.http.get<StudyStorageVolumeDTO>(AppUtils.BACKEND_API_STUDY_URL + '/detailedStorageVolume/' + id)
+        return this.http
+            .get<StudyStorageVolumeDTO>(
+                AppUtils.BACKEND_API_STUDY_URL + "/detailedStorageVolume/" + id,
+            )
             .toPromise();
     }
 
-    getStudiesStorageVolume(ids: number[]): Promise<Map<number, StudyStorageVolumeDTO>> {
+    getStudiesStorageVolume(
+        ids: number[],
+    ): Promise<Map<number, StudyStorageVolumeDTO>> {
         // separate cached and uncached volumes
         const cachedVolumes: Map<number, StudyStorageVolumeDTO> = new Map();
-        ids.forEach(id => {
+        ids.forEach((id) => {
             if (this.studyVolumesCache.has(id)) {
                 cachedVolumes.set(id, this.studyVolumesCache.get(id));
             }
         });
-        ids = ids.filter(id => !cachedVolumes.has(id));
+        ids = ids.filter((id) => !cachedVolumes.has(id));
         const rets: Promise<Map<number, StudyStorageVolumeDTO>>[] = [];
         if (cachedVolumes.size > 0) rets.push(Promise.resolve(cachedVolumes));
 
-        if (ids.length > 0) { // fetch volumes from server
+        if (ids.length > 0) {
+            // fetch volumes from server
             const formData: FormData = new FormData();
-            formData.set('studyIds', ids.join(","));
-            rets.push(this.http.post<Map<number, StudyStorageVolumeDTO>>(AppUtils.BACKEND_API_STUDY_URL + '/detailedStorageVolume', formData)
-                .toPromise()
-                .then(volumes => {
-                    return volumes ? Object.entries(volumes).reduce((map: Map<number, StudyStorageVolumeDTO>, entry) => map.set(parseInt(entry[0]), entry[1]), new Map()) : new Map();
-                }).then(volumes => {
-                    volumes.forEach((value, key) => {
-                        this.studyVolumesCache.set(key, value);
-                    });
-                    return volumes;
-                })
+            formData.set("studyIds", ids.join(","));
+            rets.push(
+                this.http
+                    .post<Map<number, StudyStorageVolumeDTO>>(
+                        AppUtils.BACKEND_API_STUDY_URL +
+                            "/detailedStorageVolume",
+                        formData,
+                    )
+                    .toPromise()
+                    .then((volumes) => {
+                        return volumes
+                            ? Object.entries(volumes).reduce(
+                                  (
+                                      map: Map<number, StudyStorageVolumeDTO>,
+                                      entry,
+                                  ) => map.set(parseInt(entry[0]), entry[1]),
+                                  new Map(),
+                              )
+                            : new Map();
+                    })
+                    .then((volumes) => {
+                        volumes.forEach((value, key) => {
+                            this.studyVolumesCache.set(key, value);
+                        });
+                        return volumes;
+                    }),
             );
         }
         // aggregate results
-        return Promise.all(rets).then(results => {
+        return Promise.all(rets).then((results) => {
             const totalVolumes: Map<number, StudyStorageVolumeDTO> = new Map();
-            results?.forEach(result => {
+            results?.forEach((result) => {
                 result.forEach((val, key) => totalVolumes.set(key, val));
             });
             return totalVolumes;
         });
-
     }
 
     storageVolumePrettyPrint(size: number) {
@@ -332,25 +471,31 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     getTagsFromStudyId(studyId: number): Promise<Tag[]> {
-        return this.http.get<any[]>(AppUtils.BACKEND_API_STUDY_URL + '/tags/' + studyId)
+        return this.http
+            .get<any[]>(AppUtils.BACKEND_API_STUDY_URL + "/tags/" + studyId)
             .toPromise()
-            .then(dtos => dtos?.map(dto => StudyDTOService.tagDTOToTag(dto)));
+            .then((dtos) =>
+                dtos?.map((dto) => StudyDTOService.tagDTOToTag(dto)),
+            );
     }
 
     getStudiesByRight(right: StudyUserRight): Promise<number[]> {
-        return this.http.get<any[]>(AppUtils.BACKEND_API_STUDY_URL + '/studyUser/right/' + right)
+        return this.http
+            .get<
+                any[]
+            >(AppUtils.BACKEND_API_STUDY_URL + "/studyUser/right/" + right)
             .toPromise();
     }
 
     async approveStudyById(id: number): Promise<boolean> {
         const confirmed = await this.confirmDialogService.confirm(
-            'Approve Study',
-            'Are you sure you want to approve this study?\n\n'
-            + 'Once approved, the study will be available to its members according to their permissions.\n\n'
-            + 'This means:\n'
-            + '• Editing the start date will be disabled\n'
-            + '• Dataset importation will be enabled\n'
-            + '• Members will be able to create and manage related entities (e.g., subjects, examinations, datasets) based on their assigned rights.'
+            "Approve Study",
+            "Are you sure you want to approve this study?\n\n" +
+                "Once approved, the study will be available to its members according to their permissions.\n\n" +
+                "This means:\n" +
+                "• Editing the start date will be disabled\n" +
+                "• Dataset importation will be enabled\n" +
+                "• Members will be able to create and manage related entities (e.g., subjects, examinations, datasets) based on their assigned rights.",
         );
 
         if (!confirmed) {
@@ -358,7 +503,10 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
         }
 
         await this.http
-            .put<any>(AppUtils.BACKEND_API_STUDY_URL + '/approveDraftStudy/' + id, null)
+            .put<any>(
+                AppUtils.BACKEND_API_STUDY_URL + "/approveDraftStudy/" + id,
+                null,
+            )
             .toPromise();
 
         this.findDraftStudies();

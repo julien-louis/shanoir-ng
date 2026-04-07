@@ -11,42 +11,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {Component, OnDestroy} from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import shajs from 'sha.js';
+import { Component, OnDestroy } from "@angular/core";
+import {
+    AbstractControl,
+    AsyncValidatorFn,
+    UntypedFormGroup,
+    ValidatorFn,
+    Validators,
+} from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import shajs from "sha.js";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
-import { Selection } from 'src/app/studies/study/tree.service';
-import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.service';
-import { TaskState } from 'src/app/async-tasks/task.model';
-import { StudyUserRight } from 'src/app/studies/shared/study-user-right.enum';
-import { StudyRightsService } from 'src/app/studies/shared/study-rights.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
+import { Selection } from "src/app/studies/study/tree.service";
+import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
+import { TaskState } from "src/app/async-tasks/task.model";
+import { StudyUserRight } from "src/app/studies/shared/study-user-right.enum";
+import { StudyRightsService } from "src/app/studies/shared/study-rights.service";
 
-import { preventInitialChildAnimations, slideDown } from '../../shared/animations/animations';
-import { EntityComponent } from '../../shared/components/entity/entity.component.abstract';
-import { DatepickerComponent } from '../../shared/date-picker/date-picker.component';
-import { IdName } from '../../shared/models/id-name.model';
-import { Option } from '../../shared/select/select.component';
-import { Study } from '../../studies/shared/study.model';
-import { StudyService } from '../../studies/shared/study.service';
-import { ImagedObjectCategory } from '../shared/imaged-object-category.enum';
-import { Subject } from '../shared/subject.model';
-import { SubjectService } from '../shared/subject.service';
-import { Tag} from "../../tags/tag.model";
+import {
+    preventInitialChildAnimations,
+    slideDown,
+} from "../../shared/animations/animations";
+import { EntityComponent } from "../../shared/components/entity/entity.component.abstract";
+import { DatepickerComponent } from "../../shared/date-picker/date-picker.component";
+import { IdName } from "../../shared/models/id-name.model";
+import { Option } from "../../shared/select/select.component";
+import { Study } from "../../studies/shared/study.model";
+import { StudyService } from "../../studies/shared/study.service";
+import { ImagedObjectCategory } from "../shared/imaged-object-category.enum";
+import { Subject } from "../shared/subject.model";
+import { SubjectService } from "../shared/subject.service";
+import { Tag } from "../../tags/tag.model";
 import { dateDisplay } from "../../shared/./localLanguage/localDate.abstract";
 import { isDarkColor } from "../../utils/app.utils";
 
 @Component({
-    selector: 'subject-detail',
-    templateUrl: 'subject.component.html',
-    styleUrls: ['subject.component.css'],
+    selector: "subject-detail",
+    templateUrl: "subject.component.html",
+    styleUrls: ["subject.component.css"],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false
+    standalone: false,
 })
-
-export class SubjectComponent extends EntityComponent<Subject> implements OnDestroy {
-
+export class SubjectComponent
+    extends EntityComponent<Subject>
+    implements OnDestroy
+{
     readonly ImagedObjectCategory = ImagedObjectCategory;
     private readonly HASH_LENGTH: number = 14;
     studies: IdName[] = [];
@@ -55,7 +65,12 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
     lastName: string = "";
     subjectNamePrefix: string = "";
     pattern: RegExp = /[^:|<>&/]+/;
-    private nameValidators = [Validators.required, Validators.minLength(2), Validators.maxLength(64), Validators.pattern(this.pattern)];
+    private nameValidators = [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(64),
+        Validators.pattern(this.pattern),
+    ];
     dicomPatientName: string;
     downloadState: TaskState = new TaskState();
     hasDownloadRight: boolean = false;
@@ -64,38 +79,53 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
     tags: Tag[] = [];
 
     catOptions: Option<ImagedObjectCategory>[] = [
-        new Option<ImagedObjectCategory>(ImagedObjectCategory.PHANTOM, 'Phantom'),
-        new Option<ImagedObjectCategory>(ImagedObjectCategory.LIVING_HUMAN_BEING, 'Living human being'),
-        new Option<ImagedObjectCategory>(ImagedObjectCategory.HUMAN_CADAVER, 'Human cadaver'),
-        new Option<ImagedObjectCategory>(ImagedObjectCategory.ANATOMICAL_PIECE, 'Anatomical piece')
+        new Option<ImagedObjectCategory>(
+            ImagedObjectCategory.PHANTOM,
+            "Phantom",
+        ),
+        new Option<ImagedObjectCategory>(
+            ImagedObjectCategory.LIVING_HUMAN_BEING,
+            "Living human being",
+        ),
+        new Option<ImagedObjectCategory>(
+            ImagedObjectCategory.HUMAN_CADAVER,
+            "Human cadaver",
+        ),
+        new Option<ImagedObjectCategory>(
+            ImagedObjectCategory.ANATOMICAL_PIECE,
+            "Anatomical piece",
+        ),
     ];
 
     genderOptions: Option<string>[] = [
-        new Option<string>('F', 'Female'),
-        new Option<string>('M', 'Male'),
-        new Option<string>('O', 'Other'),
+        new Option<string>("F", "Female"),
+        new Option<string>("M", "Male"),
+        new Option<string>("O", "Other"),
     ];
 
     public subjectTypes: Option<string>[] = [
-        new Option<string>('HEALTHY_VOLUNTEER', 'Healthy Volunteer'),
-        new Option<string>('PATIENT', 'Patient'),
-        new Option<string>('PHANTOM', 'Phantom')
+        new Option<string>("HEALTHY_VOLUNTEER", "Healthy Volunteer"),
+        new Option<string>("PATIENT", "Patient"),
+        new Option<string>("PHANTOM", "Phantom"),
     ];
 
-    constructor(private route: ActivatedRoute,
-                private subjectService: SubjectService,
-                private studyService: StudyService,
-                private downloadService: MassDownloadService,
-                private studyRightsService: StudyRightsService) {
-
+    constructor(
+        private route: ActivatedRoute,
+        private subjectService: SubjectService,
+        private studyService: StudyService,
+        private downloadService: MassDownloadService,
+        private studyRightsService: StudyRightsService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'subject';
+        return "subject";
     }
 
-    public get subject(): Subject { return this.entity; }
+    public get subject(): Subject {
+        return this.entity;
+    }
     public set subject(subject: Subject) {
         this.entity = subject;
     }
@@ -106,29 +136,39 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
 
     protected getTreeSelection: () => Selection = () => {
         return Selection.fromSubject(this.subject);
-    }
+    };
 
     async init() {
         super.init();
-        if (this.mode == 'create') {
-            this.breadcrumbsService.currentStep.getPrefilledValue("firstName").then(res => {
-                this.firstName = res;
-                this.form.get('firstName').setValue(this.firstName);
-            });
-            this.breadcrumbsService.currentStep.getPrefilledValue("lastName").then(res => {
-                this.lastName = res;
-                this.form.get('lastName').setValue(this.lastName);
-            });
-            this.breadcrumbsService.currentStep.getPrefilledValue("isAlreadyAnonymized").then(res => {
-                this.subject.isAlreadyAnonymized = res;
-                this.toggleAnonymised(res);
-            });
-            this.breadcrumbsService.currentStep.getPrefilledValue("patientName").then(res => {
-                this.dicomPatientName = res;
-            });
-            this.breadcrumbsService.currentStep.getPrefilledValue("subjectNamePrefix").then(res => {
-                this.subjectNamePrefix = res;
-            });
+        if (this.mode == "create") {
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue("firstName")
+                .then((res) => {
+                    this.firstName = res;
+                    this.form.get("firstName").setValue(this.firstName);
+                });
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue("lastName")
+                .then((res) => {
+                    this.lastName = res;
+                    this.form.get("lastName").setValue(this.lastName);
+                });
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue("isAlreadyAnonymized")
+                .then((res) => {
+                    this.subject.isAlreadyAnonymized = res;
+                    this.toggleAnonymised(res);
+                });
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue("patientName")
+                .then((res) => {
+                    this.dicomPatientName = res;
+                });
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue("subjectNamePrefix")
+                .then((res) => {
+                    this.subjectNamePrefix = res;
+                });
             this.isImporting = this.breadcrumbsService.isImporting();
             if (this.isImporting)
                 this.importMode = this.breadcrumbsService.findImportMode();
@@ -141,10 +181,14 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
             this.hasDownloadRight = true;
             return;
         } else {
-            this.treeService.studyPromise.then(study => {
-                return this.studyRightsService.getMyRightsForStudy(study.id).then(rights => {
-                    this.hasDownloadRight = rights.includes(StudyUserRight.CAN_DOWNLOAD);
-                });
+            this.treeService.studyPromise.then((study) => {
+                return this.studyRightsService
+                    .getMyRightsForStudy(study.id)
+                    .then((rights) => {
+                        this.hasDownloadRight = rights.includes(
+                            StudyUserRight.CAN_DOWNLOAD,
+                        );
+                    });
             });
         }
         return Promise.resolve();
@@ -152,54 +196,85 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
 
     initEdit(): Promise<void> {
         this.loadAllStudies();
-        this.studyService.getTagsFromStudyId(this.subject.study.id).then(tags => {
-            this.subject.study.tags = tags ? tags : [];
-        })
+        this.studyService
+            .getTagsFromStudyId(this.subject.study.id)
+            .then((tags) => {
+                this.subject.study.tags = tags ? tags : [];
+            });
         return Promise.resolve();
     }
 
     initCreate(): Promise<void> {
         this.loadAllStudies();
         this.subject = new Subject();
-        this.subject.imagedObjectCategory = ImagedObjectCategory.LIVING_HUMAN_BEING;
+        this.subject.imagedObjectCategory =
+            ImagedObjectCategory.LIVING_HUMAN_BEING;
         return Promise.resolve();
     }
 
     buildForm(): UntypedFormGroup {
         const subjectForm = this.formBuilder.group({
-            'imagedObjectCategory': [this.subject.imagedObjectCategory, [Validators.required]],
-            'isAlreadyAnonymized': [this.subject.isAlreadyAnonymized],
-            'name': [this.subject.name, this.nameValidators.concat([this.forbiddenNameValidator([this.subjectNamePrefix]), this.notEmptyValidator()]), this.uniqueSubjectNameValidatorOnName],
-            'firstName': [this.firstName],
-            'lastName': [this.lastName],
-            'birthDate': [this.subject.birthDate],
-            'sex': [this.subject.sex],
-            'manualHemisphericDominance': [this.subject.manualHemisphericDominance],
-            'languageHemisphericDominance': [this.subject.languageHemisphericDominance],
-            'studyIdentifier': [this.subject.studyIdentifier],
-            'physicallyInvolved': [this.subject.physicallyInvolved],
-            'tags': [this.subject.tags],
-            'study': [this.subject.study, (this.mode == 'view' || this.mode == 'edit') ? [] : [Validators.required]],
-            'subjectType': [this.subject.subjectType, Validators.required],
-            'personalComments': []
+            imagedObjectCategory: [
+                this.subject.imagedObjectCategory,
+                [Validators.required],
+            ],
+            isAlreadyAnonymized: [this.subject.isAlreadyAnonymized],
+            name: [
+                this.subject.name,
+                this.nameValidators.concat([
+                    this.forbiddenNameValidator([this.subjectNamePrefix]),
+                    this.notEmptyValidator(),
+                ]),
+                this.uniqueSubjectNameValidatorOnName,
+            ],
+            firstName: [this.firstName],
+            lastName: [this.lastName],
+            birthDate: [this.subject.birthDate],
+            sex: [this.subject.sex],
+            manualHemisphericDominance: [
+                this.subject.manualHemisphericDominance,
+            ],
+            languageHemisphericDominance: [
+                this.subject.languageHemisphericDominance,
+            ],
+            studyIdentifier: [this.subject.studyIdentifier],
+            physicallyInvolved: [this.subject.physicallyInvolved],
+            tags: [this.subject.tags],
+            study: [
+                this.subject.study,
+                this.mode == "view" || this.mode == "edit"
+                    ? []
+                    : [Validators.required],
+            ],
+            subjectType: [this.subject.subjectType, Validators.required],
+            personalComments: [],
         });
         this.updateFormControl(subjectForm);
         this.subscriptions.push(
-            subjectForm.get('imagedObjectCategory').valueChanges.subscribe(() => {
-                this.subject.isAlreadyAnonymized = false;
-                this.updateFormControl(subjectForm);
-            })
+            subjectForm
+                .get("imagedObjectCategory")
+                .valueChanges.subscribe(() => {
+                    this.subject.isAlreadyAnonymized = false;
+                    this.updateFormControl(subjectForm);
+                }),
         );
         this.subscriptions.push(
-            subjectForm.get('isAlreadyAnonymized').valueChanges.subscribe(value => {
-                this.toggleAnonymised(value);
-                this.updateFormControl(subjectForm);
-            })
+            subjectForm
+                .get("isAlreadyAnonymized")
+                .valueChanges.subscribe((value) => {
+                    this.toggleAnonymised(value);
+                    this.updateFormControl(subjectForm);
+                }),
         );
         this.subscriptions.push(
-            subjectForm.get('study')!.valueChanges.subscribe(() => {
-                subjectForm.get('name')!.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-            })
+            subjectForm.get("study")!.valueChanges.subscribe(() => {
+                subjectForm
+                    .get("name")!
+                    .updateValueAndValidity({
+                        onlySelf: true,
+                        emitEvent: false,
+                    });
+            }),
         );
         if (!this.subject.name && this.subjectNamePrefix) {
             this.subject.name = this.subjectNamePrefix;
@@ -208,29 +283,38 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
         return subjectForm;
     }
 
-    private uniqueSubjectNameValidatorOnName: AsyncValidatorFn = async (control: AbstractControl) => {
-        const subjectName = (control.value ?? '').toString().trim();
-        const studyId = control.parent?.get('study')?.value?.id as number | undefined;
+    private uniqueSubjectNameValidatorOnName: AsyncValidatorFn = async (
+        control: AbstractControl,
+    ) => {
+        const subjectName = (control.value ?? "").toString().trim();
+        const studyId = control.parent?.get("study")?.value?.id as
+            | number
+            | undefined;
 
         if (!subjectName || !studyId) return null;
 
-        const exists = await this.subjectService.isSubjectNameExistForStudy(subjectName, studyId);
+        const exists = await this.subjectService.isSubjectNameExistForStudy(
+            subjectName,
+            studyId,
+        );
         return exists ? { unique: true } : null;
     };
 
     public onSelectStudy() {
-        this.studyService.get(this.subject.study?.id).then(study => {
+        this.studyService.get(this.subject.study?.id).then((study) => {
             this.subject.study = study;
-            this.studyService.getTagsFromStudyId(this.subject.study.id).then(tags => {
-                this.subject.study.tags = tags ? tags : [];
-            })
+            this.studyService
+                .getTagsFromStudyId(this.subject.study.id)
+                .then((tags) => {
+                    this.subject.study.tags = tags ? tags : [];
+                });
         });
     }
 
     private forbiddenNameValidator(forbiddenValues: string[]): ValidatorFn {
         return (c: AbstractControl): Record<string, boolean> | null => {
             if (forbiddenValues.indexOf(c.value) !== -1) {
-                return { 'subjectNamePrefix': true };
+                return { subjectNamePrefix: true };
             }
             return null;
         };
@@ -239,57 +323,74 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
     private notEmptyValidator(): ValidatorFn {
         return (c: AbstractControl): Record<string, boolean> | null => {
             if (!c.value || c.value.trim().length < 2) {
-                return { 'notEmptyValidator': true };
+                return { notEmptyValidator: true };
             }
             return null;
         };
     }
 
     private updateFormControl(formGroup: UntypedFormGroup) {
-        if (formGroup.get('imagedObjectCategory').value == ImagedObjectCategory.LIVING_HUMAN_BEING && !this.subject.isAlreadyAnonymized && this.mode == 'create') {
-            if (this.importMode != 'EEG') {
-                formGroup.get('firstName').setValidators(this.nameValidators);
-                formGroup.get('lastName').setValidators(this.nameValidators);
+        if (
+            formGroup.get("imagedObjectCategory").value ==
+                ImagedObjectCategory.LIVING_HUMAN_BEING &&
+            !this.subject.isAlreadyAnonymized &&
+            this.mode == "create"
+        ) {
+            if (this.importMode != "EEG") {
+                formGroup.get("firstName").setValidators(this.nameValidators);
+                formGroup.get("lastName").setValidators(this.nameValidators);
             }
-            formGroup.get('birthDate').setValidators([Validators.required, DatepickerComponent.validator])
+            formGroup
+                .get("birthDate")
+                .setValidators([
+                    Validators.required,
+                    DatepickerComponent.validator,
+                ]);
         } else {
-            formGroup.get('firstName').setValidators([]);
-            formGroup.get('lastName').setValidators([]);
-            formGroup.get('birthDate').setValidators([DatepickerComponent.validator])
+            formGroup.get("firstName").setValidators([]);
+            formGroup.get("lastName").setValidators([]);
+            formGroup
+                .get("birthDate")
+                .setValidators([DatepickerComponent.validator]);
         }
-        formGroup.get('firstName').updateValueAndValidity();
-        formGroup.get('lastName').updateValueAndValidity();
-        formGroup.get('birthDate').updateValueAndValidity();
+        formGroup.get("firstName").updateValueAndValidity();
+        formGroup.get("lastName").updateValueAndValidity();
+        formGroup.get("birthDate").updateValueAndValidity();
         this.reloadRequiredStyles();
     }
 
     save(): Promise<Subject> {
         let savedDate: Date;
-        if (this.mode == 'create') {
+        if (this.mode == "create") {
             this.subject.identifier = this.generateSubjectIdentifier();
             this.setSubjectBirthDateToFirstOfJanuary();
         }
-        this.subject = { ...this.subject, study: { id: this.subject.study.id } as Study };
-        return super.save()
-            .then(() => { if (savedDate) this.subject.birthDate = savedDate; return this.subject; })
-            .catch(reason => {
+        this.subject = {
+            ...this.subject,
+            study: { id: this.subject.study.id } as Study,
+        };
+        return super
+            .save()
+            .then(() => {
                 if (savedDate) this.subject.birthDate = savedDate;
-                this.consoleService.log('error', reason.error.message);
-                throw reason;
+                return this.subject;
             })
+            .catch((reason) => {
+                if (savedDate) this.subject.birthDate = savedDate;
+                this.consoleService.log("error", reason.error.message);
+                throw reason;
+            });
     }
 
     loadAllStudies(): void {
-        this.studyService
-            .getStudiesNames()
-            .then(studies => {
-                this.studies = studies;
-            });
-        console.log(123)
+        this.studyService.getStudiesNames().then((studies) => {
+            this.studies = studies;
+        });
+        console.log(123);
     }
 
     studyNameForSubject() {
-        this.studies = this.studies.filter(s => s.id == this.entity.study.id);
+        this.studies = this.studies.filter((s) => s.id == this.entity.study.id);
         return this.studies[0] ? this.studies[0].name : "";
     }
 
@@ -297,27 +398,34 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
         let hash;
         if (this.humanSelected() && !this.subject.isAlreadyAnonymized) {
             hash = this.firstName + this.lastName + this.subject.birthDate;
-        }
-        else {
+        } else {
             hash = this.subject.name + this.subject.birthDate;
         }
         return this.getHash(hash);
     }
 
     getHash(stringToBeHashed: string): string {
-        const hash = shajs('sha').update(stringToBeHashed).digest('hex');
+        const hash = shajs("sha").update(stringToBeHashed).digest("hex");
         const hex = hash.substring(0, this.HASH_LENGTH);
         return hex;
     }
 
     humanSelected(): boolean {
-        return this.subject.imagedObjectCategory != null
-            && (this.subject.imagedObjectCategory == ImagedObjectCategory.HUMAN_CADAVER
-                || this.subject.imagedObjectCategory == ImagedObjectCategory.LIVING_HUMAN_BEING);
+        return (
+            this.subject.imagedObjectCategory != null &&
+            (this.subject.imagedObjectCategory ==
+                ImagedObjectCategory.HUMAN_CADAVER ||
+                this.subject.imagedObjectCategory ==
+                    ImagedObjectCategory.LIVING_HUMAN_BEING)
+        );
     }
 
     private setSubjectBirthDateToFirstOfJanuary(): void {
-        const newDate: Date = new Date(new Date(this.subject.birthDate).getFullYear(), 0, 1);
+        const newDate: Date = new Date(
+            new Date(this.subject.birthDate).getFullYear(),
+            0,
+            1,
+        );
         this.subject.birthDate = newDate;
     }
 
@@ -326,27 +434,43 @@ export class SubjectComponent extends EntityComponent<Subject> implements OnDest
     }
 
     public toggleAnonymised(isAlreadyAnonymized: boolean) {
-        this.subject.name = (this.subjectNamePrefix ? this.subjectNamePrefix : '')
-            + (isAlreadyAnonymized ? this.dicomPatientName : '');
+        this.subject.name =
+            (this.subjectNamePrefix ? this.subjectNamePrefix : "") +
+            (isAlreadyAnonymized ? this.dicomPatientName : "");
     }
 
     download() {
         // TODO : select study
-        this.downloadService.downloadAllByStudyIdAndSubjectId(this.treeService.study.id, this.subject.id, this.downloadState);
+        this.downloadService.downloadAllByStudyIdAndSubjectId(
+            this.treeService.study.id,
+            this.subject.id,
+            this.downloadState,
+        );
     }
 
     getOnDeleteConfirmMessage(subject: Subject): string {
-        let msg : string = 'Are you sure you want to finally delete the subject '
-            + (subject.name + ' with id n° ' + subject.id) + ' ?';
-        msg += "\n\nThis subject belongs to the study " + this.studies.find(st => st.id === subject.study.id).name;
-        msg += '\n\nWarning: this action deletes ALL datasets from this subject.';
+        let msg: string =
+            "Are you sure you want to finally delete the subject " +
+            (subject.name + " with id n° " + subject.id) +
+            " ?";
+        msg +=
+            "\n\nThis subject belongs to the study " +
+            this.studies.find((st) => st.id === subject.study.id).name;
+        msg +=
+            "\n\nWarning: this action deletes ALL datasets from this subject.";
         return msg;
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
-        this.breadcrumbsService.currentStep.addPrefilled("firstName", this.firstName);
-        this.breadcrumbsService.currentStep.addPrefilled("lastName", this.lastName);
+        this.breadcrumbsService.currentStep.addPrefilled(
+            "firstName",
+            this.firstName,
+        );
+        this.breadcrumbsService.currentStep.addPrefilled(
+            "lastName",
+            this.lastName,
+        );
     }
 
     getFontColor(colorInp: string): boolean {

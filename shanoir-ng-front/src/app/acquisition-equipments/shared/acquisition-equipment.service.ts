@@ -11,27 +11,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 
-import { Center } from 'src/app/centers/shared/center.model';
+import { Center } from "src/app/centers/shared/center.model";
 
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import * as AppUtils from '../../utils/app.utils';
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import * as AppUtils from "../../utils/app.utils";
 import { ShanoirError } from "../../shared/models/error.model";
 import { StudyCard } from "../../study-cards/shared/study-card.model";
 
-import { AcquisitionEquipment } from './acquisition-equipment.model';
+import { AcquisitionEquipment } from "./acquisition-equipment.model";
 import { ManufacturerModel } from "./manufacturer-model.model";
 
 @Injectable()
 export class AcquisitionEquipmentService extends EntityService<AcquisitionEquipment> {
-
     API_URL = AppUtils.BACKEND_API_ACQ_EQUIP_URL;
 
     constructor(protected http: HttpClient) {
-        super(http)
+        super(http);
     }
 
     getEntityInstance() {
@@ -39,14 +38,20 @@ export class AcquisitionEquipmentService extends EntityService<AcquisitionEquipm
     }
 
     getAllByCenter(centerId: number): Promise<AcquisitionEquipment[]> {
-        return this.http.get<AcquisitionEquipment[]>(AppUtils.BACKEND_API_ACQ_EQUIP_URL + '/byCenter/' + centerId)
+        return this.http
+            .get<AcquisitionEquipment[]>(
+                AppUtils.BACKEND_API_ACQ_EQUIP_URL + "/byCenter/" + centerId,
+            )
             .toPromise()
             .catch(this.arrayFrom404)
             .then(this.mapEntityList);
     }
 
     getAllByStudy(studyId: number): Promise<AcquisitionEquipment[]> {
-        return this.http.get<AcquisitionEquipment[]>(AppUtils.BACKEND_API_ACQ_EQUIP_URL + '/byStudy/' + studyId)
+        return this.http
+            .get<AcquisitionEquipment[]>(
+                AppUtils.BACKEND_API_ACQ_EQUIP_URL + "/byStudy/" + studyId,
+            )
             .toPromise()
             .then(this.mapEntityList);
     }
@@ -54,45 +59,81 @@ export class AcquisitionEquipmentService extends EntityService<AcquisitionEquipm
     delete(id: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.http
-                .get<StudyCard[]>(AppUtils.BACKEND_API_STUDY_CARD_URL + '/byAcqEq/' + id)
+                .get<StudyCard[]>(
+                    AppUtils.BACKEND_API_STUDY_CARD_URL + "/byAcqEq/" + id,
+                )
                 .toPromise()
-                .then(cards => {
+                .then((cards) => {
                     if (cards?.length == 1) {
-                        throw new ShanoirError({ error: { code: 422, message: 'This acquisition-equipment is linked to the study card n°' + cards[0].id + '.' } })
+                        throw new ShanoirError({
+                            error: {
+                                code: 422,
+                                message:
+                                    "This acquisition-equipment is linked to the study card n°" +
+                                    cards[0].id +
+                                    ".",
+                            },
+                        });
+                        reject();
+                    } else if (cards?.length > 1) {
+                        throw new ShanoirError({
+                            error: {
+                                code: 422,
+                                message:
+                                    "This acquisition-equipment is linked to " +
+                                    cards.length +
+                                    " study cards, more info in the details.",
+                                details:
+                                    "Study cards : " +
+                                    cards.map((card) => card.id).join(", "),
+                            },
+                        });
                         reject();
                     }
-                    else if (cards?.length > 1) {
-                        throw new ShanoirError({ error: { code: 422, message: 'This acquisition-equipment is linked to ' + cards.length + ' study cards, more info in the details.', details: 'Study cards : ' + cards.map(card => card.id).join(', ') } })
-                        reject();
-                    }
-                    return super.delete(id)
+                    return super
+                        .delete(id)
                         .then(() => resolve())
-                        .catch(err => reject(err));
+                        .catch((err) => reject(err));
                 })
-                .catch(err => {
-                    throw this.consoleService.log('warn', err.message);
+                .catch((err) => {
+                    throw this.consoleService.log("warn", err.message);
                 });
         });
     }
 
-    checkDuplicate(serialNumber: string, manufacturerModel: ManufacturerModel, center: Center): Promise<boolean> {
+    checkDuplicate(
+        serialNumber: string,
+        manufacturerModel: ManufacturerModel,
+        center: Center,
+    ): Promise<boolean> {
         return firstValueFrom(
             this.http.get<AcquisitionEquipment[]>(
-                `${AppUtils.BACKEND_API_ACQ_EQUIP_URL}/bySerialNumber/${serialNumber}`
-            )
-        ).then(equipments => {
-            return equipments.some(equipment =>
-                equipment.manufacturerModel.id === manufacturerModel.id
-                && equipment.serialNumber === serialNumber
-                && equipment.center.id === center.id
-            );
-        }).catch(error => {
-            if (error instanceof HttpErrorResponse && error.status === 404) {
-                console.log("catch 404 error: no equipments found for this serial number");
-                return false; // No equipments found, so no duplicates
-            }
-            // Handle other errors
-            throw new ShanoirError({error: {code: error.status, message: error.message}});
-        });
+                `${AppUtils.BACKEND_API_ACQ_EQUIP_URL}/bySerialNumber/${serialNumber}`,
+            ),
+        )
+            .then((equipments) => {
+                return equipments.some(
+                    (equipment) =>
+                        equipment.manufacturerModel.id ===
+                            manufacturerModel.id &&
+                        equipment.serialNumber === serialNumber &&
+                        equipment.center.id === center.id,
+                );
+            })
+            .catch((error) => {
+                if (
+                    error instanceof HttpErrorResponse &&
+                    error.status === 404
+                ) {
+                    console.log(
+                        "catch 404 error: no equipments found for this serial number",
+                    );
+                    return false; // No equipments found, so no duplicates
+                }
+                // Handle other errors
+                throw new ShanoirError({
+                    error: { code: error.status, message: error.message },
+                });
+            });
     }
 }

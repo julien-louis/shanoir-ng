@@ -11,25 +11,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, HostListener } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { BreadcrumbsService } from '../../breadcrumbs/breadcrumbs.service';
-import { slideDown } from '../../shared/animations/animations';
-import * as AppUtils from '../../utils/app.utils';
-import { PatientDicom, SerieDicom, StudyDicom } from '../shared/dicom-data.model';
-import { ImportDataService } from '../shared/import.data-service';
-import { ImportService } from '../shared/import.service';
+import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
+import { slideDown } from "../../shared/animations/animations";
+import * as AppUtils from "../../utils/app.utils";
+import {
+    PatientDicom,
+    SerieDicom,
+    StudyDicom,
+} from "../shared/dicom-data.model";
+import { ImportDataService } from "../shared/import.data-service";
+import { ImportService } from "../shared/import.service";
 
 @Component({
-    selector: 'select-series',
-    templateUrl: 'select-series.component.html',
-    styleUrls: ['select-series.component.css', '../shared/import.step.css'],
+    selector: "select-series",
+    templateUrl: "select-series.component.html",
+    styleUrls: ["select-series.component.css", "../shared/import.step.css"],
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class SelectSeriesComponent {
-
     patients: PatientDicom[];
 
     public workFolder: string;
@@ -41,16 +44,16 @@ export class SelectSeriesComponent {
     studiesCheckboxes: any = {};
 
     constructor(
-            private importService: ImportService,
-            private breadcrumbsService: BreadcrumbsService,
-            private router: Router,
-            private importDataService: ImportDataService) {
-
+        private importService: ImportService,
+        private breadcrumbsService: BreadcrumbsService,
+        private router: Router,
+        private importDataService: ImportDataService,
+    ) {
         if (!this.importDataService.patientList) {
-            this.router.navigate(['imports'], {replaceUrl: true});
+            this.router.navigate(["imports"], { replaceUrl: true });
             return;
         }
-        breadcrumbsService.nameStep('2. Series');
+        breadcrumbsService.nameStep("2. Series");
 
         this.patients = this.importDataService.patientList.patients;
 
@@ -60,18 +63,27 @@ export class SelectSeriesComponent {
     showSerieDetails(serie: SerieDicom): void {
         this.detailedPatient = null;
         this.detailedStudy = null;
-        if (serie && this.detailedSerie && serie.seriesInstanceUID == this.detailedSerie["seriesInstanceUID"]) {
+        if (
+            serie &&
+            this.detailedSerie &&
+            serie.seriesInstanceUID == this.detailedSerie["seriesInstanceUID"]
+        ) {
             this.detailedSerie = null;
         } else {
             this.detailedSerie = serie;
-            if (serie && serie.images) this.papayaLoadingCallback = () => this.initPapaya(serie);
+            if (serie && serie.images)
+                this.papayaLoadingCallback = () => this.initPapaya(serie);
         }
     }
 
     showStudyDetails(nodeParams: any): void {
         this.detailedSerie = null;
         this.detailedPatient = null;
-        if (nodeParams && this.detailedStudy && nodeParams.studyID == this.detailedStudy["studyID"]) {
+        if (
+            nodeParams &&
+            this.detailedStudy &&
+            nodeParams.studyID == this.detailedStudy["studyID"]
+        ) {
             this.detailedStudy = null;
         } else {
             this.detailedStudy = nodeParams;
@@ -81,7 +93,11 @@ export class SelectSeriesComponent {
     showPatientDetails(nodeParams: any): void {
         this.detailedSerie = null;
         this.detailedStudy = null;
-        if (nodeParams && this.detailedPatient && nodeParams.patientID == this.detailedPatient["patientID"]) {
+        if (
+            nodeParams &&
+            this.detailedPatient &&
+            nodeParams.patientID == this.detailedPatient["patientID"]
+        ) {
             this.detailedPatient = null;
         } else {
             this.detailedPatient = nodeParams;
@@ -90,7 +106,8 @@ export class SelectSeriesComponent {
 
     onStudyCheckChange(checked: boolean, study: StudyDicom) {
         study.selected = checked;
-        if (study.series) study.series.forEach(serie => serie.selected = checked)
+        if (study.series)
+            study.series.forEach((serie) => (serie.selected = checked));
 
         this.onPatientUpdate();
     }
@@ -98,7 +115,7 @@ export class SelectSeriesComponent {
     onSerieCheckChange(study: StudyDicom) {
         if (study.series) {
             let nbChecked: number = 0;
-            study.series.forEach(serie => {
+            study.series.forEach((serie) => {
                 if (serie.selected) nbChecked++;
             });
             if (nbChecked == study.series.length) {
@@ -108,7 +125,8 @@ export class SelectSeriesComponent {
                 study.selected = false;
                 this.studiesCheckboxes[study.studyInstanceUID] = false;
             } else {
-                this.studiesCheckboxes[study.studyInstanceUID] = 'indeterminate';
+                this.studiesCheckboxes[study.studyInstanceUID] =
+                    "indeterminate";
                 study.selected = true;
             }
         }
@@ -121,12 +139,15 @@ export class SelectSeriesComponent {
 
     private initPapaya(serie: SerieDicom): Promise<any[]> {
         const listOfPromises = serie.images.map((image) => {
-            return this.importService.downloadImage(AppUtils.BACKEND_API_GET_DICOM_URL, this.workFolder + '/' + image.path);
+            return this.importService.downloadImage(
+                AppUtils.BACKEND_API_GET_DICOM_URL,
+                this.workFolder + "/" + image.path,
+            );
         });
         const promiseOfList = Promise.all(listOfPromises);
         return promiseOfList.then((values) => {
             const params: any[] = [];
-            params['binaryImages'] = [values];
+            params["binaryImages"] = [values];
             return params;
         });
     }
@@ -136,8 +157,8 @@ export class SelectSeriesComponent {
         let studiesNb = 0;
         for (const patient of this.patients) {
             for (const study of patient.studies) {
-                if(study.selected){
-                  studiesNb += 1;
+                if (study.selected) {
+                    studiesNb += 1;
                 }
             }
         }
@@ -145,16 +166,18 @@ export class SelectSeriesComponent {
     }
 
     next() {
-        if (this.breadcrumbsService.findImportMode() == 'PACS') {
-            this.router.navigate(['imports/pacs-context']);
+        if (this.breadcrumbsService.findImportMode() == "PACS") {
+            this.router.navigate(["imports/pacs-context"]);
         } else {
-            this.router.navigate(['imports/context']);
+            this.router.navigate(["imports/context"]);
         }
     }
 
-    @HostListener('document:keypress', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        if (event.key == '²') {
-            console.log('patients', this.patients);
+    @HostListener("document:keypress", ["$event"]) onKeydownHandler(
+        event: KeyboardEvent,
+    ) {
+        if (event.key == "²") {
+            console.log("patients", this.patients);
         }
     }
 }

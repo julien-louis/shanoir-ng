@@ -12,96 +12,132 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { LocationStrategy } from '@angular/common';
-import { Injectable, OnDestroy } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { LocationStrategy } from "@angular/common";
+import { Injectable, OnDestroy } from "@angular/core";
+import { Title } from "@angular/platform-browser";
+import { NavigationEnd, Router } from "@angular/router";
+import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
-import { ImportMode } from '../import/import.component';
-import {SuperPromise} from "../utils/super-promise";
+import { ImportMode } from "../import/import.component";
+import { SuperPromise } from "../utils/super-promise";
 
 @Injectable()
 export class BreadcrumbsService implements OnDestroy {
-
     steps: Step[] = [];
 
     private popFoundedStepIndex: number;
     public currentStepIndex: number;
     private ignoreNavigationEnd: boolean = false;
     private subscriptions: Subscription[] = [];
-    onUpdateSteps: BehaviorSubject<{steps: Step[], operation?: 'ADD' | 'REMOVE' | 'MILESTONE' | 'FOCUS'}> = new BehaviorSubject({steps: this.steps});
-    private nextPrefill: { field: string; value: any; readOnly: boolean; }[] = [];
+    onUpdateSteps: BehaviorSubject<{
+        steps: Step[];
+        operation?: "ADD" | "REMOVE" | "MILESTONE" | "FOCUS";
+    }> = new BehaviorSubject({ steps: this.steps });
+    private nextPrefill: { field: string; value: any; readOnly: boolean }[] =
+        [];
 
     constructor(
         private router: Router,
         locationStrategy: LocationStrategy,
-        private titleService: Title) {
-
+        private titleService: Title,
+    ) {
         locationStrategy.onPopState((event: PopStateEvent) => {
             /* detect back & forward browser events and find the target step using its timestamp */
-            for (let i=this.steps.length-1; i>=0; i--) {
-                if(this.steps[i].timestamp == event.state) {
+            for (let i = this.steps.length - 1; i >= 0; i--) {
+                if (this.steps[i].timestamp == event.state) {
                     this.popFoundedStepIndex = i;
                     break;
                 }
             }
         });
 
-        this.subscriptions.push(router.events.subscribe(event => {
-            if (event instanceof NavigationEnd
-                // navigating inside a page is not changing page
-                && event.url?.split('#')[0] != this.currentStep?.route?.split('#')[0]) {
-
-                if(this.ignoreNavigationEnd) {
-                    this.ignoreNavigationEnd = false;
-                    return;
+        this.subscriptions.push(
+            router.events.subscribe((event) => {
+                if (
+                    event instanceof NavigationEnd &&
+                    // navigating inside a page is not changing page
+                    event.url?.split("#")[0] !=
+                        this.currentStep?.route?.split("#")[0]
+                ) {
+                    if (this.ignoreNavigationEnd) {
+                        this.ignoreNavigationEnd = false;
+                        return;
+                    }
+                    const timestamp: number = new Date().getTime();
+                    if (this.router.currentNavigation().extras?.replaceUrl) {
+                        this.steps.pop();
+                        this.onUpdateSteps.next({
+                            steps: this.steps,
+                            operation: "REMOVE",
+                        });
+                    }
+                    if (
+                        this.popFoundedStepIndex != undefined &&
+                        this.popFoundedStepIndex != null &&
+                        this.popFoundedStepIndex >= 0 &&
+                        this.popFoundedStepIndex < this.steps.length
+                    ) {
+                        this.focusStep(this.popFoundedStepIndex);
+                        this.currentStepIndex = this.popFoundedStepIndex;
+                        locationStrategy.replaceState(
+                            this.steps[this.popFoundedStepIndex].timestamp,
+                            "todo",
+                            this.router.url,
+                            "",
+                        );
+                    } else {
+                        this.removeStepsAfter(this.currentStepIndex);
+                        this.steps.push(
+                            new Step(null, this.router.url, timestamp),
+                        );
+                        this.onUpdateSteps.next({
+                            steps: this.steps,
+                            operation: "ADD",
+                        });
+                        this.currentStepIndex = this.steps.length - 1;
+                        locationStrategy.replaceState(
+                            timestamp,
+                            "todo",
+                            this.router.url,
+                            "",
+                        );
+                    }
+                    this.popFoundedStepIndex = null;
+                    this.currentStep.waitStep = null;
+                    this.nextPrefill.forEach((prefill) => {
+                        this.currentStep.addPrefilled(
+                            prefill.field,
+                            prefill.value,
+                            prefill.readOnly,
+                        );
+                    });
+                    this.nextPrefill = [];
                 }
-                const timestamp: number = new Date().getTime();
-                if (this.router.getCurrentNavigation().extras?.replaceUrl) {
-                    this.steps.pop();
-                    this.onUpdateSteps.next({steps: this.steps, operation: 'REMOVE'});
-                }
-                if (this.popFoundedStepIndex != undefined && this.popFoundedStepIndex != null && this.popFoundedStepIndex >= 0 && this.popFoundedStepIndex < this.steps.length) {
-                    this.focusStep(this.popFoundedStepIndex);
-                    this.currentStepIndex = this.popFoundedStepIndex;
-                    locationStrategy.replaceState(this.steps[this.popFoundedStepIndex].timestamp, 'todo', this.router.url, '');
-                } else {
-                    this.removeStepsAfter(this.currentStepIndex);
-                    this.steps.push(new Step(null, this.router.url, timestamp));
-                    this.onUpdateSteps.next({steps: this.steps, operation: 'ADD'});
-                    this.currentStepIndex = this.steps.length - 1;
-                    locationStrategy.replaceState(timestamp, 'todo', this.router.url, '');
-                }
-                this.popFoundedStepIndex = null;
-                this.currentStep.waitStep = null;
-                this.nextPrefill.forEach(prefill => {
-                    this.currentStep.addPrefilled(prefill.field, prefill.value, prefill.readOnly);
-                });
-                this.nextPrefill = [];
-            }
-        }));
+            }),
+        );
     }
 
     ngOnDestroy(): void {
-        this.subscriptions?.forEach(s => s.unsubscribe());
+        this.subscriptions?.forEach((s) => s.unsubscribe());
     }
 
     private focusStep(index: number) {
-        for (let i=index; i>=0; i--) {
+        for (let i = index; i >= 0; i--) {
             this.steps[i].disabled = false;
             if (this.steps[i].milestone) break;
         }
-        for (let i=index+1; i<this.steps.length; i++) {
+        for (let i = index + 1; i < this.steps.length; i++) {
             this.steps[i].disabled = true;
         }
-        this.onUpdateSteps.next({steps: this.steps, operation: 'FOCUS'});
+        this.onUpdateSteps.next({ steps: this.steps, operation: "FOCUS" });
     }
 
     public nameStep(label: string) {
         setTimeout(() => {
             this.currentStep.label = label;
-            this.titleService.setTitle('Shanoir' + (label ? ' - ' + label : ''));
+            this.titleService.setTitle(
+                "Shanoir" + (label ? " - " + label : ""),
+            );
         });
     }
 
@@ -119,12 +155,15 @@ export class BreadcrumbsService implements OnDestroy {
         this.currentStep.milestone = true;
         if (label) this.currentStep.label = label;
         let update: boolean = false;
-        for (let i=0; i<this.currentStepIndex; i++) {
+        for (let i = 0; i < this.currentStepIndex; i++) {
             this.steps[i].disabled = true;
             update = true;
         }
         if (update) {
-            this.onUpdateSteps.next({steps: this.steps, operation: 'MILESTONE'});
+            this.onUpdateSteps.next({
+                steps: this.steps,
+                operation: "MILESTONE",
+            });
         }
     }
 
@@ -133,13 +172,13 @@ export class BreadcrumbsService implements OnDestroy {
     }
 
     public goToStep(step: Step) {
-        const index: number = this.steps.findIndex(s => s.id == step.id);
+        const index: number = this.steps.findIndex((s) => s.id == step.id);
         this.goToStepIndex(index);
     }
 
     private removeStepsAfter(index: number) {
         this.steps = this.steps.slice(0, index + 1);
-        this.onUpdateSteps.next({steps: this.steps, operation: 'REMOVE'});
+        this.onUpdateSteps.next({ steps: this.steps, operation: "REMOVE" });
         if (this.currentStep) {
             this.currentStep.disabled = false;
             this.currentStep.resetWait();
@@ -166,7 +205,7 @@ export class BreadcrumbsService implements OnDestroy {
     }
 
     public isImporting(): boolean {
-        for (let i=this.currentStepIndex; i>=0; i--) {
+        for (let i = this.currentStepIndex; i >= 0; i--) {
             if (this.steps[i].importStart) return true;
             else if (this.steps[i].milestone) return false;
         }
@@ -174,31 +213,38 @@ export class BreadcrumbsService implements OnDestroy {
     }
 
     public findImportMode(): ImportMode {
-        for (let i=this.currentStepIndex; i>=0; i--) {
+        for (let i = this.currentStepIndex; i >= 0; i--) {
             if (this.steps[i].importStart) return this.steps[i].importMode;
         }
         return null;
     }
 
-    public addNextStepPrefilled(field: string, value: any, readOnly: boolean = false) {
+    public addNextStepPrefilled(
+        field: string,
+        value: any,
+        readOnly: boolean = false,
+    ) {
         this.nextPrefill.push({ field, value, readOnly });
     }
-
 }
 
 export class Step {
     constructor(
         public label: string,
         public route: string,
-        public timestamp: number) {}
+        public timestamp: number,
+    ) {}
 
     public id = new Date().getTime();
     public subscribers: number = 0;
     public disabled: boolean = false;
     public displayWaitStatus: boolean = true;
-    public prefilled: { field: string, value: SuperPromise<any>}[] = [];
+    public prefilled: { field: string; value: SuperPromise<any> }[] = [];
 
-    private resolvedPrefilledValues: Record<string, {value: any, readonly?: boolean}> = {};
+    private resolvedPrefilledValues: Record<
+        string,
+        { value: any; readonly?: boolean }
+    > = {};
 
     public waitStep: Step;
     private onSaveSubject: Subject<any> = new Subject<any>();
@@ -228,8 +274,12 @@ export class Step {
         return this.waitStep && step.route == this.waitStep.route;
     }
 
-    public waitFor(step: Step, displayWaitStatus: boolean = true): Subject<any> {
-        if (displayWaitStatus != undefined) this.displayWaitStatus = displayWaitStatus;
+    public waitFor(
+        step: Step,
+        displayWaitStatus: boolean = true,
+    ): Subject<any> {
+        if (displayWaitStatus != undefined)
+            this.displayWaitStatus = displayWaitStatus;
         this.waitStep = step;
         return step.onSave();
     }
@@ -239,50 +289,65 @@ export class Step {
     }
 
     public isPrefilled(field: string): boolean {
-        return this.prefilled.filter(obj => obj.field == field).length > 0;
+        return this.prefilled.filter((obj) => obj.field == field).length > 0;
     }
 
     public addPrefilled(field: string, value: any, readOnly: boolean = false) {
-        const found = this.prefilled.find(obj => obj.field === field);
+        const found = this.prefilled.find((obj) => obj.field === field);
         if (found) {
-            this.resolvedPrefilledValues[field] = {value: value, readonly: readOnly};
+            this.resolvedPrefilledValues[field] = {
+                value: value,
+                readonly: readOnly,
+            };
             found.value.resolve(value);
         } else {
-            const superPro = new SuperPromise<{value: any, readonly?: boolean}>();
+            const superPro = new SuperPromise<{
+                value: any;
+                readonly?: boolean;
+            }>();
             this.prefilled.push({ field, value: superPro });
-            this.resolvedPrefilledValues[field] = {value: value, readonly: readOnly};
+            this.resolvedPrefilledValues[field] = {
+                value: value,
+                readonly: readOnly,
+            };
             superPro.resolve(value);
         }
     }
 
-    public getPrefilled(field: string): Promise<{value: any, readonly?: boolean}> {
-        const found = this.prefilled.find(obj => obj.field === field);
+    public getPrefilled(
+        field: string,
+    ): Promise<{ value: any; readonly?: boolean }> {
+        const found = this.prefilled.find((obj) => obj.field === field);
         if (found) {
             return SuperPromise.timeoutPromise().then(() => {
                 return this.resolvedPrefilledValues[field];
             });
         } else {
-            const superPro = new SuperPromise<{value: any, readonly?: boolean}>();
+            const superPro = new SuperPromise<{
+                value: any;
+                readonly?: boolean;
+            }>();
             this.prefilled.push({ field, value: superPro });
             return superPro;
         }
     }
 
     public removePrefilled(field: string) {
-        const found = this.prefilled.find(obj => obj.field === field);
+        const found = this.prefilled.find((obj) => obj.field === field);
         if (found) {
-            this.prefilled = this.prefilled.filter(obj => obj.field !== field);
+            this.prefilled = this.prefilled.filter(
+                (obj) => obj.field !== field,
+            );
             delete this.resolvedPrefilledValues[field];
         }
     }
 
-
     public getPrefilledKeys(): string[] {
-        return Object.entries(this.resolvedPrefilledValues).map(([key,]) => key);
+        return Object.entries(this.resolvedPrefilledValues).map(([key]) => key);
     }
 
     async getPrefilledValue(field: string): Promise<any> {
-        return this.getPrefilled(field).then(res => res?.value);
+        return this.getPrefilled(field).then((res) => res?.value);
     }
 
     public resetWait() {

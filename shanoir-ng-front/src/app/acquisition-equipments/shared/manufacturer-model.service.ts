@@ -12,18 +12,17 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import { IdName } from '../../shared/models/id-name.model';
-import * as AppUtils from '../../utils/app.utils';
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import { IdName } from "../../shared/models/id-name.model";
+import * as AppUtils from "../../utils/app.utils";
 
-import { ManufacturerModel } from './manufacturer-model.model';
+import { ManufacturerModel } from "./manufacturer-model.model";
 
 @Injectable()
 export class ManufacturerModelService extends EntityService<ManufacturerModel> {
-
     API_URL = AppUtils.BACKEND_API_MANUF_MODEL_URL;
 
     // Warning: having a protected dependency injection is considered as a bad practice. See https://stackoverflow.com/questions/39038791/inheritance-and-dependency-injection
@@ -31,7 +30,9 @@ export class ManufacturerModelService extends EntityService<ManufacturerModel> {
         super(http);
     }
 
-    getEntityInstance() { return new ManufacturerModel(); }
+    getEntityInstance() {
+        return new ManufacturerModel();
+    }
 
     getAll(): Promise<ManufacturerModel[]> {
         return super.getAll().then((list: ManufacturerModel[]) => {
@@ -42,12 +43,16 @@ export class ManufacturerModelService extends EntityService<ManufacturerModel> {
     }
 
     getManufacturerModelsNames(): Promise<IdName[]> {
-        return this.http.get<IdName[]>(AppUtils.BACKEND_API_MANUF_MODEL_NAMES_URL)
+        return this.http
+            .get<IdName[]>(AppUtils.BACKEND_API_MANUF_MODEL_NAMES_URL)
             .toPromise();
     }
 
-    getCenterManufacturerModelsNames(centerId:number): Promise<IdName[]> {
-        return this.http.get<IdName[]>(AppUtils.BACKEND_API_CENTER_MANUF_MODEL_NAMES_URL+ '/' + centerId)
+    getCenterManufacturerModelsNames(centerId: number): Promise<IdName[]> {
+        return this.http
+            .get<
+                IdName[]
+            >(AppUtils.BACKEND_API_CENTER_MANUF_MODEL_NAMES_URL + "/" + centerId)
             .toPromise();
     }
 }

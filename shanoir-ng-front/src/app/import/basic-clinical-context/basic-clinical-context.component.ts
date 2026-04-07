@@ -11,28 +11,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { Center } from '../../centers/shared/center.model';
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { Center } from "../../centers/shared/center.model";
 import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
-import { Examination } from '../../examinations/shared/examination.model';
-import { preventInitialChildAnimations, slideDown } from '../../shared/animations/animations';
-import { IdName } from '../../shared/models/id-name.model';
-import { ImagedObjectCategory } from '../../subjects/shared/imaged-object-category.enum';
-import { SimpleSubject, Subject } from '../../subjects/shared/subject.model';
-import { AbstractClinicalContextComponent } from '../clinical-context/clinical-context.abstract.component';
-import { EquipmentDicom, ImportJob, PatientDicom, SerieDicom, StudyDicom } from '../shared/dicom-data.model';
+import { Examination } from "../../examinations/shared/examination.model";
+import {
+    preventInitialChildAnimations,
+    slideDown,
+} from "../../shared/animations/animations";
+import { IdName } from "../../shared/models/id-name.model";
+import { ImagedObjectCategory } from "../../subjects/shared/imaged-object-category.enum";
+import { SimpleSubject, Subject } from "../../subjects/shared/subject.model";
+import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
+import {
+    EquipmentDicom,
+    ImportJob,
+    PatientDicom,
+    SerieDicom,
+    StudyDicom,
+} from "../shared/dicom-data.model";
 
 @Component({
-    selector: 'clinical-context',
-    templateUrl: '../clinical-context/clinical-context.component.html',
-    styleUrls: ['../clinical-context/clinical-context.component.css', '../shared/import.step.css'],
+    selector: "clinical-context",
+    templateUrl: "../clinical-context/clinical-context.component.html",
+    styleUrls: [
+        "../clinical-context/clinical-context.component.css",
+        "../shared/import.step.css",
+    ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false
+    standalone: false,
 })
 export class BasicClinicalContextComponent extends AbstractClinicalContextComponent {
-
     patient: PatientDicom;
 
     postConstructor() {
@@ -42,11 +53,14 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
     }
 
     protected exitCondition(): boolean {
-        return !this.importDataService.patients || !this.importDataService.patients[0];
+        return (
+            !this.importDataService.patients ||
+            !this.importDataService.patients[0]
+        );
     }
 
     getNextUrl(): string {
-        return '/imports/upload';
+        return "/imports/upload";
     }
 
     importData(timestamp: number): Promise<any> {
@@ -61,10 +75,12 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
 
         this.patient.subject = new SimpleSubject(context.subject);
         const filteredPatient: PatientDicom = this.patient;
-        filteredPatient.studies = this.patient.studies.map(study => {
-            study.series = study.series.filter(serie => serie.selected);
-            return study;
-        }).filter(study => study.series?.length > 0);
+        filteredPatient.studies = this.patient.studies
+            .map((study) => {
+                study.series = study.series.filter((serie) => serie.selected);
+                return study;
+            })
+            .filter((study) => study.series?.length > 0);
 
         importJob.patients.push(filteredPatient);
         importJob.workFolder = this.importDataService.patientList.workFolder;
@@ -76,45 +92,86 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
         importJob.acquisitionEquipmentId = context.acquisitionEquipment.id;
         importJob.subjectName = context.subject.name;
         importJob.studyName = context.study.name;
-        importJob.anonymisationProfileToUse = context.study.profile?.profileName;
+        importJob.anonymisationProfileToUse =
+            context.study.profile?.profileName;
         importJob.timestamp = timestamp;
         return importJob;
     }
 
-    acqEqCompatible(acquisitionEquipment: AcquisitionEquipment): boolean | undefined {
-        return this.equipmentsEquals(acquisitionEquipment, this.getFirstSelectedSerie()?.equipment);
+    acqEqCompatible(
+        acquisitionEquipment: AcquisitionEquipment,
+    ): boolean | undefined {
+        return this.equipmentsEquals(
+            acquisitionEquipment,
+            this.getFirstSelectedSerie()?.equipment,
+        );
     }
 
     centerCompatible(center: Center): boolean | undefined {
-        return center.acquisitionEquipments && center.acquisitionEquipments.find(eq => this.acqEqCompatible(eq)) != undefined;
+        return (
+            center.acquisitionEquipments &&
+            center.acquisitionEquipments.find((eq) =>
+                this.acqEqCompatible(eq),
+            ) != undefined
+        );
     }
 
-    private equipmentsEquals(eq1: AcquisitionEquipment, eq2: EquipmentDicom): boolean {
-        return eq1 && eq2 && eq2?.deviceSerialNumber && (eq1?.serialNumber == eq2?.deviceSerialNumber);
+    private equipmentsEquals(
+        eq1: AcquisitionEquipment,
+        eq2: EquipmentDicom,
+    ): boolean {
+        return (
+            eq1 &&
+            eq2 &&
+            eq2?.deviceSerialNumber &&
+            eq1?.serialNumber == eq2?.deviceSerialNumber
+        );
     }
 
     protected prefillSubject() {
         const newSubject = new Subject();
-        newSubject.birthDate = this.patient?.patientBirthDate ? new Date(this.patient.patientBirthDate) : null;
+        newSubject.birthDate = this.patient?.patientBirthDate
+            ? new Date(this.patient.patientBirthDate)
+            : null;
         if (this.patient?.patientSex) {
-            if (this.patient.patientSex == 'F' || this.patient.patientSex == 'M') {
+            if (
+                this.patient.patientSex == "F" ||
+                this.patient.patientSex == "M"
+            ) {
                 newSubject.sex = this.patient.patientSex;
             }
         }
         if (newSubject.isAlreadyAnonymized) {
             newSubject.name = this.subjectNamePrefix + this.patient.patientName;
         } else {
-            newSubject.name =this.subjectNamePrefix
+            newSubject.name = this.subjectNamePrefix;
         }
-        newSubject.imagedObjectCategory = ImagedObjectCategory.LIVING_HUMAN_BEING;
+        newSubject.imagedObjectCategory =
+            ImagedObjectCategory.LIVING_HUMAN_BEING;
         newSubject.study = this.study;
         newSubject.physicallyInvolved = false;
-        this.breadcrumbsService.addNextStepPrefilled('entity', newSubject);
-        this.breadcrumbsService.addNextStepPrefilled('firstName', this.computeNameFromDicomTag(this.patient.patientName)[1]);
-        this.breadcrumbsService.addNextStepPrefilled('lastName', this.computeNameFromDicomTag(this.patient.patientName)[2]);
-        this.breadcrumbsService.addNextStepPrefilled('patientName', this.patient.patientName);
-        this.breadcrumbsService.addNextStepPrefilled('entity.study', this.study, true);
-        this.breadcrumbsService.addNextStepPrefilled('subjectNamePrefix', this.subjectNamePrefix);
+        this.breadcrumbsService.addNextStepPrefilled("entity", newSubject);
+        this.breadcrumbsService.addNextStepPrefilled(
+            "firstName",
+            this.computeNameFromDicomTag(this.patient.patientName)[1],
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "lastName",
+            this.computeNameFromDicomTag(this.patient.patientName)[2],
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "patientName",
+            this.patient.patientName,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "entity.study",
+            this.study,
+            true,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "subjectNamePrefix",
+            this.subjectNamePrefix,
+        );
     }
 
     protected getPrefilledExamination(): Examination {
@@ -128,7 +185,9 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
         newExam.subject = new Subject();
         newExam.subject.id = this.subject.id;
         newExam.subject.name = this.subject.name;
-        newExam.examinationDate = this.getFirstSelectedSerie()?.seriesDate ? new Date(this.getFirstSelectedSerie()?.seriesDate) : null;
+        newExam.examinationDate = this.getFirstSelectedSerie()?.seriesDate
+            ? new Date(this.getFirstSelectedSerie()?.seriesDate)
+            : null;
         newExam.comment = this.getFirstSelectedStudy()?.studyDescription;
         newExam.weightUnitOfMeasure = UnitOfMeasure.KG;
         return newExam;
@@ -137,7 +196,8 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
     protected getPrefilledAcquisitionEquipment(): AcquisitionEquipment {
         const acqEpt = new AcquisitionEquipment();
         acqEpt.center = this.center;
-        acqEpt.serialNumber = this.getFirstSelectedSerie()?.equipment?.deviceSerialNumber;
+        acqEpt.serialNumber =
+            this.getFirstSelectedSerie()?.equipment?.deviceSerialNumber;
         return acqEpt;
     }
 
@@ -145,7 +205,7 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
      * Try to compute patient first name and last name from dicom tags.
      * eg. TOM^HANKS -> return TOM as first name and HANKS as last name
      */
-    private computeNameFromDicomTag (patientName: string): string[] {
+    private computeNameFromDicomTag(patientName: string): string[] {
         let names: string[] = [];
         if (patientName) {
             names = patientName.split("\\^");
@@ -158,8 +218,8 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
     }
 
     protected getFirstSelectedPatient(): PatientDicom {
-        for(const patient of this.importDataService.patients){
-            for(const study of patient.studies){
+        for (const patient of this.importDataService.patients) {
+            for (const study of patient.studies) {
                 if (study.selected) return patient;
             }
         }
@@ -179,20 +239,27 @@ export class BasicClinicalContextComponent extends AbstractClinicalContextCompon
     protected getFirstSelectedStudy(): StudyDicom {
         if (!this.patient) return null;
         for (const study of this.patient.studies) {
-            if(study.selected) return study;
+            if (study.selected) return study;
         }
         return null;
     }
 
     get importedCenterDataStr(): string {
-        return this.patient?.studies[0]?.series[0]?.institution?.institutionName + " - "
-            + this.patient?.studies[0]?.series[0]?.institution?.institutionAddress;
+        return (
+            this.patient?.studies[0]?.series[0]?.institution?.institutionName +
+            " - " +
+            this.patient?.studies[0]?.series[0]?.institution?.institutionAddress
+        );
     }
 
     get importedEquipmentDataStr(): string {
-        return this.patient?.studies[0]?.series[0]?.equipment?.manufacturer
-            + '-' + this. patient?.studies[0]?.series[0]?.equipment?.manufacturerModelName
-            + '-' + this.patient?.studies[0]?.series[0]?.equipment?.deviceSerialNumber;
+        return (
+            this.patient?.studies[0]?.series[0]?.equipment?.manufacturer +
+            "-" +
+            this.patient?.studies[0]?.series[0]?.equipment
+                ?.manufacturerModelName +
+            "-" +
+            this.patient?.studies[0]?.series[0]?.equipment?.deviceSerialNumber
+        );
     }
-
 }

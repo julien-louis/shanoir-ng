@@ -11,11 +11,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Entity } from '../shared/components/entity/entity.abstract';
-import { Field } from '../shared/reflect/field.decorator';
+import { Entity } from "../shared/components/entity/entity.abstract";
+import { Field } from "../shared/reflect/field.decorator";
 
 export class Tag extends Entity {
-
     @Field() id: number;
     @Field() color: string;
     @Field() name: string;
@@ -33,7 +32,11 @@ export class Tag extends Entity {
         else if (this.id && tag.id) {
             return this.id == tag.id;
         } else {
-            return tag && tag.name?.trim() == this.name?.trim() && tag.color == this.color;
+            return (
+                tag &&
+                tag.name?.trim() == this.name?.trim() &&
+                tag.color == this.color
+            );
         }
     }
 

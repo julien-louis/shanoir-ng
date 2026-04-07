@@ -11,37 +11,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from "@angular/core";
 
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { TreeService } from 'src/app/studies/study/tree.service';
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "src/app/studies/study/tree.service";
 
-import { MetadataNode } from '../../tree/tree.model';
-
+import { MetadataNode } from "../../tree/tree.model";
 
 @Component({
-    selector: 'metadata-node',
-    templateUrl: 'metadata-node.component.html',
-    standalone: false
+    selector: "metadata-node",
+    templateUrl: "metadata-node.component.html",
+    standalone: false,
 })
-
-export class MetadataNodeComponent extends TreeNodeAbstractComponent<MetadataNode> implements OnChanges {
-
+export class MetadataNodeComponent
+    extends TreeNodeAbstractComponent<MetadataNode>
+    implements OnChanges
+{
     @Input() input: MetadataNode;
-    detailsPath: string = '/dataset/details/dicom/';
+    detailsPath: string = "/dataset/details/dicom/";
 
     constructor(
-            protected treeService: TreeService,
-            elementRef: ElementRef) {
+        protected treeService: TreeService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input']) {
+        if (changes["input"]) {
             if (this.input instanceof MetadataNode) {
                 this.node = this.input;
             } else {
-                throw new Error('not implemented yet');
+                throw new Error("not implemented yet");
             }
         }
     }

@@ -12,19 +12,17 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { FooterState } from './footer-state.model';
+import { FooterState } from "./footer-state.model";
 
 @Component({
-    selector: 'form-footer',
-    templateUrl: 'form-footer.component.html',
-    styleUrls: ['./form-footer.component.css'],
-    standalone: false
+    selector: "form-footer",
+    templateUrl: "form-footer.component.html",
+    styleUrls: ["./form-footer.component.css"],
+    standalone: false,
 })
-
 export class FormFooterComponent {
-
     @Input() state: FooterState;
 
     @Output() private save: EventEmitter<void> = new EventEmitter<void>();
@@ -49,7 +47,7 @@ export class FormFooterComponent {
         this.edit.emit();
     }
 
-     onDelete(): void {
+    onDelete(): void {
         this.delete.emit();
     }
 

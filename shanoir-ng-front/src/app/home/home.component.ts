@@ -12,29 +12,27 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
-import { Task, TaskState } from '../async-tasks/task.model';
-import { TaskService } from '../async-tasks/task.service';
-import { BreadcrumbsService } from '../breadcrumbs/breadcrumbs.service';
-import { DataUserAgreement } from '../dua/shared/dua.model';
-import { KeycloakService } from '../shared/keycloak/keycloak.service';
-import { ImagesUrlUtil } from '../shared/utils/images-url.util';
-import { StudyLight } from '../studies/shared/study.dto';
-import { StudyService } from '../studies/shared/study.service';
-import { AccessRequest } from '../users/access-request/access-request.model';
-import { User } from '../users/shared/user.model';
-import { UserService } from '../users/shared/user.service';
+import { Task, TaskState } from "../async-tasks/task.model";
+import { TaskService } from "../async-tasks/task.service";
+import { BreadcrumbsService } from "../breadcrumbs/breadcrumbs.service";
+import { DataUserAgreement } from "../dua/shared/dua.model";
+import { KeycloakService } from "../shared/keycloak/keycloak.service";
+import { ImagesUrlUtil } from "../shared/utils/images-url.util";
+import { StudyLight } from "../studies/shared/study.dto";
+import { StudyService } from "../studies/shared/study.service";
+import { AccessRequest } from "../users/access-request/access-request.model";
+import { User } from "../users/shared/user.model";
+import { UserService } from "../users/shared/user.service";
 
 @Component({
-    selector: 'home',
-    templateUrl: 'home.component.html',
-    styleUrls: ['home.component.css'],
-    standalone: false
+    selector: "home",
+    templateUrl: "home.component.html",
+    styleUrls: ["home.component.css"],
+    standalone: false,
 })
-
 export class HomeComponent {
-
     shanoirBigLogoUrl: string = ImagesUrlUtil.SHANOIR_BLACK_LOGO_PATH;
 
     challengeDua: DataUserAgreement;
@@ -51,44 +49,47 @@ export class HomeComponent {
     accessRequests: AccessRequest[] = [];
     protected downloadState: TaskState = new TaskState();
 
-
     constructor(
-            private breadcrumbsService: BreadcrumbsService,
-            private studyService: StudyService,
-            private keycloakService: KeycloakService,
-            private userService: UserService,
-            private taskService: TaskService) {
-        this.breadcrumbsService.nameStep('Home');
+        private breadcrumbsService: BreadcrumbsService,
+        private studyService: StudyService,
+        private keycloakService: KeycloakService,
+        private userService: UserService,
+        private taskService: TaskService,
+    ) {
+        this.breadcrumbsService.nameStep("Home");
         this.breadcrumbsService.markMilestone();
         this.load();
     }
 
     load() {
-        this.studyService.getMyDUA().then(duas => {
-            this.challengeDua = null;
-            this.notifications = null;
-            if (duas) {
-                this.notifications = duas.slice(0, 10);
-                for (const dua of duas) {
-                    if (dua.isChallenge) {
-                        this.challengeDua = dua;
-                        return;
+        this.studyService
+            .getMyDUA()
+            .then((duas) => {
+                this.challengeDua = null;
+                this.notifications = null;
+                if (duas) {
+                    this.notifications = duas.slice(0, 10);
+                    for (const dua of duas) {
+                        if (dua.isChallenge) {
+                            this.challengeDua = dua;
+                            return;
+                        }
                     }
                 }
-            }
-        }).then(() => {
-            this.loaded = true;
-            if (this.admin || !this.challengeDua) {
-                this.fetchChallengeStudies()
-                if (this.admin) {
-                    this.fetchAccountRequests();
+            })
+            .then(() => {
+                this.loaded = true;
+                if (this.admin || !this.challengeDua) {
+                    this.fetchChallengeStudies();
+                    if (this.admin) {
+                        this.fetchAccountRequests();
+                    }
+                    this.fetchJobs();
                 }
-                this.fetchJobs();
-            }
-        });
+            });
         // Load access requests
         if (this.isUserAtLeastExpert()) {
-            this.userService.getAccessRequestsForAdmin().then(acs => {
+            this.userService.getAccessRequestsForAdmin().then((acs) => {
                 this.accessRequests = acs;
             });
         }
@@ -99,7 +100,7 @@ export class HomeComponent {
     }
 
     private fetchChallengeStudies() {
-        this.studyService.getStudiesLight().then(studies => {
+        this.studyService.getStudiesLight().then((studies) => {
             this.challengeStudies = [];
             if (studies) {
                 this.allStudies = studies;
@@ -114,7 +115,11 @@ export class HomeComponent {
     }
 
     downloadFile(filePath: string, studyId: number) {
-        this.studyService.downloadProtocolFile(filePath, studyId, this.downloadState);
+        this.studyService.downloadProtocolFile(
+            filePath,
+            studyId,
+            this.downloadState,
+        );
     }
 
     isAuthenticated(): boolean {
@@ -131,26 +136,29 @@ export class HomeComponent {
 
     public getStudyName(studyId: number): string {
         if (this.allStudies) {
-            return this.allStudies.find(study => study.id == studyId).name;
+            return this.allStudies.find((study) => study.id == studyId).name;
         }
     }
 
     fetchAccountRequests() {
-        this.userService.getAllAccountRequests()
-            .then(ars => {
-                this.nbAccountRequests = ars.filter(user => !!user.accountRequestDemand).length;
-                this.nbExtensionRequests = ars.filter(user => !!user.extensionRequestDemand).length;
-                this.accountRequests = ars.slice(0, 7);
-            });
+        this.userService.getAllAccountRequests().then((ars) => {
+            this.nbAccountRequests = ars.filter(
+                (user) => !!user.accountRequestDemand,
+            ).length;
+            this.nbExtensionRequests = ars.filter(
+                (user) => !!user.extensionRequestDemand,
+            ).length;
+            this.accountRequests = ars.slice(0, 7);
+        });
     }
 
     fetchJobs() {
-        this.taskService.getAll()
-            .then(tasks => this.jobs = tasks.slice(0, 10));
+        this.taskService
+            .getAll()
+            .then((tasks) => (this.jobs = tasks.slice(0, 10)));
     }
 
     canUserImportFromPACS(): boolean {
         return this.keycloakService.canUserImportFromPACS();
     }
-
 }

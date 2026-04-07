@@ -11,27 +11,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
-import { ErrorHandler, Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import {
+    HttpClient,
+    HttpHeaders,
+    HttpParams,
+    HttpResponse,
+} from "@angular/common/http";
+import { ErrorHandler, Injectable } from "@angular/core";
+import { firstValueFrom, Observable } from "rxjs";
 
-import { TaskState } from 'src/app/async-tasks/task.model';
+import { TaskState } from "src/app/async-tasks/task.model";
 
 import { BidsElement } from "../../bids/model/bidsElement.model";
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import { Page, Pageable } from '../../shared/components/table/pageable.model';
-import * as AppUtils from '../../utils/app.utils';
-import { ServiceLocator } from '../../utils/locator.service';
-import { MrDataset } from '../dataset/mr/dataset.mr.model';
-import { IdName } from '../../shared/models/id-name.model';
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import { Page, Pageable } from "../../shared/components/table/pageable.model";
+import * as AppUtils from "../../utils/app.utils";
+import { ServiceLocator } from "../../utils/locator.service";
+import { MrDataset } from "../dataset/mr/dataset.mr.model";
+import { IdName } from "../../shared/models/id-name.model";
 
 import { DatasetDTO, DatasetDTOService, MrDatasetDTO } from "./dataset.dto";
-import { Dataset } from './dataset.model';
-import { DatasetUtils } from './dataset.utils';
-import { DatasetType } from './dataset-type.model';
+import { Dataset } from "./dataset.model";
+import { DatasetUtils } from "./dataset.utils";
+import { DatasetType } from "./dataset-type.model";
 
-export type Format = 'nii' | 'dcm';
-export type DatasetLight = {id: number, name: string, type: DatasetType, subject: IdName, hasProcessings: boolean, study: IdName, creationDate: Date; centerId: number};
+export type Format = "nii" | "dcm";
+export type DatasetLight = {
+    id: number;
+    name: string;
+    type: DatasetType;
+    subject: IdName;
+    hasProcessings: boolean;
+    study: IdName;
+    creationDate: Date;
+    centerId: number;
+    datasetAcquisition: {
+        id: number;
+        examination: {
+            id: number;
+        };
+    };
+};
 export type OverallStatistics = {
     studiesCount: number;
     subjectsCount: number;
@@ -41,35 +61,52 @@ export type OverallStatistics = {
 
 @Injectable()
 export class DatasetService extends EntityService<Dataset> {
-
     readonly API_URL = AppUtils.BACKEND_API_DATASET_URL;
     readonly MAX_DATASETS_IN_ZIP_DL: number = 500;
 
     httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ "Content-Type": "application/json" }),
     };
     constructor(protected http: HttpClient) {
         super(http);
     }
 
-    private datasetDTOService: DatasetDTOService = ServiceLocator.injector.get(DatasetDTOService);
+    private datasetDTOService: DatasetDTOService =
+        ServiceLocator.injector.get(DatasetDTOService);
 
-    private errorService: ErrorHandler  = ServiceLocator.injector.get(ErrorHandler);
+    private errorService: ErrorHandler =
+        ServiceLocator.injector.get(ErrorHandler);
 
     deleteAll(ids: number[]) {
-        return this.http.request<void>('delete', this.API_URL + '/delete', { body: JSON.stringify(ids) })
-                .toPromise();
-    }
-
-    getBidsStructure(studyId: number): Promise<BidsElement> {
-        if (!studyId) throw Error('study id is required');
-        return this.http.get<BidsElement>(AppUtils.BACKEND_API_BIDS_STRUCTURE_URL + '/studyId/' + studyId)
+        return this.http
+            .request<void>("delete", this.API_URL + "/delete", {
+                body: JSON.stringify(ids),
+            })
             .toPromise();
     }
 
-    refreshBidsStructure(studyId: number, studyName: string): Promise<BidsElement> {
-        if (!studyId) throw Error('study id is required');
-        return this.http.get<BidsElement>(AppUtils.BACKEND_API_BIDS_REFRESH_URL + '/studyId/' + studyId + '/studyName/' + studyName)
+    getBidsStructure(studyId: number): Promise<BidsElement> {
+        if (!studyId) throw Error("study id is required");
+        return this.http
+            .get<BidsElement>(
+                AppUtils.BACKEND_API_BIDS_STRUCTURE_URL + "/studyId/" + studyId,
+            )
+            .toPromise();
+    }
+
+    refreshBidsStructure(
+        studyId: number,
+        studyName: string,
+    ): Promise<BidsElement> {
+        if (!studyId) throw Error("study id is required");
+        return this.http
+            .get<BidsElement>(
+                AppUtils.BACKEND_API_BIDS_REFRESH_URL +
+                    "/studyId/" +
+                    studyId +
+                    "/studyName/" +
+                    studyName,
+            )
             .toPromise();
     }
 
@@ -78,118 +115,200 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     getPage(pageable: Pageable): Promise<Page<Dataset>> {
-        return this.http.get<Page<Dataset>>(AppUtils.BACKEND_API_DATASET_URL, { 'params': pageable.toParams() })
+        return this.http
+            .get<Page<Dataset>>(AppUtils.BACKEND_API_DATASET_URL, {
+                params: pageable.toParams(),
+            })
             .toPromise()
             .then((page: Page<Dataset>) => {
                 if (page && page.content) {
-                    page.content = page.content.map(ds => Object.assign(ds, this.getEntityInstance(ds)));
+                    page.content = page.content.map((ds) =>
+                        Object.assign(ds, this.getEntityInstance(ds)),
+                    );
                 }
                 return page;
             })
             .then(this.mapPage);
     }
 
-    getByExaminationId(examinationId: number) : Promise<Dataset[]> {
-        return this.http.get<DatasetDTO[]>(AppUtils.BACKEND_API_DATASET_URL + '/examination/' + examinationId)
-                .toPromise()
-                .then(dtos => this.datasetDTOService.toEntityList(dtos, null, 'lazy'));
+    getByExaminationId(examinationId: number): Promise<Dataset[]> {
+        return this.http
+            .get<DatasetDTO[]>(
+                AppUtils.BACKEND_API_DATASET_URL +
+                    "/examination/" +
+                    examinationId,
+            )
+            .toPromise()
+            .then((dtos) =>
+                this.datasetDTOService.toEntityList(dtos, null, "lazy"),
+            );
     }
 
     getByAcquisitionId(acquisitionId: number): Promise<Dataset[]> {
-        return this.http.get<DatasetDTO[]>(AppUtils.BACKEND_API_DATASET_URL + '/acquisition/' + acquisitionId)
-                .toPromise()
-                .then(dtos => this.datasetDTOService.toEntityList(dtos));
+        return this.http
+            .get<DatasetDTO[]>(
+                AppUtils.BACKEND_API_DATASET_URL +
+                    "/acquisition/" +
+                    acquisitionId,
+            )
+            .toPromise()
+            .then((dtos) => this.datasetDTOService.toEntityList(dtos));
     }
 
     getByStudyId(studyId: number): Promise<Dataset[]> {
-        return this.http.get<DatasetDTO[]>(AppUtils.BACKEND_API_DATASET_URL + '/study/' + studyId)
-                .toPromise()
-                .then(dtos => this.datasetDTOService.toEntityList(dtos, [], 'lazy'));
+        return this.http
+            .get<DatasetDTO[]>(
+                AppUtils.BACKEND_API_DATASET_URL + "/study/" + studyId,
+            )
+            .toPromise()
+            .then((dtos) =>
+                this.datasetDTOService.toEntityList(dtos, [], "lazy"),
+            );
     }
 
-    getByStudyIdAndSubjectId(studyId: number, subjectId: number): Promise<Dataset[]> {
-		if (!subjectId) {
-			return this.getByStudyId(studyId);
-		}
-        return this.http.get<DatasetDTO[]>(AppUtils.BACKEND_API_DATASET_URL + '/find/subject/' + subjectId + '/study/' + studyId)
-                .toPromise()
-                .then(dtos => this.datasetDTOService.toEntityList(dtos));
+    getByStudyIdAndSubjectId(
+        studyId: number,
+        subjectId: number,
+    ): Promise<Dataset[]> {
+        if (!subjectId) {
+            return this.getByStudyId(studyId);
+        }
+        return this.http
+            .get<DatasetDTO[]>(
+                AppUtils.BACKEND_API_DATASET_URL +
+                    "/find/subject/" +
+                    subjectId +
+                    "/study/" +
+                    studyId,
+            )
+            .toPromise()
+            .then((dtos) => this.datasetDTOService.toEntityList(dtos));
     }
 
     getByIds(ids: Set<number>): Promise<DatasetLight[]> {
         const formData: FormData = new FormData();
-        formData.set('datasetIds', Array.from(ids).join(","));
-        return this.http.post<DatasetLight[]>(AppUtils.BACKEND_API_DATASET_URL + '/allById', formData)
+        formData.set("datasetIds", Array.from(ids).join(","));
+        return this.http
+            .post<
+                DatasetLight[]
+            >(AppUtils.BACKEND_API_DATASET_URL + "/allById", formData)
             .toPromise();
     }
 
-    public downloadDatasets(ids: number[], format: string, sorting?: string, converter ? : number, state?: TaskState): Observable<TaskState> {
+    public downloadDatasets(
+        ids: number[],
+        format: string,
+        sorting?: string,
+        converter?: number,
+        state?: TaskState,
+    ): Observable<TaskState> {
         const formData: FormData = new FormData();
-        formData.set('datasetIds', ids.join(","));
+        formData.set("datasetIds", ids.join(","));
         formData.set("format", format);
         if (sorting) {
-            formData.set('sortingForProcessingOutputs', sorting)
-
+            formData.set("sortingForProcessingOutputs", sorting);
         }
         if (converter) {
             formData.set("converterId", "" + converter);
         }
-        const url: string = AppUtils.BACKEND_API_DATASET_URL + '/massiveDownload';
+        const url: string =
+            AppUtils.BACKEND_API_DATASET_URL + "/massiveDownload";
         return AppUtils.downloadWithStatusPOST(url, formData, state);
     }
 
-    downloadStatistics(studyNameInRegExp: string, studyNameOutRegExp: string, subjectNameInRegExp: string, subjectNameOutRegExp: string) {
+    downloadStatistics(
+        studyNameInRegExp: string,
+        studyNameOutRegExp: string,
+        subjectNameInRegExp: string,
+        subjectNameOutRegExp: string,
+    ) {
         const params = new HttpParams()
             .set("studyNameInRegExp", studyNameInRegExp)
             .set("studyNameOutRegExp", studyNameOutRegExp)
             .set("subjectNameInRegExp", subjectNameInRegExp)
             .set("subjectNameOutRegExp", subjectNameOutRegExp);
-        return this.http.get(
-            AppUtils.BACKEND_API_DATASET_URL + '/downloadStatistics', { observe: 'response', responseType: 'blob', params: params})
-            .toPromise().then(
-            response => {
+        return this.http
+            .get(AppUtils.BACKEND_API_DATASET_URL + "/downloadStatistics", {
+                observe: "response",
+                responseType: "blob",
+                params: params,
+            })
+            .toPromise()
+            .then((response) => {
                 if (response.status != 204) {
-                    this.consoleService.log('error', 'Error during creation of statistics.');
+                    this.consoleService.log(
+                        "error",
+                        "Error during creation of statistics.",
+                    );
                 } else {
-                    this.consoleService.log('info', 'Statistics are being prepared, check the Jobs page to see its progress.');
+                    this.consoleService.log(
+                        "info",
+                        "Statistics are being prepared, check the Jobs page to see its progress.",
+                    );
                 }
-            }
-        )
+            });
     }
 
     downloadDicomMetadata(datasetId: number): Promise<any> {
-        return this.http.get(
-            AppUtils.BACKEND_API_DATASET_URL + '/dicom-metadata/' + datasetId,
-            { responseType: 'json' }
-        ).toPromise();
+        return this.http
+            .get(
+                AppUtils.BACKEND_API_DATASET_URL +
+                    "/dicom-metadata/" +
+                    datasetId,
+                { responseType: "json" },
+            )
+            .toPromise();
     }
 
-    downloadToBlob(id: number, format: string, converterId: number = null): Promise<HttpResponse<Blob>> {
-        if (!id) throw Error('Cannot download a dataset without an id');
-        return this.http.get(
-            AppUtils.BACKEND_API_DATASET_URL + '/download/' + id + '?format=' + format + (converterId ? ('&converterId=' + converterId) : ''),
-            { observe: 'response', responseType: 'blob' }
-        ).toPromise();
+    downloadToBlob(
+        id: number,
+        format: string,
+        converterId: number = null,
+    ): Promise<HttpResponse<Blob>> {
+        if (!id) throw Error("Cannot download a dataset without an id");
+        return this.http
+            .get(
+                AppUtils.BACKEND_API_DATASET_URL +
+                    "/download/" +
+                    id +
+                    "?format=" +
+                    format +
+                    (converterId ? "&converterId=" + converterId : ""),
+                { observe: "response", responseType: "blob" },
+            )
+            .toPromise();
     }
 
-    getDownloadData(acquisitionIds: number[], examinationIds: number[]): Promise<{id: number, canDownload: boolean}[]> {
-        const formData = {examinationIds: examinationIds, acquisitionIds: acquisitionIds};
-        return firstValueFrom(this.http.post<{id: number, canDownload: boolean}[]>(
-            AppUtils.BACKEND_API_DATASET_URL + '/getDownloadData',
-            formData
-        ));
+    getDownloadData(
+        acquisitionIds: number[],
+        examinationIds: number[],
+    ): Promise<{ id: number; canDownload: boolean }[]> {
+        const formData = {
+            examinationIds: examinationIds,
+            acquisitionIds: acquisitionIds,
+        };
+        return firstValueFrom(
+            this.http.post<{ id: number; canDownload: boolean }[]>(
+                AppUtils.BACKEND_API_DATASET_URL + "/getDownloadData",
+                formData,
+            ),
+        );
     }
 
-    protected mapEntity = (dto: DatasetDTO, quickResult?: Dataset, mode: 'eager' | 'lazy' = 'eager'): Promise<Dataset> => {
+    protected mapEntity = (
+        dto: DatasetDTO,
+        quickResult?: Dataset,
+        mode: "eager" | "lazy" = "eager",
+    ): Promise<Dataset> => {
         quickResult = DatasetUtils.getDatasetInstance(dto.type);
         return this.datasetDTOService.toEntity(dto, quickResult, mode);
-    }
+    };
 
     protected mapEntityList = (dtos: DatasetDTO[]): Promise<Dataset[]> => {
         const result: Dataset[] = [];
         if (dtos) this.datasetDTOService.toEntityList(dtos, result);
         return Promise.resolve(result);
-    }
+    };
 
     public stringify(entity: Dataset) {
         let dto;
@@ -203,7 +322,8 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     getOverallStatistics(): Promise<OverallStatistics> {
-        return this.http.get<OverallStatistics>(AppUtils.BACKEND_API_OVERALL_STATISTICS_URL)
+        return this.http
+            .get<OverallStatistics>(AppUtils.BACKEND_API_OVERALL_STATISTICS_URL)
             .toPromise();
     }
 }

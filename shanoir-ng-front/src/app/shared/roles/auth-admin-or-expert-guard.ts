@@ -11,30 +11,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { KeycloakService } from '../keycloak/keycloak.service';
-import { ConsoleService } from '../console/console.service';
-
+import { KeycloakService } from "../keycloak/keycloak.service";
+import { ConsoleService } from "../console/console.service";
 
 @Injectable()
-export class AuthAdminOrExpertGuard  {
-
+export class AuthAdminOrExpertGuard {
     constructor(
-            private keycloakService: KeycloakService,
-            private router: Router,
-            private consoleService: ConsoleService) {
-
-    }
+        private keycloakService: KeycloakService,
+        private router: Router,
+        private consoleService: ConsoleService,
+    ) {}
 
     canActivate() {
         if (this.keycloakService.isUserAdminOrExpert()) {
             return true;
         } else {
-            this.consoleService.log('warn', 'Sorry, you have no right to visit this page.', ['route : ' + this.router.url]);
+            this.consoleService.log(
+                "warn",
+                "Sorry, you have no right to visit this page.",
+                ["route : " + this.router.url],
+            );
             return false;
         }
     }
-
 }

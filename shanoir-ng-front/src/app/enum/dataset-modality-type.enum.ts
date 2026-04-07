@@ -12,31 +12,33 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { allOfEnum, capitalsAndUnderscoresToDisplayable } from '../utils/app.utils';
-import { Option } from '../shared/select/select.component';
+import {
+    allOfEnum,
+    capitalsAndUnderscoresToDisplayable,
+} from "../utils/app.utils";
+import { Option } from "../shared/select/select.component";
 
 export enum DatasetModalityType {
-
-    PET = 'PET_DATASET',
-    MR = 'MR_DATASET',
-    CT = 'CT_DATASET',
+    PET = "PET_DATASET",
+    MR = "MR_DATASET",
+    CT = "CT_DATASET",
     // MEG = 'MG',
     // SPECT = 'SPECT',
-    EEG = 'EEG_DATASET',
-    NIRS = 'NIRS_DATASET',
-    XA = 'XA_DATASET'
-
-
-} export namespace DatasetModalityType {
-
+    EEG = "EEG_DATASET",
+    NIRS = "NIRS_DATASET",
+    XA = "XA_DATASET",
+}
+export namespace DatasetModalityType {
     export function all(): DatasetModalityType[] {
         return allOfEnum<DatasetModalityType>(DatasetModalityType);
     }
 
     export function getLabel(type: DatasetModalityType): string {
         if (type === undefined || type === null) return null;
-        else return capitalsAndUnderscoresToDisplayable(type.split('_')[0]);
+        else return capitalsAndUnderscoresToDisplayable(type.split("_")[0]);
     }
 
-    export const options: Option<DatasetModalityType>[] = all().map(prop => new Option<DatasetModalityType>(prop, getLabel(prop)));
+    export const options: Option<DatasetModalityType>[] = all().map(
+        (prop) => new Option<DatasetModalityType>(prop, getLabel(prop)),
+    );
 }

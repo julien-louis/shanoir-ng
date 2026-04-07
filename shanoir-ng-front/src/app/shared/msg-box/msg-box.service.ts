@@ -1,48 +1,63 @@
-
 /**
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Injectable, ApplicationRef, Injector } from '@angular/core';
+import { Injectable, ApplicationRef, Injector } from "@angular/core";
 
-type msgType = 'error' | 'warn' | 'info';
-class Message { 
+type msgType = "error" | "warn" | "info";
+class Message {
     public nb: number = 1;
-    constructor(public type: msgType, public txt: string, public duration: number) {} 
+    constructor(
+        public type: msgType,
+        public txt: string,
+        public duration: number,
+    ) {}
 }
 const ANIMATION_TRANSITION_DURATION = 500;
 const MSG_DURATION = 5000;
 
 @Injectable()
 export class MsgBoxService {
-
     private opened: boolean = false;
     private messages: Message[] = [];
     //private appRef: ApplicationRef;
-    private appRef: Promise<ApplicationRef> = new Promise(() => { return; });
+    private appRef: Promise<ApplicationRef> = new Promise(() => {
+        return;
+    });
     private openingTimeout;
 
     constructor(private injector: Injector) {
-        setTimeout(() => this.appRef = Promise.resolve(this.injector.get(ApplicationRef)));
-     }
+        setTimeout(
+            () =>
+                (this.appRef = Promise.resolve(
+                    this.injector.get(ApplicationRef),
+                )),
+        );
+    }
 
     public log(type: msgType, txt: string, duration: number = MSG_DURATION) {
         const message = new Message(type, txt, duration);
-        if (this.messages.length > 1 && message.txt == this.messages[this.messages.length - 1].txt) {
-            this.messages[this.messages.length - 1].nb ++;
-        } else if (this.messages.length == 1 && this.messages[0].txt == message?.txt) {
+        if (
+            this.messages.length > 1 &&
+            message.txt == this.messages[this.messages.length - 1].txt
+        ) {
+            this.messages[this.messages.length - 1].nb++;
+        } else if (
+            this.messages.length == 1 &&
+            this.messages[0].txt == message?.txt
+        ) {
             if (this.openingTimeout) clearTimeout(this.openingTimeout);
-            this.messages[0].nb ++;
+            this.messages[0].nb++;
             this.run();
         } else {
             this.messages.push(message);
@@ -70,26 +85,23 @@ export class MsgBoxService {
     private open() {
         if (!this.opened) {
             this.opened = true;
-            this.appRef.then(appRef => appRef.tick());
+            this.appRef.then((appRef) => appRef.tick());
         }
     }
 
     private close() {
         if (this.opened) {
             this.opened = false;
-            this.appRef.then(appRef => appRef.tick());
+            this.appRef.then((appRef) => appRef.tick());
         }
     }
 
     public isOpened(): boolean {
         return this.opened;
-    };
-
-    public getMsg(): Message {
-        if (this.messages.length > 0)
-            return this.messages[0];
-        else return null;
     }
 
+    public getMsg(): Message {
+        if (this.messages.length > 0) return this.messages[0];
+        else return null;
+    }
 }
-

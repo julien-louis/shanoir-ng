@@ -12,38 +12,40 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { UntypedFormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import { EntityComponent } from '../../shared/components/entity/entity.component.abstract';
-import { Manufacturer } from '../shared/manufacturer.model';
-import { ManufacturerService } from '../shared/manufacturer.service';
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import { EntityComponent } from "../../shared/components/entity/entity.component.abstract";
+import { Manufacturer } from "../shared/manufacturer.model";
+import { ManufacturerService } from "../shared/manufacturer.service";
 
 @Component({
-    selector: 'manufacturer-detail',
-    templateUrl: 'manufacturer.component.html',
-    standalone: false
+    selector: "manufacturer-detail",
+    templateUrl: "manufacturer.component.html",
+    standalone: false,
 })
-
 export class ManufacturerComponent extends EntityComponent<Manufacturer> {
-
     isNameUniqueError = null;
 
-    constructor (
-            private route: ActivatedRoute,
-            private manufService: ManufacturerService) {
-
+    constructor(
+        private route: ActivatedRoute,
+        private manufService: ManufacturerService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'manufacturer';
+        return "manufacturer";
     }
 
-    get manuf(): Manufacturer { return this.entity; }
-    set manuf(manuf: Manufacturer) { this.entity = manuf; }
+    get manuf(): Manufacturer {
+        return this.entity;
+    }
+    set manuf(manuf: Manufacturer) {
+        this.entity = manuf;
+    }
 
     getService(): EntityService<Manufacturer> {
         return this.manufService;
@@ -64,9 +66,16 @@ export class ManufacturerComponent extends EntityComponent<Manufacturer> {
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'name': [this.manuf.name, [Validators.required, Validators.minLength(2), Validators.maxLength(200), this.registerOnSubmitValidator('unique', 'name')]]
+            name: [
+                this.manuf.name,
+                [
+                    Validators.required,
+                    Validators.minLength(2),
+                    Validators.maxLength(200),
+                    this.registerOnSubmitValidator("unique", "name"),
+                ],
+            ],
         });
-
     }
 
     public async hasEditRight(): Promise<boolean> {

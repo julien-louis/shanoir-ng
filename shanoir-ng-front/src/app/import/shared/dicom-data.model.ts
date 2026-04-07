@@ -62,7 +62,7 @@ export class SerieDicom {
     modality: string;
     protocolName: string;
     seriesDescription: string;
-    sequenceName:string;
+    sequenceName: string;
     seriesDate: string;
     seriesNumber: number;
     numberOfSeriesRelatedInstances: number;
@@ -105,5 +105,5 @@ export class DicomQuery {
     patientBirthDate: string = "";
     studyDescription: string = "";
     studyDate: string = "";
-    modality:  'MR' | 'CT' | 'PT' | 'NM' | 'XA' | '' = 'MR';
+    modality: "MR" | "CT" | "PT" | "NM" | "XA" | "" = "MR";
 }

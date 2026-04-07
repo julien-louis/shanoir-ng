@@ -11,36 +11,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component } from '@angular/core';
-import { UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { UntypedFormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { TaskState } from 'src/app/async-tasks/task.model';
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
-import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.service';
-import { Selection } from 'src/app/studies/study/tree.service';
+import { TaskState } from "src/app/async-tasks/task.model";
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
+import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
+import { Selection } from "src/app/studies/study/tree.service";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { AcquisitionEquipmentPipe } from '../../acquisition-equipments/shared/acquisition-equipment.pipe';
-import { AcquisitionEquipmentService } from '../../acquisition-equipments/shared/acquisition-equipment.service';
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/acquisition-equipment.pipe";
+import { AcquisitionEquipmentService } from "../../acquisition-equipments/shared/acquisition-equipment.service";
 import { DatasetService } from "../../datasets/shared/dataset.service";
-import { EntityComponent } from '../../shared/components/entity/entity.component.abstract';
+import { EntityComponent } from "../../shared/components/entity/entity.component.abstract";
 import { StudyRightsService } from "../../studies/shared/study-rights.service";
 import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
-import { StudyCard } from '../../study-cards/shared/study-card.model';
-import { StudyCardService } from '../../study-cards/shared/study-card.service';
-import { MrDatasetAcquisition } from '../modality/mr/mr-dataset-acquisition.model';
-import { DatasetAcquisition } from '../shared/dataset-acquisition.model';
-import { DatasetAcquisitionService } from '../shared/dataset-acquisition.service';
+import { StudyCard } from "../../study-cards/shared/study-card.model";
+import { StudyCardService } from "../../study-cards/shared/study-card.service";
+import { MrDatasetAcquisition } from "../modality/mr/mr-dataset-acquisition.model";
+import { DatasetAcquisition } from "../shared/dataset-acquisition.model";
+import { DatasetAcquisitionService } from "../shared/dataset-acquisition.service";
 
 @Component({
-    selector: 'dataset-acquisition-detail',
-    templateUrl: 'dataset-acquisition.component.html',
-    styleUrls: ['dataset-acquisition.component.css'],
-    standalone: false
+    selector: "dataset-acquisition-detail",
+    templateUrl: "dataset-acquisition.component.html",
+    styleUrls: ["dataset-acquisition.component.css"],
+    standalone: false,
 })
 export class DatasetAcquisitionComponent extends EntityComponent<DatasetAcquisition> {
-
     public studyCards: StudyCard[];
     public acquisitionEquipments: AcquisitionEquipment[];
     hasDownloadRight: boolean = false;
@@ -49,19 +48,20 @@ export class DatasetAcquisitionComponent extends EntityComponent<DatasetAcquisit
     protected downloadState: TaskState = new TaskState();
 
     constructor(
-            private route: ActivatedRoute,
-            private datasetService: DatasetService,
-            private datasetAcquisitionService: DatasetAcquisitionService,
-            private studyCardService: StudyCardService,
-            private acqEqService: AcquisitionEquipmentService,
-            private studyRightsService: StudyRightsService,
-            public acqEqPipe: AcquisitionEquipmentPipe,
-            private downloadService: MassDownloadService) {
+        private route: ActivatedRoute,
+        private datasetService: DatasetService,
+        private datasetAcquisitionService: DatasetAcquisitionService,
+        private studyCardService: StudyCardService,
+        private acqEqService: AcquisitionEquipmentService,
+        private studyRightsService: StudyRightsService,
+        public acqEqPipe: AcquisitionEquipmentPipe,
+        private downloadService: MassDownloadService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'dataset-acquisition';
+        return "dataset-acquisition";
     }
 
     getService(): EntityService<DatasetAcquisition> {
@@ -70,56 +70,75 @@ export class DatasetAcquisitionComponent extends EntityComponent<DatasetAcquisit
 
     protected getTreeSelection: () => Selection = () => {
         return Selection.fromAcquisition(this.datasetAcquisition);
-    }
+    };
 
-    get datasetAcquisition(): DatasetAcquisition { return this.entity; }
+    get datasetAcquisition(): DatasetAcquisition {
+        return this.entity;
+    }
     set datasetAcquisition(datasetAcquisition: DatasetAcquisition) {
         this.entity = datasetAcquisition;
     }
 
     initView(): Promise<void> {
-        this.datasetService.getByAcquisitionId(this.datasetAcquisition.id).then(datasets => {
-            this.datasetAcquisition.datasets = datasets;
-            this.datasetAcquisition.datasets?.forEach(ds => {
-                this.noDatasets = false;
-                if (ds.type != 'Eeg' && ds.type != 'BIDS') {
-                    this.hasDicom = true;
-                }
+        this.datasetService
+            .getByAcquisitionId(this.datasetAcquisition.id)
+            .then((datasets) => {
+                this.datasetAcquisition.datasets = datasets;
+                this.datasetAcquisition.datasets?.forEach((ds) => {
+                    this.noDatasets = false;
+                    if (ds.type != "Eeg" && ds.type != "BIDS") {
+                        this.hasDicom = true;
+                    }
+                });
             });
-        })
         if (this.keycloakService.isUserAdmin()) {
             this.hasDownloadRight = true;
             return Promise.resolve();
         } else {
-            return this.studyRightsService.getMyRightsForStudy(this.datasetAcquisition.examination.study.id).then(rights => {
-                this.hasDownloadRight = rights.includes(StudyUserRight.CAN_DOWNLOAD);
-            });
+            return this.studyRightsService
+                .getMyRightsForStudy(
+                    this.datasetAcquisition.examination.study.id,
+                )
+                .then((rights) => {
+                    this.hasDownloadRight = rights.includes(
+                        StudyUserRight.CAN_DOWNLOAD,
+                    );
+                });
         }
     }
 
     initEdit(): Promise<void> {
-        this.studyCardService.getAll().then(scs => this.studyCards = scs);
-        this.acqEqService.getAll().then(aes => this.acquisitionEquipments = aes);
+        this.studyCardService.getAll().then((scs) => (this.studyCards = scs));
+        this.acqEqService
+            .getAll()
+            .then((aes) => (this.acquisitionEquipments = aes));
         return Promise.resolve();
     }
 
     initCreate(): Promise<void> {
-        this.studyCardService.getAll().then(scs => this.studyCards = scs);
-        this.acqEqService.getAll().then(aes => this.acquisitionEquipments = aes);
+        this.studyCardService.getAll().then((scs) => (this.studyCards = scs));
+        this.acqEqService
+            .getAll()
+            .then((aes) => (this.acquisitionEquipments = aes));
         this.datasetAcquisition = new MrDatasetAcquisition();
         return Promise.resolve();
     }
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'type': [this.datasetAcquisition.type],
-            'studyCard': [this.datasetAcquisition.studyCard],
-            'acquisitionEquipment': [this.datasetAcquisition.acquisitionEquipment, [Validators.required]],
-            'rank': [this.datasetAcquisition.rank],
-            'acquisitionStartTime': [this.datasetAcquisition.acquisitionStartTime],
-            'softwareRelease': [this.datasetAcquisition.softwareRelease],
-            'sortingIndex': [this.datasetAcquisition.sortingIndex],
-            'protocol': [this.datasetAcquisition.protocol]
+            type: [this.datasetAcquisition.type],
+            studyCard: [this.datasetAcquisition.studyCard],
+            acquisitionEquipment: [
+                this.datasetAcquisition.acquisitionEquipment,
+                [Validators.required],
+            ],
+            rank: [this.datasetAcquisition.rank],
+            acquisitionStartTime: [
+                this.datasetAcquisition.acquisitionStartTime,
+            ],
+            softwareRelease: [this.datasetAcquisition.softwareRelease],
+            sortingIndex: [this.datasetAcquisition.sortingIndex],
+            protocol: [this.datasetAcquisition.protocol],
         });
     }
 
@@ -128,6 +147,9 @@ export class DatasetAcquisitionComponent extends EntityComponent<DatasetAcquisit
     }
 
     downloadAll() {
-        this.downloadService.downloadAllByAcquisitionId(this.datasetAcquisition?.id, this.downloadState);
+        this.downloadService.downloadAllByAcquisitionId(
+            this.datasetAcquisition?.id,
+            this.downloadState,
+        );
     }
 }

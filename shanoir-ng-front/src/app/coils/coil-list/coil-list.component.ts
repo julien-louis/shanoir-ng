@@ -12,30 +12,27 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { BrowserPaginEntityListComponent } from '../../shared/components/entity/entity-list.browser.component.abstract';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
-import { Coil } from '../shared/coil.model';
-import { CoilService } from '../shared/coil.service';
+import { BrowserPaginEntityListComponent } from "../../shared/components/entity/entity-list.browser.component.abstract";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
+import { Coil } from "../shared/coil.model";
+import { CoilService } from "../shared/coil.service";
 
 @Component({
-    selector: 'coil-list',
-    templateUrl: 'coil-list.component.html',
-    styleUrls: ['coil-list.component.css'],
-    standalone: false
+    selector: "coil-list",
+    templateUrl: "coil-list.component.html",
+    styleUrls: ["coil-list.component.css"],
+    standalone: false,
 })
 export class CoilListComponent extends BrowserPaginEntityListComponent<Coil> {
+    @ViewChild("table", { static: false }) table: TableComponent;
 
-    @ViewChild('table', { static: false }) table: TableComponent;
-
-    constructor(
-            private coilService: CoilService) {
-
-        super('coil');
+    constructor(private coilService: CoilService) {
+        super("coil");
     }
 
     getService(): EntityService<Coil> {
@@ -47,7 +44,7 @@ export class CoilListComponent extends BrowserPaginEntityListComponent<Coil> {
             new: true,
             view: true,
             edit: this.keycloakService.isUserAdminOrExpert(),
-            delete: this.keycloakService.isUserAdminOrExpert()
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
@@ -59,17 +56,22 @@ export class CoilListComponent extends BrowserPaginEntityListComponent<Coil> {
         const colDef: ColumnDefinition[] = [
             { headerName: "Name", field: "name" },
 
-            { headerName: "Center Equipment Model", field: "manufacturerModel.name",
-            route: (coil: Coil) => '/manufacturer-model/details/' + coil.manufacturerModel.id
+            {
+                headerName: "Center Equipment Model",
+                field: "manufacturerModel.name",
+                route: (coil: Coil) =>
+                    "/manufacturer-model/details/" + coil.manufacturerModel.id,
             },
 
-            { headerName: "Acquisition Center", field: "center.name",
-            route: (coil: Coil) => '/center/details/' + coil.center.id
+            {
+                headerName: "Acquisition Center",
+                field: "center.name",
+                route: (coil: Coil) => "/center/details/" + coil.center.id,
             },
 
             { headerName: "Coil Type", field: "coilType" },
             { headerName: "Number of channels", field: "numberOfChannels" },
-            { headerName: "Serial number", field: "serialNumber" }
+            { headerName: "Serial number", field: "serialNumber" },
         ];
         return colDef;
     }

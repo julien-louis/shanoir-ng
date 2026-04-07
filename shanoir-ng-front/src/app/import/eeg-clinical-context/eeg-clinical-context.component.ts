@@ -11,44 +11,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from "@angular/core";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { Event } from '../../datasets/dataset/eeg/dataset.eeg.model';
-import { EegDatasetDTO } from '../../datasets/shared/dataset.dto';
-import { CoordSystems } from '../../enum/coord-system.enum';
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { Event } from "../../datasets/dataset/eeg/dataset.eeg.model";
+import { EegDatasetDTO } from "../../datasets/shared/dataset.dto";
+import { CoordSystems } from "../../enum/coord-system.enum";
 import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
-import { Examination } from '../../examinations/shared/examination.model';
-import { preventInitialChildAnimations, slideDown } from '../../shared/animations/animations';
-import { BrowserPaging } from '../../shared/components/table/browser-paging.model';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
-import { FilterablePageable, Page } from '../../shared/components/table/pageable.model';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { IdName } from '../../shared/models/id-name.model';
-import { Option } from '../../shared/select/select.component';
-import { ImagedObjectCategory } from '../../subjects/shared/imaged-object-category.enum';
-import { Subject } from '../../subjects/shared/subject.model';
-import { AbstractClinicalContextComponent } from '../clinical-context/clinical-context.abstract.component';
-import { EegImportJob } from '../shared/eeg-data.model';
-import { EegContextData } from '../shared/import.data-service';
-
+import { Examination } from "../../examinations/shared/examination.model";
+import {
+    preventInitialChildAnimations,
+    slideDown,
+} from "../../shared/animations/animations";
+import { BrowserPaging } from "../../shared/components/table/browser-paging.model";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
+import {
+    FilterablePageable,
+    Page,
+} from "../../shared/components/table/pageable.model";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { IdName } from "../../shared/models/id-name.model";
+import { Option } from "../../shared/select/select.component";
+import { ImagedObjectCategory } from "../../subjects/shared/imaged-object-category.enum";
+import { Subject } from "../../subjects/shared/subject.model";
+import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
+import { EegImportJob } from "../shared/eeg-data.model";
+import { EegContextData } from "../shared/import.data-service";
 
 @Component({
-    selector: 'eeg-clinical-context',
-    templateUrl: 'eeg-clinical-context.component.html',
-    styleUrls: ['../clinical-context/clinical-context.component.css', '../shared/import.step.css'],
+    selector: "eeg-clinical-context",
+    templateUrl: "eeg-clinical-context.component.html",
+    styleUrls: [
+        "../clinical-context/clinical-context.component.css",
+        "../shared/import.step.css",
+    ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false
+    standalone: false,
 })
-
-export class EegClinicalContextComponent extends AbstractClinicalContextComponent implements OnInit {
-
-    @ViewChild('eventsTable', { static: false }) table: TableComponent;
+export class EegClinicalContextComponent
+    extends AbstractClinicalContextComponent
+    implements OnInit
+{
+    @ViewChild("eventsTable", { static: false }) table: TableComponent;
 
     columnDefs: ColumnDefinition[];
     hasPosition: boolean;
     coordSystemOptions: Option<CoordSystems>[];
-    coordsystem : string;
+    coordsystem: string;
     firstDate: Date;
     useStudyCard: boolean = false;
 
@@ -63,7 +72,7 @@ export class EegClinicalContextComponent extends AbstractClinicalContextComponen
                 this.hasPosition = true;
             }
         }
-        this.modality = 'EEG';
+        this.modality = "EEG";
         this.findEegDate();
     }
 
@@ -79,16 +88,31 @@ export class EegClinicalContextComponent extends AbstractClinicalContextComponen
     private initEventsTable(): void {
         if (!this.importDataService.eegImportJob) return;
         this.columnDefs = [
-            {headerName: "Dataset name", field: "name", type: "string", cellRenderer: function (params: any) {
+            {
+                headerName: "Dataset name",
+                field: "name",
+                type: "string",
+                cellRenderer: function (params: any) {
                     return params.data.dataset_name;
-            }},
-           {headerName: "Description", field: "description", type: "string", cellRenderer: function (params: any) {
+                },
+            },
+            {
+                headerName: "Description",
+                field: "description",
+                type: "string",
+                cellRenderer: function (params: any) {
                     return params.data.description;
-            }},
-            {headerName: "Number", field: "number", type: "number", cellRenderer: function (params: any) {
+                },
+            },
+            {
+                headerName: "Number",
+                field: "number",
+                type: "number",
+                cellRenderer: function (params: any) {
                     return params.data.number;
-            }},
-        ]
+                },
+            },
+        ];
         this.browserPaging = new BrowserPaging([], this.columnDefs);
         this.browserPaging.setItems(this.getEventContexts());
     }
@@ -123,24 +147,38 @@ export class EegClinicalContextComponent extends AbstractClinicalContextComponen
     }
 
     protected getContext(): EegContextData {
-        return new EegContextData(this.study, null, this.useStudyCard, this.center, this.acquisitionEquipment,
-            this.subject, this.examination, this.coordsystem, null, null, null, null, null, null);
+        return new EegContextData(
+            this.study,
+            null,
+            this.useStudyCard,
+            this.center,
+            this.acquisitionEquipment,
+            this.subject,
+            this.examination,
+            this.coordsystem,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
     }
 
     get valid(): boolean {
         const context = this.getContext();
         return (
-            !!context.study
-            && !!context.center
-            && !!context.acquisitionEquipment
-            && !!context.subject
-            && !!context.examination
-            && (!!context.coordinatesSystem || !this.hasPosition)
+            !!context.study &&
+            !!context.center &&
+            !!context.acquisitionEquipment &&
+            !!context.subject &&
+            !!context.examination &&
+            (!!context.coordinatesSystem || !this.hasPosition)
         );
     }
 
     public getNextUrl(): string {
-        return '/imports/eeg';
+        return "/imports/eeg";
     }
 
     public importData(timestamp: number): Promise<any> {
@@ -172,15 +210,26 @@ export class EegClinicalContextComponent extends AbstractClinicalContextComponen
     }
 
     protected prefillSubject() {
-        this.breadcrumbsService.addNextStepPrefilled("entity", this.getPrefilledSubject());
-        this.breadcrumbsService.addNextStepPrefilled("entity.study", this.study, true);
-        this.breadcrumbsService.addNextStepPrefilled("subjectNamePrefix", this.subjectNamePrefix);
+        this.breadcrumbsService.addNextStepPrefilled(
+            "entity",
+            this.getPrefilledSubject(),
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "entity.study",
+            this.study,
+            true,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "subjectNamePrefix",
+            this.subjectNamePrefix,
+        );
     }
 
     protected getPrefilledSubject(): Subject {
         const newSubject = new Subject();
         newSubject.name = this.subjectNamePrefix;
-        newSubject.imagedObjectCategory = ImagedObjectCategory.LIVING_HUMAN_BEING;
+        newSubject.imagedObjectCategory =
+            ImagedObjectCategory.LIVING_HUMAN_BEING;
         newSubject.study = this.study;
         newSubject.physicallyInvolved = false;
         return newSubject;
@@ -209,8 +258,8 @@ export class EegClinicalContextComponent extends AbstractClinicalContextComponen
     }
 
     private findEegDate() {
-        this.importDataService.eegImportJob?.datasets?.find(eegds => {
-            const event: Event = eegds.events?.find(event => !!event.date);
+        this.importDataService.eegImportJob?.datasets?.find((eegds) => {
+            const event: Event = eegds.events?.find((event) => !!event.date);
             if (event) {
                 this.firstDate = new Date(event.date);
                 return true;

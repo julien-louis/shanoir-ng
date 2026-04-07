@@ -11,36 +11,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, EventEmitter, forwardRef, Output, SimpleChanges, OnChanges } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    Component,
+    EventEmitter,
+    forwardRef,
+    Output,
+    SimpleChanges,
+    OnChanges,
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { slideDown } from '../../shared/animations/animations';
-
+import { slideDown } from "../../shared/animations/animations";
 
 @Component({
-    selector: 'solr-text-search-mode',
-    templateUrl: 'solr.text-search-mode.component.html',
-    styleUrls: ['solr.text-search.component.css'],
+    selector: "solr-text-search-mode",
+    templateUrl: "solr.text-search-mode.component.html",
+    styleUrls: ["solr.text-search.component.css"],
     animations: [slideDown],
     providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => SolrTextSearchModeComponent),
-          multi: true,
-        }],
-    standalone: false
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => SolrTextSearchModeComponent),
+            multi: true,
+        },
+    ],
+    standalone: false,
 })
-
-export class SolrTextSearchModeComponent implements ControlValueAccessor, OnChanges {
-
+export class SolrTextSearchModeComponent
+    implements ControlValueAccessor, OnChanges
+{
     showInfo: boolean = false;
     @Output() userChange: EventEmitter<boolean> = new EventEmitter();
     expertMode: boolean = false;
-    protected propagateChange: (any) => void = () => { return; };
-    protected propagateTouched = () => { return; };
+    protected propagateChange: (any) => void = () => {
+        return;
+    };
+    protected propagateTouched = () => {
+        return;
+    };
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['expertMode']) {
+        if (changes["expertMode"]) {
             setTimeout(() => {
                 this.onExpertModeChange();
             }, 0);

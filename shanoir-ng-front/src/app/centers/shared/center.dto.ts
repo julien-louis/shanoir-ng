@@ -2,33 +2,34 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { StudyCenter, StudyCenterDTO } from '../../studies/shared/study-center.model';
-import { Study } from '../../studies/shared/study.model';
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import {
+    StudyCenter,
+    StudyCenterDTO,
+} from "../../studies/shared/study-center.model";
+import { Study } from "../../studies/shared/study.model";
 
-import { Center } from './center.model';
+import { Center } from "./center.model";
 
 @Injectable()
 export class CenterDTOService {
-
-
     /**
      * Convert from DTO to Entity
      * Warning : DO NOT USE THIS IN A LOOP, use toEntityList instead
      * @param result can be used to get an immediate temporary result without waiting async data
      */
-    public toEntity(dto: CenterDTO, result?: Center): Promise<Center> {        
+    public toEntity(dto: CenterDTO, result?: Center): Promise<Center> {
         if (!result) result = new Center();
         CenterDTOService.mapSyncFields(dto, result);
         return Promise.resolve(result);
@@ -38,7 +39,10 @@ export class CenterDTOService {
      * Convert from a DTO list to an Entity list
      * @param result can be used to get an immediate temporary result without waiting async data
      */
-    public toEntityList(dtos: CenterDTO[], result?: Center[]): Promise<Center[]>{
+    public toEntityList(
+        dtos: CenterDTO[],
+        result?: Center[],
+    ): Promise<Center[]> {
         if (!result) result = [];
         if (dtos) {
             if (dtos) {
@@ -78,9 +82,7 @@ export class CenterDTOService {
     }
 }
 
-
 export class CenterDTO {
-
     acquisitionEquipments: AcquisitionEquipment[];
     city: string;
     country: string;
@@ -107,5 +109,4 @@ export class CenterDTO {
             this.studyCenterList.push(new StudyCenterDTO(sc));
         }
     }
-
 }

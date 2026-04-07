@@ -11,12 +11,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { SimpleStudy } from '../../studies/shared/study.model';
-import { QualityTag } from '../../study-cards/shared/quality-card.model';
-import { Tag } from '../../tags/tag.model';
+import { SimpleStudy } from "../../studies/shared/study.model";
+import { QualityTag } from "../../study-cards/shared/quality-card.model";
+import { Tag } from "../../tags/tag.model";
 
-import { Subject } from './subject.model';
-
+import { Subject } from "./subject.model";
 
 export class SubjectStudy {
     id: number;

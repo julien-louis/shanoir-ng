@@ -13,10 +13,12 @@
  */
 
 import { Option } from "../shared/select/select.component";
-import { capitalsAndUnderscoresToDisplayable, allOfEnum } from "../utils/app.utils";
+import {
+    capitalsAndUnderscoresToDisplayable,
+    allOfEnum,
+} from "../utils/app.utils";
 
 export enum DatasetExpressionFormat {
-
     ANALYZE = "ANALYZE",
     NIFTI_SINGLE_FILE = "NIFTI_SINGLE_FILE",
     NIFTI_TWO_FILES = "NIFTI_TWO_FILES",
@@ -34,10 +36,9 @@ export enum DatasetExpressionFormat {
     DEFORMABLE_SPATIAL_REGISTRATION_STORAGE_SOP_CLASS = "DEFORMABLE_SPATIAL_REGISTRATION_STORAGE_SOP_CLASS",
     SPATIAL_REGISTRATION_STORAGE_SOP_CLASS = "SPATIAL_REGISTRATION_STORAGE_SOP_CLASS",
     SIEMENS_SPECTROSCOPY = "SIEMENS_SPECTROSCOPY",
-    PHILIPS_SPECTROSCOPY = "PHILIPS_SPECTROSCOPY"
-
-} export namespace DatasetExpressionFormat {
-
+    PHILIPS_SPECTROSCOPY = "PHILIPS_SPECTROSCOPY",
+}
+export namespace DatasetExpressionFormat {
     export function all(): DatasetExpressionFormat[] {
         return allOfEnum<DatasetExpressionFormat>(DatasetExpressionFormat);
     }
@@ -46,5 +47,7 @@ export enum DatasetExpressionFormat {
         return capitalsAndUnderscoresToDisplayable(type);
     }
 
-    export const options: Option<DatasetExpressionFormat>[] = all().map(prop => new Option<DatasetExpressionFormat>(prop, getLabel(prop)));
+    export const options: Option<DatasetExpressionFormat>[] = all().map(
+        (prop) => new Option<DatasetExpressionFormat>(prop, getLabel(prop)),
+    );
 }

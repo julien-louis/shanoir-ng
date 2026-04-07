@@ -11,54 +11,73 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from "@angular/core";
 
 import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
-import { Examination } from '../../examinations/shared/examination.model';
-import { AnimalSubject } from '../../preclinical/animalSubject/shared/animalSubject.model';
-import { AnimalSubjectService } from '../../preclinical/animalSubject/shared/animalSubject.service';
-import { preventInitialChildAnimations, slideDown } from '../../shared/animations/animations';
-import { IdName } from '../../shared/models/id-name.model';
-import { ImagedObjectCategory } from '../../subjects/shared/imaged-object-category.enum';
-import { SimpleSubject, Subject } from '../../subjects/shared/subject.model';
-import { ServiceLocator } from '../../utils/locator.service';
-import { AbstractClinicalContextComponent } from '../clinical-context/clinical-context.abstract.component';
-import { ImportJob, PatientDicom, SerieDicom, StudyDicom } from '../shared/dicom-data.model';
-
+import { Examination } from "../../examinations/shared/examination.model";
+import { AnimalSubject } from "../../preclinical/animalSubject/shared/animalSubject.model";
+import { AnimalSubjectService } from "../../preclinical/animalSubject/shared/animalSubject.service";
+import {
+    preventInitialChildAnimations,
+    slideDown,
+} from "../../shared/animations/animations";
+import { IdName } from "../../shared/models/id-name.model";
+import { ImagedObjectCategory } from "../../subjects/shared/imaged-object-category.enum";
+import { SimpleSubject, Subject } from "../../subjects/shared/subject.model";
+import { ServiceLocator } from "../../utils/locator.service";
+import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
+import {
+    ImportJob,
+    PatientDicom,
+    SerieDicom,
+    StudyDicom,
+} from "../shared/dicom-data.model";
 
 @Component({
-    selector: 'pre-clinical-context',
-    templateUrl: '../clinical-context/clinical-context.component.html',
-    styleUrls: ['../clinical-context/clinical-context.component.css', '../shared/import.step.css'],
+    selector: "pre-clinical-context",
+    templateUrl: "../clinical-context/clinical-context.component.html",
+    styleUrls: [
+        "../clinical-context/clinical-context.component.css",
+        "../shared/import.step.css",
+    ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false
+    standalone: false,
 })
-export class PreClinicalContextComponent extends AbstractClinicalContextComponent implements OnDestroy {
-
+export class PreClinicalContextComponent
+    extends AbstractClinicalContextComponent
+    implements OnDestroy
+{
     private animalSubject: AnimalSubject = new AnimalSubject();
-    private animalSubjectService: AnimalSubjectService = ServiceLocator.injector.get(AnimalSubjectService);
+    private animalSubjectService: AnimalSubjectService =
+        ServiceLocator.injector.get(AnimalSubjectService);
     patient: PatientDicom;
 
     postConstructor() {
         this.patient = this.importDataService.patients[0];
         this.useStudyCard = true;
-        this.modality = 'bruker';
+        this.modality = "bruker";
     }
 
     protected exitCondition(): boolean {
-        return !this.importDataService.patients || !this.importDataService.patients[0];
+        return (
+            !this.importDataService.patients ||
+            !this.importDataService.patients[0]
+        );
     }
 
     protected getSubjectList(studyId: number): Promise<Subject[]> {
         if (!studyId) {
             return Promise.resolve([]);
         } else {
-            return this.studyService.findSubjectsByStudyIdPreclinical(studyId, true);
+            return this.studyService.findSubjectsByStudyIdPreclinical(
+                studyId,
+                true,
+            );
         }
     }
 
     getNextUrl(): string {
-        return '/imports/bruker';
+        return "/imports/bruker";
     }
 
     importData(timestamp: number): Promise<any> {
@@ -80,55 +99,90 @@ export class PreClinicalContextComponent extends AbstractClinicalContextComponen
         importJob.acquisitionEquipmentId = context.acquisitionEquipment.id;
         importJob.archive = contextImportJob.archive;
         importJob.timestamp = timestamp;
-        importJob.anonymisationProfileToUse = context.study.profile?.profileName;
+        importJob.anonymisationProfileToUse =
+            context.study.profile?.profileName;
         return this.importService.startImportJob(importJob);
     }
 
     public onSelectSubject(): Promise<any> {
-        return super.onSelectSubject().then(() =>  {
+        return super.onSelectSubject().then(() => {
             if (this.subject) {
                 return this.animalSubjectService
                     .getAnimalSubject(this.subject.id)
-                    .then(animalSubject => this.animalSubject = animalSubject);
+                    .then(
+                        (animalSubject) => (this.animalSubject = animalSubject),
+                    );
             }
             this.onContextChange();
         });
     }
 
     public showSubjectDetails() {
-        window.open('preclinical-subject/details/' + this.animalSubject.id , '_blank');
+        window.open(
+            "preclinical-subject/details/" + this.animalSubject.id,
+            "_blank",
+        );
     }
 
     protected getCreateSubjectRoute(): string {
-        return '/preclinical-subject/create';
+        return "/preclinical-subject/create";
     }
 
     protected getCreateExamRoute(): string {
-        return '/preclinical-examination/create';
+        return "/preclinical-examination/create";
     }
 
     protected prefillSubject() {
         const newSubject = new Subject();
-        newSubject.birthDate = this.patient?.patientBirthDate ? new Date(this.patient.patientBirthDate) : null;
+        newSubject.birthDate = this.patient?.patientBirthDate
+            ? new Date(this.patient.patientBirthDate)
+            : null;
         if (this.patient.patientSex) {
-            if (this.patient.patientSex == 'F' || this.patient.patientSex == 'M') {
+            if (
+                this.patient.patientSex == "F" ||
+                this.patient.patientSex == "M"
+            ) {
                 newSubject.sex = this.patient.patientSex;
             }
         }
         const newAnimalSubject = new AnimalSubject();
         newSubject.imagedObjectCategory = ImagedObjectCategory.LIVING_ANIMAL;
-        newSubject.name = this.subjectNamePrefix ? this.subjectNamePrefix + '-' + this.patient.patientName : this.patient.patientName;
+        newSubject.name = this.subjectNamePrefix
+            ? this.subjectNamePrefix + "-" + this.patient.patientName
+            : this.patient.patientName;
         newSubject.preclinical = true;
         newSubject.study = this.study;
         newSubject.physicallyInvolved = false;
         newAnimalSubject.subject = newSubject;
-        this.breadcrumbsService.addNextStepPrefilled('entity', newAnimalSubject);
-        this.breadcrumbsService.addNextStepPrefilled('firstName', this.computeNameFromDicomTag(this.patient.patientName)[1]);
-        this.breadcrumbsService.addNextStepPrefilled('lastName', this.computeNameFromDicomTag(this.patient.patientName)[2]);
-        this.breadcrumbsService.addNextStepPrefilled('patientName', this.patient.patientName);
-        this.breadcrumbsService.addNextStepPrefilled('entity.study', this.study, true);
-        this.breadcrumbsService.addNextStepPrefilled('subjectNamePrefix', this.subjectNamePrefix);
-        this.breadcrumbsService.addNextStepPrefilled('isAlreadyAnonymized', newSubject.isAlreadyAnonymized);
+        this.breadcrumbsService.addNextStepPrefilled(
+            "entity",
+            newAnimalSubject,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "firstName",
+            this.computeNameFromDicomTag(this.patient.patientName)[1],
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "lastName",
+            this.computeNameFromDicomTag(this.patient.patientName)[2],
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "patientName",
+            this.patient.patientName,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "entity.study",
+            this.study,
+            true,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "subjectNamePrefix",
+            this.subjectNamePrefix,
+        );
+        this.breadcrumbsService.addNextStepPrefilled(
+            "isAlreadyAnonymized",
+            newSubject.isAlreadyAnonymized,
+        );
     }
 
     protected getPrefilledExamination(): Examination {
@@ -142,7 +196,9 @@ export class PreClinicalContextComponent extends AbstractClinicalContextComponen
         newExam.subject = new Subject();
         newExam.subject.id = this.subject.id;
         newExam.subject.name = this.subject.name;
-        newExam.examinationDate = this.getFirstSelectedSerie()?.seriesDate ? new Date(this.getFirstSelectedSerie()?.seriesDate) : null;
+        newExam.examinationDate = this.getFirstSelectedSerie()?.seriesDate
+            ? new Date(this.getFirstSelectedSerie()?.seriesDate)
+            : null;
         newExam.comment = this.getFirstSelectedStudy()?.studyDescription;
         newExam.weightUnitOfMeasure = UnitOfMeasure.KG;
         return newExam;
@@ -152,7 +208,7 @@ export class PreClinicalContextComponent extends AbstractClinicalContextComponen
      * Try to compute patient first name and last name from dicom tags.
      * eg. TOM^HANKS -> return TOM as first name and HANKS as last name
      */
-     private computeNameFromDicomTag (patientName: string): string[] {
+    private computeNameFromDicomTag(patientName: string): string[] {
         let names: string[] = [];
         if (patientName) {
             names = patientName.split("\\^");
@@ -170,7 +226,7 @@ export class PreClinicalContextComponent extends AbstractClinicalContextComponen
                 if (serie.selected) return serie;
             }
         }
-       return null;
+        return null;
     }
 
     protected getFirstSelectedStudy(): StudyDicom {
@@ -179,21 +235,24 @@ export class PreClinicalContextComponent extends AbstractClinicalContextComponen
                 if (serie.selected) return study;
             }
         }
-       return null;
+        return null;
     }
 
     public showExaminationDetails() {
-        window.open('preclinical-examination/details/' + this.examination.id , '_blank');
+        window.open(
+            "preclinical-examination/details/" + this.examination.id,
+            "_blank",
+        );
     }
 
     get valid(): boolean {
         const context = this.getContext();
         return (
-            context.study
-            && !!context.center
-            && !!context.acquisitionEquipment
-            && !!context.subject
-            && !!context.examination
+            context.study &&
+            !!context.center &&
+            !!context.acquisitionEquipment &&
+            !!context.subject &&
+            !!context.examination
         );
     }
 }

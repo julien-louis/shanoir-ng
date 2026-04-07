@@ -1,17 +1,16 @@
-
 import {
-  Component,
-  ElementRef,
-  HostListener,
-  Inject,
-  OnInit,
-  Renderer2,
-  ViewChild,
-  ViewEncapsulation,
-  DOCUMENT
-} from '@angular/core';
+    Component,
+    ElementRef,
+    HostListener,
+    Inject,
+    OnInit,
+    Renderer2,
+    ViewChild,
+    ViewEncapsulation,
+    DOCUMENT,
+} from "@angular/core";
 
-import { ConfirmDialogService } from '../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService } from "../shared/components/confirm-dialog/confirm-dialog.service";
 import { ImagesUrlUtil } from "../shared/utils/images-url.util";
 import { StudyType } from "../studies/shared/study-type.enum";
 import { StudyLight } from "../studies/shared/study.dto";
@@ -22,86 +21,105 @@ import * as AppUtils from "../utils/app.utils";
 import { isDarkColor } from "../utils/app.utils";
 
 @Component({
-    selector: 'app-welcome',
-    templateUrl: './welcome.component.html',
-    styleUrls: ['./welcome.component.css'],
+    selector: "app-welcome",
+    templateUrl: "./welcome.component.html",
+    styleUrls: ["./welcome.component.css"],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class WelcomeComponent implements OnInit {
+    public githubLogoUrl: string = ImagesUrlUtil.GITHUB_WHITE_LOGO_PATH;
+    public shanoirLogoUrl: string = ImagesUrlUtil.SHANOIR_WHITE_LOGO_PATH;
+    public email: string = "mailto:developers_shanoir-request@inria.fr";
+    public publicStudies: StudyLight[] = [];
+    public usersCount: number = 0;
+    public eventsCount: number = 0;
+    public studiesCount: number = 0;
+    public datasetAcquisitionsCount: number = 0;
+    public subjectsCount: number = 0;
+    public storageSize: number = 0;
+    public StudyType = StudyType;
+    public show: number = 10;
+    public welcomeIntroduction: string = AppUtils.FRONTEND_WELCOME_INTRODUCTION;
+    @ViewChild("showMore", { static: false }) showMore: ElementRef<HTMLElement>;
 
-	public githubLogoUrl: string = ImagesUrlUtil.GITHUB_WHITE_LOGO_PATH;
-	public shanoirLogoUrl: string = ImagesUrlUtil.SHANOIR_WHITE_LOGO_PATH;
-	public email: string = "mailto:developers_shanoir-request@inria.fr";
-	public publicStudies: StudyLight[] = [];
-  public usersCount: number = 0;
-  public eventsCount: number = 0;
-  public studiesCount: number = 0;
-  public datasetAcquisitionsCount: number = 0;
-  public subjectsCount: number = 0;
-  public storageSize: number = 0;
-	public StudyType = StudyType;
-	public show: number = 10;
-  public welcomeIntroduction: string = AppUtils.FRONTEND_WELCOME_INTRODUCTION;
-	@ViewChild('showMore', { static: false }) showMore: ElementRef<HTMLElement>;
-
-	constructor(
-		private studyService: StudyService,
+    constructor(
+        private studyService: StudyService,
         private userService: UserService,
         private datasetService: DatasetService,
         private _renderer2: Renderer2,
         private confirmDialogService: ConfirmDialogService,
-        @Inject(DOCUMENT) private _document: Document
-	) { }
+        @Inject(DOCUMENT) private _document: Document,
+    ) {}
 
-	ngOnInit(): void {
+    ngOnInit(): void {
         this.fetchOverallStats();
     }
 
     addSchemaToDOM(): void {
-        const script = this._renderer2.createElement('script');
+        const script = this._renderer2.createElement("script");
         script.type = `application/ld+json`;
 
         let datasetStr: string = "";
-        const shanoirUrl: string = window.location.protocol + "//" + window.location.hostname;
+        const shanoirUrl: string =
+            window.location.protocol + "//" + window.location.hostname;
 
-        this.publicStudies?.forEach( study => {
-
+        this.publicStudies?.forEach((study) => {
             // keywords handling
             let keywords: string = "";
-            study.studyTags.forEach( tag => {
+            study.studyTags.forEach((tag) => {
                 if (tag != null) {
-                    keywords += "\"" + tag.name + "\"";
+                    keywords += '"' + tag.name + '"';
                 }
                 if (tag.id != study.studyTags[study.studyTags.length - 1].id) {
                     keywords += ", ";
                 }
-            })
+            });
 
             // datasets handling
             if (study != null) {
-                datasetStr += `
+                datasetStr +=
+                    `
                     {
-                        "@id": "` + study.name + `",
+                        "@id": "` +
+                    study.name +
+                    `",
                         "@type": "Dataset",
                         "dct:conformsTo": "https://bioschemas.org/profiles/Dataset/0.3-RELEASE-2019_06_14",
-                        "url": "` + shanoirUrl + `/shanoir-ng/study/details/` + study.id + `",
-                        "identifier": "` + shanoirUrl + `/shanoir-ng/study/details/` + study.id + `",
-                        "license": "` + study.license + `",
-                        "name": "` + study.name + `",
-                        "description": "` + study.description + `",
+                        "url": "` +
+                    shanoirUrl +
+                    `/shanoir-ng/study/details/` +
+                    study.id +
+                    `",
+                        "identifier": "` +
+                    shanoirUrl +
+                    `/shanoir-ng/study/details/` +
+                    study.id +
+                    `",
+                        "license": "` +
+                    study.license +
+                    `",
+                        "name": "` +
+                    study.name +
+                    `",
+                        "description": "` +
+                    study.description +
+                    `",
                         "keywords": [
-                            ` + keywords + `
+                            ` +
+                    keywords +
+                    `
                         ]
-                    }`
+                    }`;
             }
             if (study != this.publicStudies[this.publicStudies.length - 1]) {
                 datasetStr += ",";
             }
-        })
+        });
 
         // schema.org DataCatalog + Datasets
-        script.text = `
+        script.text =
+            `
         {
             "@context": {
               "schema": "https://schema.org/",
@@ -115,12 +133,16 @@ export class WelcomeComponent implements OnInit {
             },
             "@graph": [
               {
-                "@id": "` + shanoirUrl + `",
+                "@id": "` +
+            shanoirUrl +
+            `",
                 "@type": ["schema:DataCatalog", "dcat:Catalog"],
                 "dct:conformsTo": "https://bioschemas.org/profiles/DataCatalog/0.3-RELEASE-2019_07_01",
                 "schema:name": "Shanoir - Sharing in vivo imaging resources",
                 "schema:description": "Shanoir-NG (SHAring NeurOImaging Resources, Next Generation) is a web platform (open-source) for clinical and preclinical research, designed to import, share, archive, search and visualize all kind of medical imaging data (BIDS, MR, CT, PT, EEG, Bruker). Its origin goes back to neuroimaging, but its usage is now open for all kind of organs. It provides a user-friendly, secure web access and offers an intuitive workflow to facilitate the collecting and retrieving of imaging data from multiple sources and a wizzard to make the completion of metadata easy. Shanoir-NG comes along with many features such as pseudonymization of data for all imports, automatic NIfTI conversion and support for multi-centres clinical studies.",
-                "schema:url": "` + shanoirUrl + `",
+                "schema:url": "` +
+            shanoirUrl +
+            `",
                 "schema:keywords": [
                   "Medical Imaging",
                   "Neuroimaging",
@@ -151,11 +173,13 @@ export class WelcomeComponent implements OnInit {
                 "dct:publisher": [
                   {"@id": "https://inria.fr"}
                 ],
-                "schema:dataset": [`
-                  + datasetStr + `
+                "schema:dataset": [` +
+            datasetStr +
+            `
                 ],
-                "dcat:dataset": [`
-                  + datasetStr + `
+                "dcat:dataset": [` +
+            datasetStr +
+            `
                 ],
                 {
                   "@id": "https://www.francelifeimaging.fr",
@@ -180,61 +204,110 @@ export class WelcomeComponent implements OnInit {
                   "schema:url": "https://inria.fr"
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/users/users/count` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/users/users/count` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Users" },
                   "dqv:inMetric": { "@id": "Users Count" },
-                  "dqv:value": { "@value": "` + this.usersCount + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.usersCount +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/users/events/count` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/users/events/count` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Events" },
                   "dqv:inMetric": { "@id": "Events Count" },
-                  "dqv:value": { "@value": "` + this.eventsCount + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.eventsCount +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/datasets/datasets/overallStatistics` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/datasets/datasets/overallStatistics` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Datasets" },
                   "dqv:inMetric": { "@id": "Datasets Count" },
-                  "dqv:value": { "@value": "` + this.studiesCount + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.studiesCount +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/studies/studies/public/data` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/studies/studies/public/data` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Public Datasets" },
                   "dqv:inMetric": { "@id": "Public Datasets Count" },
-                  "dqv:value": { "@value": "` + this.publicStudies.length + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.publicStudies.length +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/datasets/datasets/overallStatistics` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/datasets/datasets/overallStatistics` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Subjects" },
                   "dqv:inMetric": { "@id": "Subjects Count" },
-                  "dqv:value": { "@value": "` + this.subjectsCount + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.subjectsCount +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/datasets/datasets/overallStatistics` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/datasets/datasets/overallStatistics` +
+            `",
                   "@type": "dqv:QualityMeasurement",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Images" },
                   "dqv:inMetric": { "@id": "Images Count" },
-                  "dqv:value": { "@value": "` + this.datasetAcquisitionsCount + `", "@type": "xsd:integer" }
+                  "dqv:value": { "@value": "` +
+            this.datasetAcquisitionsCount +
+            `", "@type": "xsd:integer" }
                 },
                 {
-                  "@id": "` + shanoirUrl + `/shanoir-ng/datasets/datasets/overallStatistics` + `",
+                  "@id": "` +
+            shanoirUrl +
+            `/shanoir-ng/datasets/datasets/overallStatistics` +
+            `",
                   "@type": "schema:QuantitativeValue",
                   "skos:prefLabel": "Total data storage volume",
-                  "dqv:computedOn": { "@id": "` + shanoirUrl + `" },
+                  "dqv:computedOn": { "@id": "` +
+            shanoirUrl +
+            `" },
                   "dqv:isMeasurementOf": { "@id": "Storage Volume" },
                   "schema:value": {
-                  "@value": "` + this.storageSize + `",
+                  "@value": "` +
+            this.storageSize +
+            `",
                   "@type": "xsd:decimal"
                   },
                   "schema:unitCode": "E34", 
@@ -335,18 +408,18 @@ export class WelcomeComponent implements OnInit {
         }`;
 
         this._renderer2.appendChild(this._document.head, script);
-	}
+    }
 
     private fetchUsersCount() {
         //count all users
-        this.userService.countAllUsers().then(count => {
+        this.userService.countAllUsers().then((count) => {
             this.usersCount = count;
         });
     }
 
     private fetchEventsCount() {
         // count all users events during last month
-        this.userService.countLastMonthEvents().then(count => {
+        this.userService.countLastMonthEvents().then((count) => {
             this.eventsCount = count;
         });
     }
@@ -355,7 +428,7 @@ export class WelcomeComponent implements OnInit {
         // get public studies data
         this.fetchPublicStudies();
         // get the latest overall statistics
-        this.datasetService.getOverallStatistics().then(stats => {
+        this.datasetService.getOverallStatistics().then((stats) => {
             this.studiesCount = stats.studiesCount;
             this.subjectsCount = stats.subjectsCount;
             this.datasetAcquisitionsCount = stats.datasetAcquisitionsCount;
@@ -364,57 +437,76 @@ export class WelcomeComponent implements OnInit {
             this.fetchEventsCount();
             this.addSchemaToDOM();
         });
-
     }
 
-	private fetchPublicStudies() {
+    private fetchPublicStudies() {
         // get public studies
-		this.studyService.getPublicStudiesData().then(studies => {
-			// sort by nbExaminations
-			this.publicStudies = studies?.sort((a, b) => {
-				// To order by dates :
-				// return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-				return (b.nbExaminations) - (a.nbExaminations);
-			})
-		});
-	}
-
-	increaseShow() {
-		this.show += 10;
-	}
-
-	login(): void {
-		window.location.href = AppUtils.LOGIN_REDIRECT_URL;
-	}
-
-	toGithub(): void {
-		const url = 'https://github.com/fli-iam/shanoir-ng';
-		window.open(url, '_blank');
-	}
-
-	toShanoir(): void {
-		const url = 'https://project.inria.fr/shanoir/';
-		window.open(url, '_blank');
-	}
-
-	accessRequest(study: any): void {
-        this.confirmDialogService.choose('Do you already have a Shanoir account ?', null, {yes: 'Yes, log in', no: 'No, request an account', cancel: 'Cancel'})
-        .then(choice => {
-            if (choice == 'yes') {
-                window.location.href = window.location.protocol + "//" + window.location.hostname + "/shanoir-ng/access-request/study/" + study.id;
-            } else if (choice == 'no') {
-                window.location.href = window.location.protocol + "//" + window.location.hostname + "/shanoir-ng/account/study/" + study.id + "/account-request?study=" + study.name + "&function=consumer";
-            }
+        this.studyService.getPublicStudiesData().then((studies) => {
+            // sort by nbExaminations
+            this.publicStudies = studies?.sort((a, b) => {
+                // To order by dates :
+                // return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+                return b.nbExaminations - a.nbExaminations;
+            });
         });
-	}
+    }
 
-	getFontColor(colorInp: string): boolean {
-		return isDarkColor(colorInp);
-	}
+    increaseShow() {
+        this.show += 10;
+    }
 
-	@HostListener('window:scroll', ['$event']) onWindowScroll(e) {
-		const scroll = e.target['scrollingElement'].scrollTop + window.innerHeight;
-		const end = this.showMore?.nativeElement?.offsetTop;
-		if (scroll > end && this.publicStudies.length > this.show) this.increaseShow();
-	}
+    login(): void {
+        window.location.href = AppUtils.LOGIN_REDIRECT_URL;
+    }
+
+    toGithub(): void {
+        const url = "https://github.com/fli-iam/shanoir-ng";
+        window.open(url, "_blank");
+    }
+
+    toShanoir(): void {
+        const url = "https://project.inria.fr/shanoir/";
+        window.open(url, "_blank");
+    }
+
+    accessRequest(study: any): void {
+        this.confirmDialogService
+            .choose("Do you already have a Shanoir account ?", null, {
+                yes: "Yes, log in",
+                no: "No, request an account",
+                cancel: "Cancel",
+            })
+            .then((choice) => {
+                if (choice == "yes") {
+                    window.location.href =
+                        window.location.protocol +
+                        "//" +
+                        window.location.hostname +
+                        "/shanoir-ng/access-request/study/" +
+                        study.id;
+                } else if (choice == "no") {
+                    window.location.href =
+                        window.location.protocol +
+                        "//" +
+                        window.location.hostname +
+                        "/shanoir-ng/account/study/" +
+                        study.id +
+                        "/account-request?study=" +
+                        study.name +
+                        "&function=consumer";
+                }
+            });
+    }
+
+    getFontColor(colorInp: string): boolean {
+        return isDarkColor(colorInp);
+    }
+
+    @HostListener("window:scroll", ["$event"]) onWindowScroll(e) {
+        const scroll =
+            e.target["scrollingElement"].scrollTop + window.innerHeight;
+        const end = this.showMore?.nativeElement?.offsetTop;
+        if (scroll > end && this.publicStudies.length > this.show)
+            this.increaseShow();
+    }
 }

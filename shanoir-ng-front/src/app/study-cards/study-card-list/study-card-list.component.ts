@@ -12,35 +12,33 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
 
-import { BrowserPaginEntityListComponent } from '../../shared/components/entity/entity-list.browser.component.abstract';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
-import { StudyCard } from '../shared/study-card.model';
-import { StudyCardService } from '../shared/study-card.service';
-import { AcquisitionEquipmentPipe } from '../../acquisition-equipments/shared/acquisition-equipment.pipe';
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { ManufacturerModel } from '../../acquisition-equipments/shared/manufacturer-model.model';
-import { DatasetModalityType } from '../../enum/dataset-modality-type.enum';
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-
+import { BrowserPaginEntityListComponent } from "../../shared/components/entity/entity-list.browser.component.abstract";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
+import { StudyCard } from "../shared/study-card.model";
+import { StudyCardService } from "../shared/study-card.service";
+import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/acquisition-equipment.pipe";
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { ManufacturerModel } from "../../acquisition-equipments/shared/manufacturer-model.model";
+import { DatasetModalityType } from "../../enum/dataset-modality-type.enum";
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 
 @Component({
-    selector: 'study-card-list',
-    templateUrl: 'study-card-list.component.html',
-    styleUrls: ['study-card-list.component.css'],
-    standalone: false
+    selector: "study-card-list",
+    templateUrl: "study-card-list.component.html",
+    styleUrls: ["study-card-list.component.css"],
+    standalone: false,
 })
 export class StudyCardListComponent extends BrowserPaginEntityListComponent<StudyCard> {
-
-    @ViewChild('table', { static: false }) table: TableComponent;
+    @ViewChild("table", { static: false }) table: TableComponent;
 
     constructor(
-            private studyCardService: StudyCardService,
-            private acqEqptLabelPipe: AcquisitionEquipmentPipe) {
-
-        super('study-card');
+        private studyCardService: StudyCardService,
+        private acqEqptLabelPipe: AcquisitionEquipmentPipe,
+    ) {
+        super("study-card");
     }
 
     getService(): EntityService<StudyCard> {
@@ -52,7 +50,7 @@ export class StudyCardListComponent extends BrowserPaginEntityListComponent<Stud
             new: true,
             view: true,
             edit: this.keycloakService.isUserAdminOrExpert(),
-            delete: this.keycloakService.isUserAdminOrExpert()
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
@@ -63,16 +61,35 @@ export class StudyCardListComponent extends BrowserPaginEntityListComponent<Stud
     getColumnDefs(): ColumnDefinition[] {
         const colDef: ColumnDefinition[] = [
             { headerName: "Name", field: "name" },
-            { headerName: "Study", field: 'study.name', defaultField: 'study.id',
-			 	route: (studyCard: StudyCard) => '/study/details/' + studyCard.study.id
-			},
-            { headerName: "Acquisition Center", field: 'acquisitionEquipment.center.name',
-				route: (studyCard: StudyCard) => studyCard.acquisitionEquipment && studyCard.acquisitionEquipment.center ? '/center/details/' + studyCard.acquisitionEquipment.center.id : null
-			},
-            { headerName: "Equipment", field: "acquisitionEquipment", width: '200%',
-                cellRenderer: params => this.format(params.data.acquisitionEquipment),
-				route: (studyCard: StudyCard) => studyCard.acquisitionEquipment? '/acquisition-equipment/details/' + studyCard.acquisitionEquipment.id : null
-			}
+            {
+                headerName: "Study",
+                field: "study.name",
+                defaultField: "study.id",
+                route: (studyCard: StudyCard) =>
+                    "/study/details/" + studyCard.study.id,
+            },
+            {
+                headerName: "Acquisition Center",
+                field: "acquisitionEquipment.center.name",
+                route: (studyCard: StudyCard) =>
+                    studyCard.acquisitionEquipment &&
+                    studyCard.acquisitionEquipment.center
+                        ? "/center/details/" +
+                          studyCard.acquisitionEquipment.center.id
+                        : null,
+            },
+            {
+                headerName: "Equipment",
+                field: "acquisitionEquipment",
+                width: "200%",
+                cellRenderer: (params) =>
+                    this.format(params.data.acquisitionEquipment),
+                route: (studyCard: StudyCard) =>
+                    studyCard.acquisitionEquipment
+                        ? "/acquisition-equipment/details/" +
+                          studyCard.acquisitionEquipment.id
+                        : null,
+            },
         ];
         return colDef;
     }
@@ -80,10 +97,21 @@ export class StudyCardListComponent extends BrowserPaginEntityListComponent<Stud
     format(acqEqpt: AcquisitionEquipment): string {
         if (acqEqpt && acqEqpt.manufacturerModel) {
             const manufModel: ManufacturerModel = acqEqpt.manufacturerModel;
-            return manufModel.manufacturer.name + " - " + manufModel.name + " " + (manufModel.magneticField ? (manufModel.magneticField + "T") : "")
-                + " (" + DatasetModalityType[manufModel.datasetModalityType] + ") " + acqEqpt.serialNumber;
+            return (
+                manufModel.manufacturer.name +
+                " - " +
+                manufModel.name +
+                " " +
+                (manufModel.magneticField
+                    ? manufModel.magneticField + "T"
+                    : "") +
+                " (" +
+                DatasetModalityType[manufModel.datasetModalityType] +
+                ") " +
+                acqEqpt.serialNumber
+            );
         }
-        return '';
+        return "";
     }
 
     getCustomActionsDefs(): any[] {

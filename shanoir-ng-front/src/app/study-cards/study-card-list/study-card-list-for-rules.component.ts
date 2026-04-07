@@ -11,57 +11,79 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 
-import { Step } from '../../breadcrumbs/breadcrumbs.service';
-import { StudyCard } from '../shared/study-card.model';
-import { StudyCardService } from '../shared/study-card.service';
-import { AcquisitionEquipmentPipe } from '../../acquisition-equipments/shared/acquisition-equipment.pipe';
-import { ColumnDefinition } from '../../shared/components/table/column.definition.type';
+import { Step } from "../../breadcrumbs/breadcrumbs.service";
+import { StudyCard } from "../shared/study-card.model";
+import { StudyCardService } from "../shared/study-card.service";
+import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/acquisition-equipment.pipe";
+import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
 
-import { StudyCardListComponent } from './study-card-list.component';
-
-
+import { StudyCardListComponent } from "./study-card-list.component";
 
 @Component({
-    selector: 'study-card-list-for-rules',
-    templateUrl: 'study-card-list-for-rules.component.html',
-    styleUrls: ['study-card-list.component.css'],
-    standalone: false
+    selector: "study-card-list-for-rules",
+    templateUrl: "study-card-list-for-rules.component.html",
+    styleUrls: ["study-card-list.component.css"],
+    standalone: false,
 })
-export class StudyCardForRulesListComponent extends StudyCardListComponent implements OnInit {
-
+export class StudyCardForRulesListComponent
+    extends StudyCardListComponent
+    implements OnInit
+{
     private idToExclude: number;
 
     constructor(
-            studyCardService: StudyCardService,
-            acqEqptLabelPipe: AcquisitionEquipmentPipe,
-            private activatedRoute: ActivatedRoute) {
-
+        studyCardService: StudyCardService,
+        acqEqptLabelPipe: AcquisitionEquipmentPipe,
+        private activatedRoute: ActivatedRoute,
+    ) {
         super(studyCardService, acqEqptLabelPipe);
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.idToExclude = +this.activatedRoute.snapshot.params['id'];
+        this.idToExclude = +this.activatedRoute.snapshot.params["id"];
     }
 
     getColumnDefs(): ColumnDefinition[] {
         const colDef: ColumnDefinition[] = [
             { headerName: "Name", field: "name" },
-            { headerName: "Study", field: 'study.name', defaultField: 'study.id' },
-            { headerName: "Acquisition Center", field: 'acquisitionEquipment.center.name'},
-            { headerName: "Equipment", field: "acquisitionEquipment", width: '200%',
-                cellRenderer: params => this.format(params.data.acquisitionEquipment) },
-            { headerName: "Nb of rules", type: 'number', field: "rules.length", width: '30px' ,
-                cellRenderer: params => params.data.rules ? params.data.rules.length+'' : '0' }
+            {
+                headerName: "Study",
+                field: "study.name",
+                defaultField: "study.id",
+            },
+            {
+                headerName: "Acquisition Center",
+                field: "acquisitionEquipment.center.name",
+            },
+            {
+                headerName: "Equipment",
+                field: "acquisitionEquipment",
+                width: "200%",
+                cellRenderer: (params) =>
+                    this.format(params.data.acquisitionEquipment),
+            },
+            {
+                headerName: "Nb of rules",
+                type: "number",
+                field: "rules.length",
+                width: "30px",
+                cellRenderer: (params) =>
+                    params.data.rules ? params.data.rules.length + "" : "0",
+            },
         ];
         return colDef;
     }
 
     disableCondition(studycard: StudyCard): boolean {
-        return studycard.id == this.idToExclude || !studycard.rules || studycard.rules.length == 0;
+        return (
+            studycard.id == this.idToExclude ||
+            !studycard.rules ||
+            studycard.rules.length == 0
+        );
     }
 
     getOptions() {
@@ -69,19 +91,23 @@ export class StudyCardForRulesListComponent extends StudyCardListComponent imple
             new: false,
             view: false,
             edit: false,
-            delete: false
+            delete: false,
         };
     }
 
     onRowClick(sc: StudyCard) {
         const currentStep: Step = this.breadcrumbsService.currentStep;
-        this.router.navigate(['/study-card/select-rule/select/' + sc.id]).then(() => {
-            this.breadcrumbsService.currentStep.label = 'Import rule';
-            this.subscriptions.push(
-                currentStep.waitFor(this.breadcrumbsService.currentStep).subscribe(entity => {
-                    currentStep.notifySave(entity);
-                })
-            );
-        });
+        this.router
+            .navigate(["/study-card/select-rule/select/" + sc.id])
+            .then(() => {
+                this.breadcrumbsService.currentStep.label = "Import rule";
+                this.subscriptions.push(
+                    currentStep
+                        .waitFor(this.breadcrumbsService.currentStep)
+                        .subscribe((entity) => {
+                            currentStep.notifySave(entity);
+                        }),
+                );
+            });
     }
 }

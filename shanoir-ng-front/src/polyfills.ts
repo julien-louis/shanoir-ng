@@ -2,12 +2,12 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -15,7 +15,7 @@
 /***************************************************************************************************
  * Load `$localize` onto the global scope - used if i18n tags appear in Angular templates.
  */
-import '@angular/localize/init';
+import "@angular/localize/init";
 /**
  * This file includes polyfills needed by Angular and is loaded before the app.
  * You can add your own extra polyfills to this file.
@@ -65,9 +65,10 @@ import '@angular/localize/init';
  */
 
 // prevent error handler to wrap errors
-(window as any).__zone_symbol__DISABLE_WRAPPING_UNCAUGHT_PROMISE_REJECTION = true;
+(window as any).__zone_symbol__DISABLE_WRAPPING_UNCAUGHT_PROMISE_REJECTION =
+    true;
 
-import 'zone.js';  // Included with Angular CLI.
+import "zone.js"; // Included with Angular CLI.
 
 (window as any).global = window;
 

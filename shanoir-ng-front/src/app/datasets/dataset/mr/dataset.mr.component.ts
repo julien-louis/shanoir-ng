@@ -12,23 +12,25 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import { Component, Input, OnInit } from "@angular/core";
+import { UntypedFormGroup } from "@angular/forms";
 
-import { Mode } from '../../../shared/components/entity/entity.component.abstract';
-import { Option } from '../../../shared/select/select.component';
-import {UnitOfMeasure} from "../../../enum/unitofmeasure.enum";
+import { Mode } from "../../../shared/components/entity/entity.component.abstract";
+import { Option } from "../../../shared/select/select.component";
+import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 
-import { MrDataset, MrDatasetMetadata, MrDatasetNature } from './dataset.mr.model';
+import {
+    MrDataset,
+    MrDatasetMetadata,
+    MrDatasetNature,
+} from "./dataset.mr.model";
 
 @Component({
-    selector: 'mr-dataset-details',
-    templateUrl: 'dataset.mr.component.html',
-    standalone: false
+    selector: "mr-dataset-details",
+    templateUrl: "dataset.mr.component.html",
+    standalone: false,
 })
-
-export class MrDatasetComponent implements OnInit{
-
+export class MrDatasetComponent implements OnInit {
     @Input() mode: Mode;
     @Input() dataset: MrDataset;
     @Input() parentFormGroup: UntypedFormGroup;
@@ -40,11 +42,16 @@ export class MrDatasetComponent implements OnInit{
     }
 
     ngOnInit() {
-        if (!this.dataset.updatedMrMetadata) this.dataset.updatedMrMetadata = new MrDatasetMetadata();
+        if (!this.dataset.updatedMrMetadata)
+            this.dataset.updatedMrMetadata = new MrDatasetMetadata();
     }
 
     get natureLabel(): string {
-        return this.dataset.updatedMrMetadata ? MrDatasetNature.getLabel(this.dataset.updatedMrMetadata.mrDatasetNature) : null;
+        return this.dataset.updatedMrMetadata
+            ? MrDatasetNature.getLabel(
+                  this.dataset.updatedMrMetadata.mrDatasetNature,
+              )
+            : null;
     }
 
     updateForm() {
@@ -54,5 +61,4 @@ export class MrDatasetComponent implements OnInit{
     getUnit(key: string) {
         return UnitOfMeasure.getLabelByKey(key);
     }
-
 }

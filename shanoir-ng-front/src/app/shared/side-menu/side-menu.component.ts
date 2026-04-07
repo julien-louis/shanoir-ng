@@ -11,52 +11,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { environment } from '../../../environments/environment';
-import { VERSION } from '../../../environments/version';
-import { SolrService } from '../../solr/solr.service';
-import { StudyService } from '../../studies/shared/study.service';
-import { UserService } from '../../users/shared/user.service';
-import { disapearUp, slideDown } from '../animations/animations';
+import { environment } from "../../../environments/environment";
+import { VERSION } from "../../../environments/version";
+import { SolrService } from "../../solr/solr.service";
+import { StudyService } from "../../studies/shared/study.service";
+import { UserService } from "../../users/shared/user.service";
+import { disapearUp, slideDown } from "../animations/animations";
 import { ConfirmDialogService } from "../components/confirm-dialog/confirm-dialog.service";
-import { ConsoleService } from '../console/console.service';
-import { KeycloakService } from '../keycloak/keycloak.service';
-import { NotificationsService } from '../notifications/notifications.service';
-import { ImagesUrlUtil } from '../utils/images-url.util';
-
+import { ConsoleService } from "../console/console.service";
+import { KeycloakService } from "../keycloak/keycloak.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { ImagesUrlUtil } from "../utils/images-url.util";
 
 @Component({
-    selector: 'side-menu',
-    templateUrl: 'side-menu.component.html',
-    styleUrls: ['side-menu.component.css', environment.production ? 'prod.css' : 'dev.css'],
+    selector: "side-menu",
+    templateUrl: "side-menu.component.html",
+    styleUrls: [
+        "side-menu.component.css",
+        environment.production ? "prod.css" : "dev.css",
+    ],
     animations: [slideDown, disapearUp],
-    standalone: false
+    standalone: false,
 })
-
 export class SideMenuComponent {
-
     public shanoirLogoUrl: string = ImagesUrlUtil.SHANOIR_WHITE_LOGO_PATH;
     public username: string = "";
     public userId: number = 0;
     public state: SideMenuState;
     public VERSION = VERSION;
-    private sessionKey: string = KeycloakService.auth.userId + 'menuState';
+    private sessionKey: string = KeycloakService.auth.userId + "menuState";
     accessRequestsToValidate: number;
 
-
     constructor(
-            public keycloakService: KeycloakService,
-            private solrService: SolrService,
-            private consoleService: ConsoleService,
-            public notificationsService: NotificationsService,
-            private studyService: StudyService,
-            private userService: UserService,
-            private confirmDialogService: ConfirmDialogService,
-            private destroyRef: DestroyRef) {
-
-        if (KeycloakService.auth.authz && KeycloakService.auth.authz.tokenParsed) {
+        public keycloakService: KeycloakService,
+        private solrService: SolrService,
+        private consoleService: ConsoleService,
+        public notificationsService: NotificationsService,
+        private studyService: StudyService,
+        private userService: UserService,
+        private confirmDialogService: ConfirmDialogService,
+        private destroyRef: DestroyRef,
+    ) {
+        if (
+            KeycloakService.auth.authz &&
+            KeycloakService.auth.authz.tokenParsed
+        ) {
             this.username = KeycloakService.auth.authz.tokenParsed.name;
             this.userId = KeycloakService.auth.userId;
         }
@@ -66,14 +68,14 @@ export class SideMenuComponent {
         else this.state = new SideMenuState();
 
         this.userService.accessRequets
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(nb => {
-            if (nb) {
-                this.accessRequestsToValidate = nb;
-            } else {
-                this.accessRequestsToValidate = 0;
-            }
-        });
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((nb) => {
+                if (nb) {
+                    this.accessRequestsToValidate = nb;
+                } else {
+                    this.accessRequestsToValidate = 0;
+                }
+            });
     }
 
     logout(event: Event): void {
@@ -94,12 +96,18 @@ export class SideMenuComponent {
     }
 
     indexToSolr() {
-        this.confirmDialogService.confirm('Index solr',
-            'Indexing solr can take some time, it won\'t be available during this time. Are you sure ?')
-            .then(userChoice => {
+        this.confirmDialogService
+            .confirm(
+                "Index solr",
+                "Indexing solr can take some time, it won't be available during this time. Are you sure ?",
+            )
+            .then((userChoice) => {
                 if (userChoice) {
                     this.solrService.indexAll().then(() => {
-                        this.consoleService.log('info', 'Indexation launched !');
+                        this.consoleService.log(
+                            "info",
+                            "Indexation launched !",
+                        );
                     });
                 }
             });
@@ -119,7 +127,6 @@ export class SideMenuComponent {
 }
 
 export class SideMenuState {
-
     public dataOpened: boolean = false;
     public precOpened: boolean = false;
     public eqOpened: boolean = false;

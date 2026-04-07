@@ -11,21 +11,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
-import { EventSourcePolyfill } from 'ng-event-source';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { EventSourcePolyfill } from "ng-event-source";
+import { BehaviorSubject, Observable } from "rxjs";
 
-import { SuperTimeout } from 'src/app/utils/super-timeout';
+import { SuperTimeout } from "src/app/utils/super-timeout";
 
-import { Task } from '../../async-tasks/task.model';
-import { TaskService } from '../../async-tasks/task.service';
-import * as AppUtils from '../../utils/app.utils';
-import { KeycloakService } from '../keycloak/keycloak.service';
-import { SessionService } from '../services/session.service';
+import { Task } from "../../async-tasks/task.model";
+import { TaskService } from "../../async-tasks/task.service";
+import * as AppUtils from "../../utils/app.utils";
+import { KeycloakService } from "../keycloak/keycloak.service";
+import { SessionService } from "../services/session.service";
 
 @Injectable()
 export class NotificationsService {
-
     public nbNew: number = 0;
     public nbNewError: number = 0;
     private tasks: Task[] = [];
@@ -33,8 +32,10 @@ export class NotificationsService {
     public tasksInWait: Task[] = [];
     public freshCompletedTasks: Task[] = [];
     private source;
-    private tasksSubject: BehaviorSubject<Task[]> = new BehaviorSubject<Task[]>([]) ;
-    private storageKey: string = KeycloakService.auth.userId + 'downloadTasks';
+    private tasksSubject: BehaviorSubject<Task[]> = new BehaviorSubject<Task[]>(
+        [],
+    );
+    private storageKey: string = KeycloakService.auth.userId + "downloadTasks";
     private newLocalTasksQueue: Task[] = [];
     private localTasks: Task[] = [];
     private writeLocalStorageConnection;
@@ -45,14 +46,18 @@ export class NotificationsService {
     readonly persistenceTime: number = 1800000;
     private freshTimeouts: SuperTimeout[] = [];
 
-
-    constructor(private taskService: TaskService, private keycloakService: KeycloakService, private sessionService: SessionService) {
+    constructor(
+        private taskService: TaskService,
+        private keycloakService: KeycloakService,
+        private sessionService: SessionService,
+    ) {
         this.connectToServer();
         this.connectReadSessionToLocalStorage();
     }
 
     private connectWriteSessionToLocalStorage() {
-        if (this.writeLocalStorageConnection) clearInterval(this.writeLocalStorageConnection);
+        if (this.writeLocalStorageConnection)
+            clearInterval(this.writeLocalStorageConnection);
         this.writeLocalStorageConnection = setInterval(() => {
             try {
                 if (this.newLocalTasksQueue?.length > 0) {
@@ -70,10 +75,14 @@ export class NotificationsService {
     }
 
     private connectReadSessionToLocalStorage() {
-        if (this.readLocalStorageConnection) clearInterval(this.readLocalStorageConnection);
+        if (this.readLocalStorageConnection)
+            clearInterval(this.readLocalStorageConnection);
         this.readLocalStorageConnection = setInterval(() => {
             try {
-                if ((Date.now() - this.lastLocalStorageRead) >= (this.readInterval - 100)) {
+                if (
+                    Date.now() - this.lastLocalStorageRead >=
+                    this.readInterval - 100
+                ) {
                     this.readLocalTasks();
                     this.updateStatusVars();
                     this.emitTasks();
@@ -87,7 +96,7 @@ export class NotificationsService {
     }
 
     private refresh() {
-        this.taskService.getTasks().then(items => {
+        this.taskService.getTasks().then((items) => {
             if (items) {
                 this.tasks = items;
                 this.updateStatusVars();
@@ -101,23 +110,43 @@ export class NotificationsService {
         const tmpTasksInWait = [];
         for (const task of this.allTasks) {
             if (
-                    ["downloadDataset", "exportTable"].some(evt => task.eventType.startsWith(evt))
-                    && (task.status == 2 || task.status == 4 || task.status == 5)
+                ["downloadDataset", "exportTable"].some((evt) =>
+                    task.eventType.startsWith(evt),
+                ) &&
+                (task.status == 2 || task.status == 4 || task.status == 5)
             ) {
                 if (!this.sessionService.isActive(task.sessionId)) {
                     task.status = -1;
-                    task.message = 'interrupted';
+                    task.message = "interrupted";
                 }
             }
             if (!task.hideFromMenu) {
                 if (task.status == -1 && task.lastUpdate) {
-                    const freshError: boolean = !this.freshCompletedTasks?.find(t => t.id == task.id && t.status == -1) && !!this.tasksInProgress.find(tip => task.id == tip.id) || (Date.now() - new Date(task.lastUpdate).getTime()) <= (this.readInterval);
+                    const freshError: boolean =
+                        (!this.freshCompletedTasks?.find(
+                            (t) => t.id == task.id && t.status == -1,
+                        ) &&
+                            !!this.tasksInProgress.find(
+                                (tip) => task.id == tip.id,
+                            )) ||
+                        Date.now() - new Date(task.lastUpdate).getTime() <=
+                            this.readInterval;
                     if (freshError) {
                         this.freshTimeouts[task.id]?.triggerNow();
                         this.pushToFreshError(task);
                     }
                 } else if (task.status == 1 || task.status == 3) {
-                    const freshDone: boolean = !this.freshCompletedTasks?.find(t => t.id == task.id && (t.status == 1 || t.status == 3)) && !!this.tasksInProgress.find(tip => task.id == tip.id) || (Date.now() - new Date(task.lastUpdate).getTime()) <= (this.readInterval);
+                    const freshDone: boolean =
+                        (!this.freshCompletedTasks?.find(
+                            (t) =>
+                                t.id == task.id &&
+                                (t.status == 1 || t.status == 3),
+                        ) &&
+                            !!this.tasksInProgress.find(
+                                (tip) => task.id == tip.id,
+                            )) ||
+                        Date.now() - new Date(task.lastUpdate).getTime() <=
+                            this.readInterval;
                     if (freshDone) {
                         this.freshTimeouts[task.id]?.triggerNow();
                         this.pushToFreshCompleted(task);
@@ -136,7 +165,7 @@ export class NotificationsService {
     }
 
     pushToFreshCompleted(task: Task) {
-        if (!this.freshCompletedTasks.find(tip => tip.id == task.id)) {
+        if (!this.freshCompletedTasks.find((tip) => tip.id == task.id)) {
             this.freshCompletedTasks.push(task);
         }
         this.nbNew++;
@@ -147,7 +176,7 @@ export class NotificationsService {
     }
 
     pushToFreshError(task: Task) {
-        if (!this.freshCompletedTasks.find(tip => tip.id == task.id)) {
+        if (!this.freshCompletedTasks.find((tip) => tip.id == task.id)) {
             this.freshCompletedTasks.push(task);
         }
         this.nbNewError++;
@@ -158,32 +187,42 @@ export class NotificationsService {
     }
 
     isFreshCompleted(task: Task): boolean {
-        return !!this.freshCompletedTasks.find(tip => tip.id == task.id);
+        return !!this.freshCompletedTasks.find((tip) => tip.id == task.id);
     }
 
     removeTaskFromFreshCompleted(task: Task) {
-        this.freshCompletedTasks = this.freshCompletedTasks.filter(tip => tip.id != task.id);
+        this.freshCompletedTasks = this.freshCompletedTasks.filter(
+            (tip) => tip.id != task.id,
+        );
     }
 
     removeTaskFromFresh(task: Task) {
         this.removeTaskFromFreshCompleted(task);
-        this.tasksInProgress = this.tasksInProgress.filter(tip => tip.id != task.id);
-        this.tasksInWait = this.tasksInWait.filter(tip => tip.id != task.id);
+        this.tasksInProgress = this.tasksInProgress.filter(
+            (tip) => tip.id != task.id,
+        );
+        this.tasksInWait = this.tasksInWait.filter((tip) => tip.id != task.id);
         task.hideFromMenu = true;
-
     }
 
     private connectToServer() {
-        this.keycloakService.getToken().then(token => {
-            this.source = new EventSourcePolyfill(AppUtils.BACKEND_API_UPDATE_TASKS_URL, {
+        this.keycloakService.getToken().then((token) => {
+            this.source = new EventSourcePolyfill(
+                AppUtils.BACKEND_API_UPDATE_TASKS_URL,
+                {
                     headers: {
-                        'Authorization': "Bearer " + token
-                    }
-                });
-            this.source.addEventListener('message', message => {
+                        Authorization: "Bearer " + token,
+                    },
+                },
+            );
+            this.source.addEventListener("message", (message) => {
                 if (message.data !== "{}") {
-                    const task: Task = this.taskService.toRealObject(JSON.parse(message.data));
-                    const existingTask = this.tasks.find(t => t.completeId == task.completeId);
+                    const task: Task = this.taskService.toRealObject(
+                        JSON.parse(message.data),
+                    );
+                    const existingTask = this.tasks.find(
+                        (t) => t.completeId == task.completeId,
+                    );
                     if (existingTask) {
                         existingTask.updateWith(task);
                     } else {
@@ -209,7 +248,9 @@ export class NotificationsService {
     }
 
     private createOrUpdateTask(task: Task) {
-        const existingTask: Task = this.newLocalTasksQueue.find(t => t.id == task.id);
+        const existingTask: Task = this.newLocalTasksQueue.find(
+            (t) => t.id == task.id,
+        );
         if (existingTask) {
             existingTask.updateWith(task);
         } else {
@@ -225,8 +266,13 @@ export class NotificationsService {
     }
 
     private get allTasks(): Task[] {
-        return this.localTasks.concat(this.tasks)
-            .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime());
+        return this.localTasks
+            .concat(this.tasks)
+            .sort(
+                (a, b) =>
+                    new Date(b.creationDate).getTime() -
+                    new Date(a.creationDate).getTime(),
+            );
     }
 
     private readLocalTasks() {
@@ -234,17 +280,27 @@ export class NotificationsService {
         this.lastLocalStorageRead = Date.now();
         let storageTasks: Task[] = [];
         if (storageTasksStr) {
-            storageTasks = JSON.parse(storageTasksStr).map(task => {
-                const newTask: Task = Object.assign(new Task(), task);
-                newTask.creationDate = new Date(task.creationDate as string);
-                newTask.lastUpdate = new Date(task.lastUpdate as string);
-                return newTask;
-            })?.filter(task => { // remove single files downloads that have been interrupted or are over
-                return task.eventType != 'downloadFile.event' || task.sessionId == this.sessionService.sessionId;
-            });
+            storageTasks = JSON.parse(storageTasksStr)
+                .map((task) => {
+                    const newTask: Task = Object.assign(new Task(), task);
+                    newTask.creationDate = new Date(
+                        task.creationDate as string,
+                    );
+                    newTask.lastUpdate = new Date(task.lastUpdate as string);
+                    return newTask;
+                })
+                ?.filter((task) => {
+                    // remove single files downloads that have been interrupted or are over
+                    return (
+                        task.eventType != "downloadFile.event" ||
+                        task.sessionId == this.sessionService.sessionId
+                    );
+                });
         }
-        storageTasks.forEach(stTask => {
-            const existingTask: Task = this.localTasks.find(t => t.id == stTask.id);
+        storageTasks.forEach((stTask) => {
+            const existingTask: Task = this.localTasks.find(
+                (t) => t.id == stTask.id,
+            );
             if (existingTask) {
                 stTask.updateWith(existingTask);
             }
@@ -254,16 +310,26 @@ export class NotificationsService {
 
     private updateLocalStorage() {
         this.readLocalTasks();
-        let tmpTasks: Task[] = this.localTasks.filter(lt => !this.newLocalTasksQueue.find(nlt => lt.id == nlt.id));
-        tmpTasks = tmpTasks.concat(this.newLocalTasksQueue.map(nlt => {
-            const existing: Task = this.localTasks.find(lt => lt.id == nlt.id);
-            if (existing) {
-                return existing.updateWith(nlt);
-            } else {
-                return nlt;
-            }
-        }));
-        tmpTasks.sort((a, b) => (a.lastUpdate?.getTime() || a.creationDate?.getDate()) - (b.lastUpdate?.getTime() || b.creationDate?.getDate()));
+        let tmpTasks: Task[] = this.localTasks.filter(
+            (lt) => !this.newLocalTasksQueue.find((nlt) => lt.id == nlt.id),
+        );
+        tmpTasks = tmpTasks.concat(
+            this.newLocalTasksQueue.map((nlt) => {
+                const existing: Task = this.localTasks.find(
+                    (lt) => lt.id == nlt.id,
+                );
+                if (existing) {
+                    return existing.updateWith(nlt);
+                } else {
+                    return nlt;
+                }
+            }),
+        );
+        tmpTasks.sort(
+            (a, b) =>
+                (a.lastUpdate?.getTime() || a.creationDate?.getDate()) -
+                (b.lastUpdate?.getTime() || b.creationDate?.getDate()),
+        );
         let tmpTasksStr: string = this.serializeTasks(tmpTasks);
         // check the size limit
         while (tmpTasksStr.length > 4000000) {
@@ -279,19 +345,22 @@ export class NotificationsService {
 
     private serializeTasks(tasks: Task[]): string {
         const tasksToStore: Task[] = [].concat(tasks);
-        const str: string = '[' + tasksToStore.map(t => t.stringify()).join(',') + ']';
+        const str: string =
+            "[" + tasksToStore.map((t) => t.stringify()).join(",") + "]";
         return str;
     }
 
     totalProgress(): number {
         let total: number = 0;
-        this.tasksInProgress.forEach(task => total += task.progress);
-        return total/this.tasksInProgress.length;
+        this.tasksInProgress.forEach((task) => (total += task.progress));
+        return total / this.tasksInProgress.length;
     }
 
     hasOnGoingDownloads(): boolean {
-        return !!this.tasksInProgress.find(task => {
-            return ['downloadDataset.event', 'downloadFile.event'].includes(task.eventType);  
+        return !!this.tasksInProgress.find((task) => {
+            return ["downloadDataset.event", "downloadFile.event"].includes(
+                task.eventType,
+            );
         });
     }
 

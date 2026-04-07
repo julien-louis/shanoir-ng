@@ -12,47 +12,51 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { UntypedFormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { Reference } from 'src/app/preclinical/reference/shared/reference.model';
-import { ReferenceService } from 'src/app/preclinical/reference/shared/reference.service';
-import { Frequency } from 'src/app/preclinical/shared/enum/frequency';
+import { Reference } from "src/app/preclinical/reference/shared/reference.model";
+import { ReferenceService } from "src/app/preclinical/reference/shared/reference.service";
+import { Frequency } from "src/app/preclinical/shared/enum/frequency";
 
-import { slideDown } from '../../../../shared/animations/animations';
-import { EntityService } from '../../../../shared/components/entity/entity.abstract.service';
-import { EntityComponent } from '../../../../shared/components/entity/entity.component.abstract';
-import { Therapy } from '../../therapy/shared/therapy.model';
-import { TherapyService } from '../../therapy/shared/therapy.service';
-import { SubjectTherapy } from '../shared/subjectTherapy.model';
-import * as PreclinicalUtils from '../../../utils/preclinical.utils';
+import { slideDown } from "../../../../shared/animations/animations";
+import { EntityService } from "../../../../shared/components/entity/entity.abstract.service";
+import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
+import { Therapy } from "../../therapy/shared/therapy.model";
+import { TherapyService } from "../../therapy/shared/therapy.service";
+import { SubjectTherapy } from "../shared/subjectTherapy.model";
+import * as PreclinicalUtils from "../../../utils/preclinical.utils";
 
 @Component({
-    selector: 'subject-pathology',
-    templateUrl: 'subject-therapy.component.html',
+    selector: "subject-pathology",
+    templateUrl: "subject-therapy.component.html",
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class SubjectTherapyComponent extends EntityComponent<SubjectTherapy> {
-
     protected therapies: Therapy[] = [];
     protected units: Reference[] = [];
     protected frequencies: Frequency[] = [];
 
     constructor(
-            private route: ActivatedRoute,
-            private therapyService: TherapyService,
-            private referenceService: ReferenceService) {
+        private route: ActivatedRoute,
+        private therapyService: TherapyService,
+        private referenceService: ReferenceService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'subject-pathology';
+        return "subject-pathology";
     }
 
-    get subjectTherapy(): SubjectTherapy { return this.entity; }
-    set subjectTherapy(subjectTherapy: SubjectTherapy) { this.entity = subjectTherapy; }
+    get subjectTherapy(): SubjectTherapy {
+        return this.entity;
+    }
+    set subjectTherapy(subjectTherapy: SubjectTherapy) {
+        this.entity = subjectTherapy;
+    }
 
     getService(): EntityService<SubjectTherapy> {
         return null;
@@ -79,14 +83,14 @@ export class SubjectTherapyComponent extends EntityComponent<SubjectTherapy> {
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'id': [this.subjectTherapy.id],
-            'therapy': [this.subjectTherapy.therapy, Validators.required],
-            'dose': [this.subjectTherapy.dose],
-            'doseUnit': [this.subjectTherapy.doseUnit],
-            'frequency': [this.subjectTherapy.frequency],
-            'startDate': [this.subjectTherapy.startDate],
-            'molecule': [this.subjectTherapy.molecule],
-            'endDate': [this.subjectTherapy.endDate]
+            id: [this.subjectTherapy.id],
+            therapy: [this.subjectTherapy.therapy, Validators.required],
+            dose: [this.subjectTherapy.dose],
+            doseUnit: [this.subjectTherapy.doseUnit],
+            frequency: [this.subjectTherapy.frequency],
+            startDate: [this.subjectTherapy.startDate],
+            molecule: [this.subjectTherapy.molecule],
+            endDate: [this.subjectTherapy.endDate],
         });
     }
 
@@ -104,11 +108,15 @@ export class SubjectTherapyComponent extends EntityComponent<SubjectTherapy> {
     }
 
     loadTherapies() {
-        this.therapyService.getAll().then(therapies => this.therapies = therapies);
+        this.therapyService
+            .getAll()
+            .then((therapies) => (this.therapies = therapies));
     }
-    
+
     loadUnits() {
-        this.referenceService.getReferencesByCategory(PreclinicalUtils.PRECLINICAL_CAT_UNIT).then(units => this.units = units);
+        this.referenceService
+            .getReferencesByCategory(PreclinicalUtils.PRECLINICAL_CAT_UNIT)
+            .then((units) => (this.units = units));
     }
 
     loadFrequencies(): void {
@@ -116,7 +124,6 @@ export class SubjectTherapyComponent extends EntityComponent<SubjectTherapy> {
     }
 
     protected goToAddTherapy() {
-        this.navigateToAttributeCreateStep('/therapy/create', 'therapy');
+        this.navigateToAttributeCreateStep("/therapy/create", "therapy");
     }
-
 }

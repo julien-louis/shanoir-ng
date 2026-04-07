@@ -12,33 +12,43 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import {Input, Output, ViewChild, Component, EventEmitter} from '@angular/core';
+import {
+    Input,
+    Output,
+    ViewChild,
+    Component,
+    EventEmitter,
+} from "@angular/core";
 
-import { AnimalSubject } from '../animalSubject/shared/animalSubject.model';
-import { TableComponent } from '../../shared/components/table/table.component';
-import { BrowserPaginEntityListComponent } from '../../shared/components/entity/entity-list.browser.component.abstract';
-import { Mode } from '../../shared/components/entity/entity.component.abstract';
-import { Entity } from '../../shared/components/entity/entity.abstract';
+import { AnimalSubject } from "../animalSubject/shared/animalSubject.model";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { BrowserPaginEntityListComponent } from "../../shared/components/entity/entity-list.browser.component.abstract";
+import { Mode } from "../../shared/components/entity/entity.component.abstract";
+import { Entity } from "../../shared/components/entity/entity.abstract";
 
 @Component({
-    selector: 'abstract-subject-pathology-list',
-    templateUrl: 'subjectEntity-list-input.abstract.html',
-    standalone: false
+    selector: "abstract-subject-pathology-list",
+    templateUrl: "subjectEntity-list-input.abstract.html",
+    standalone: false,
 })
-
-export abstract class SubjectAbstractListInput<T extends Entity>  extends BrowserPaginEntityListComponent<T> {
-
+export abstract class SubjectAbstractListInput<
+    T extends Entity,
+> extends BrowserPaginEntityListComponent<T> {
     @Input() canModify: boolean = false;
     @Input() animalSubject: AnimalSubject;
     @Input() mode: Mode;
     @Output() event = new EventEmitter();
-    protected propagateChange: (any) => void = () => { return; };
-    protected propagateTouched = () => { return; };
+    protected propagateChange: (any) => void = () => {
+        return;
+    };
+    protected propagateTouched = () => {
+        return;
+    };
     public toggleForm: boolean = false;
     public createMode: boolean = false;
     public selectedEntity: T;
 
-    @ViewChild('subjectEntityTable') table: TableComponent;
+    @ViewChild("subjectEntityTable") table: TableComponent;
 
     public abstract getEntityName();
 
@@ -47,7 +57,6 @@ export abstract class SubjectAbstractListInput<T extends Entity>  extends Browse
     protected abstract getEntityList();
 
     protected abstract addEntity(subjectEntity: T);
-
 
     // protected addToCache(key: string, toBeCached: any) {
     //     if (!this.breadcrumbsService.currentStep.isPrefilled(key))  {
@@ -67,7 +76,7 @@ export abstract class SubjectAbstractListInput<T extends Entity>  extends Browse
         this.selectedEntity = item;
         this.toggleForm = true;
         this.createMode = false;
-    }
+    };
 
     getCustomActionsDefs(): any[] {
         return [];
@@ -77,7 +86,7 @@ export abstract class SubjectAbstractListInput<T extends Entity>  extends Browse
         this.toggleForm = true;
         this.createMode = false;
         this.selectedEntity = item;
-    }
+    };
 
     toggleSubjectItemForm() {
         if (this.toggleForm == false) {
@@ -91,15 +100,21 @@ export abstract class SubjectAbstractListInput<T extends Entity>  extends Browse
         this.selectedEntity = this.getEntity();
     }
 
-    refreshDisplayEntity(subjectEntity: T, create: boolean){
+    refreshDisplayEntity(subjectEntity: T, create: boolean) {
         this.toggleForm = false;
         this.createMode = false;
         if (subjectEntity && subjectEntity != null) {
             if (!subjectEntity.id && create) {
-                this.breadcrumbsService.currentStep.addPrefilled(this.getEntityName() + "ToCreate", subjectEntity);
+                this.breadcrumbsService.currentStep.addPrefilled(
+                    this.getEntityName() + "ToCreate",
+                    subjectEntity,
+                );
                 this.onAdd.next(subjectEntity);
             } else if (subjectEntity.id && !create) {
-                this.breadcrumbsService.currentStep.addPrefilled(this.getEntityName() + "ToUpdate", subjectEntity);
+                this.breadcrumbsService.currentStep.addPrefilled(
+                    this.getEntityName() + "ToUpdate",
+                    subjectEntity,
+                );
             }
         }
         if (subjectEntity && create) {
@@ -115,29 +130,36 @@ export abstract class SubjectAbstractListInput<T extends Entity>  extends Browse
             this.getEntityList().splice(index, 1);
         }
         if (item.id != null) {
-            this.breadcrumbsService.currentStep.addPrefilled(this.getEntityName() + "ToDelete", item);
+            this.breadcrumbsService.currentStep.addPrefilled(
+                this.getEntityName() + "ToDelete",
+                item,
+            );
         } else {
             let entity;
-            this.breadcrumbsService.currentStep.getPrefilledValue(this.getEntityName() + "ToCreate").then(res => entity = res);
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue(this.getEntityName() + "ToCreate")
+                .then((res) => (entity = res));
             if (entity.indexOf(item) != -1) {
                 entity.splice(entity.indexOf(item), 1);
             }
-            this.breadcrumbsService.currentStep.getPrefilledValue(this.getEntityName() + "ToUpdate").then(res => entity = res);
+            this.breadcrumbsService.currentStep
+                .getPrefilledValue(this.getEntityName() + "ToUpdate")
+                .then((res) => (entity = res));
             if (entity.indexOf(item) != -1) {
-                 entity.splice(entity.indexOf(item), 1);
+                entity.splice(entity.indexOf(item), 1);
             }
         }
         this.event.emit("delete");
-        this.onDelete.next({entity: item});
+        this.onDelete.next({ entity: item });
         this.table.refresh();
-    }
+    };
 
-    goToAddEntity(){
+    goToAddEntity() {
         this.selectedEntity = this.getEntity();
         this.createMode = true;
-        if (this.toggleForm==false) {
+        if (this.toggleForm == false) {
             this.toggleForm = true;
-        } else if (this.toggleForm==true) {
+        } else if (this.toggleForm == true) {
             this.toggleForm = false;
         } else {
             this.toggleForm = true;

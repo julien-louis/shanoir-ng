@@ -11,27 +11,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { Center } from '../../centers/shared/center.model';
-import { Id } from '../../shared/models/id.model';
-import { StudyCardDTOServiceAbstract } from '../../study-cards/shared/study-card.dto.abstract';
-import { StudyCardDTO } from '../../study-cards/shared/study-card.dto.model';
-import { StudyCard } from '../../study-cards/shared/study-card.model';
-import { Subject } from '../../subjects/shared/subject.model';
-import { Tag } from '../../tags/tag.model';
-import { Profile } from '../../shared/models/profile.model';
+import { Center } from "../../centers/shared/center.model";
+import { Id } from "../../shared/models/id.model";
+import { StudyCardDTOServiceAbstract } from "../../study-cards/shared/study-card.dto.abstract";
+import { StudyCardDTO } from "../../study-cards/shared/study-card.dto.model";
+import { StudyCard } from "../../study-cards/shared/study-card.model";
+import { Subject } from "../../subjects/shared/subject.model";
+import { Tag } from "../../tags/tag.model";
+import { Profile } from "../../shared/models/profile.model";
 import { DatasetExpressionFormat } from "../../enum/dataset-expression-format.enum";
 import { SubjectDTO } from "../../subjects/shared/subject.dto";
 
-import { StudyCenter, StudyCenterDTO } from './study-center.model';
-import { StudyType } from './study-type.enum';
-import { StudyUser, StudyUserDTO } from './study-user.model';
-import { Study } from './study.model';
+import { StudyCenter, StudyCenterDTO } from "./study-center.model";
+import { StudyType } from "./study-type.enum";
+import { StudyUser, StudyUserDTO } from "./study-user.model";
+import { Study } from "./study.model";
 
 @Injectable()
 export class StudyDTOService {
-
     /**
      * Convert from DTO to Entity
      * Warning : DO NOT USE THIS IN A LOOP, use toEntityList instead
@@ -47,7 +46,7 @@ export class StudyDTOService {
      * Convert from a DTO list to an Entity list
      * @param result can be used to get an immediate temporary result without waiting async data
      */
-    public toEntityList(dtos: StudyDTO[], result?: Study[]): Promise<Study[]>{
+    public toEntityList(dtos: StudyDTO[], result?: Study[]): Promise<Study[]> {
         if (!result) result = [];
         if (dtos) {
             for (const dto of dtos) {
@@ -59,7 +58,10 @@ export class StudyDTOService {
         return Promise.resolve(result);
     }
 
-    public toSubjectList(dtos: SubjectDTO[], result: Subject[]): Promise<Subject[]> {
+    public toSubjectList(
+        dtos: SubjectDTO[],
+        result: Subject[],
+    ): Promise<Subject[]> {
         if (!result) result = [];
         if (dtos) {
             for (const dto of dtos) {
@@ -67,7 +69,9 @@ export class StudyDTOService {
                 entity.id = dto.id;
                 entity.name = dto.name;
                 entity.identifier = dto.identifier;
-                entity.birthDate = dto.birthDate ? new Date(dto.birthDate) : null;
+                entity.birthDate = dto.birthDate
+                    ? new Date(dto.birthDate)
+                    : null;
                 result.push(entity);
             }
         }
@@ -91,8 +95,11 @@ export class StudyDTOService {
         entity.dataUserAgreementPaths = dto.dataUserAgreementPaths;
         entity.startDate = dto.startDate ? new Date(dto.startDate) : null;
         if (dto.studyCenterList) {
-            entity.studyCenterList = (dto.studyCenterList as StudyCenterDTO[]).map(dtoStudyCenter => {
-                const studyCenter: StudyCenter = this.dtoToStudyCenter(dtoStudyCenter);
+            entity.studyCenterList = (
+                dto.studyCenterList as StudyCenterDTO[]
+            ).map((dtoStudyCenter) => {
+                const studyCenter: StudyCenter =
+                    this.dtoToStudyCenter(dtoStudyCenter);
                 studyCenter.study = entity;
                 return studyCenter;
             });
@@ -102,24 +109,28 @@ export class StudyDTOService {
         entity.studyStatus = dto.studyStatus;
         entity.studyType = dto.studyType;
         if (dto.subjects) {
-            entity.subjects = dto.subjects.map(subjectDto => this.dtoToSubject(subjectDto));
+            entity.subjects = dto.subjects.map((subjectDto) =>
+                this.dtoToSubject(subjectDto),
+            );
         } else {
             entity.subjects = [];
         }
         if (dto.studyUserList) {
-            entity.studyUserList = dto.studyUserList.map(studyUserDto => {
+            entity.studyUserList = dto.studyUserList.map((studyUserDto) => {
                 const studyUser: StudyUser = new StudyUser();
                 //studyUser.completeMember = studyUserDto.completeMember;
                 studyUser.confirmed = studyUserDto.confirmed;
                 studyUser.id = studyUserDto.id;
-                studyUser.receiveNewImportReport = studyUserDto.receiveNewImportReport;
-                studyUser.receiveStudyUserReport = studyUserDto.receiveStudyUserReport;
+                studyUser.receiveNewImportReport =
+                    studyUserDto.receiveNewImportReport;
+                studyUser.receiveStudyUserReport =
+                    studyUserDto.receiveStudyUserReport;
                 studyUser.study = entity;
                 studyUser.studyUserRights = studyUserDto.studyUserRights;
                 studyUser.user = studyUserDto.user;
                 studyUser.userId = studyUserDto.userId;
                 studyUser.userName = studyUserDto.userName;
-                studyUser.centers = studyUserDto.centerIds?.map(centerId => {
+                studyUser.centers = studyUserDto.centerIds?.map((centerId) => {
                     const center: Center = new Center();
                     center.id = centerId;
                     return center;
@@ -137,7 +148,12 @@ export class StudyDTOService {
             entity.nbMembers = dto.studyUserList.length;
         }
         if (dto.studyCards) {
-            entity.studyCardList = dto.studyCards.map(studyCardDTO => StudyCardDTOServiceAbstract.mapSyncFields(studyCardDTO, new StudyCard()));
+            entity.studyCardList = dto.studyCards.map((studyCardDTO) =>
+                StudyCardDTOServiceAbstract.mapSyncFields(
+                    studyCardDTO,
+                    new StudyCard(),
+                ),
+            );
         } else {
             entity.studyCardList = [];
         }
@@ -148,44 +164,56 @@ export class StudyDTOService {
         }
 
         if (dto.studyTags) {
-          entity.studyTags = dto.studyTags.map(this.tagDTOToTag);
+            entity.studyTags = dto.studyTags.map(this.tagDTOToTag);
         } else {
-          entity.studyTags = [];
+            entity.studyTags = [];
         }
 
-        if(dto.storageVolume){
+        if (dto.storageVolume) {
             entity.totalSize = dto.storageVolume.total;
-            entity.detailedSizes = this.studyStorageVolumeDTOToDetailedSizes(dto.storageVolume)
+            entity.detailedSizes = this.studyStorageVolumeDTOToDetailedSizes(
+                dto.storageVolume,
+            );
         }
 
         entity.isDraft = dto.isDraft;
         if (dto.extraDetails) {
             entity.expectedNbOfSubjects = dto.extraDetails.expectedNbOfSubjects;
-            entity.averageExaminationSize = dto.extraDetails.averageExaminationSize;
+            entity.averageExaminationSize =
+                dto.extraDetails.averageExaminationSize;
             entity.estimatedTotalVolume = dto.extraDetails.estimatedTotalVolume;
             entity.expectedNbOfCenters = dto.extraDetails.expectedNbOfCenters;
             entity.inclusionRate = dto.extraDetails.inclusionRate;
             entity.inclusionRateUnit = dto.extraDetails.inclusionRateUnit;
             entity.sponsor = dto.extraDetails.sponsor;
-            entity.principalInvestigator = dto.extraDetails.principalInvestigator;
+            entity.principalInvestigator =
+                dto.extraDetails.principalInvestigator;
             entity.scientificAdvisor = dto.extraDetails.scientificAdvisor;
         }
 
         return entity;
     }
 
-    static studyStorageVolumeDTOToDetailedSizes(dto: StudyStorageVolumeDTO): Map<string, number> {
+    static studyStorageVolumeDTOToDetailedSizes(
+        dto: StudyStorageVolumeDTO,
+    ): Map<string, number> {
         const datasetSizes = dto;
-        const sizesByLabel = new Map<string, number>()
+        const sizesByLabel = new Map<string, number>();
 
-        for(const sizeByFormat of datasetSizes.volumeByFormat){
-            if(sizeByFormat.size > 0){
-                sizesByLabel.set(DatasetExpressionFormat.getLabel(sizeByFormat.format), sizeByFormat.size);
+        for (const sizeByFormat of datasetSizes.volumeByFormat) {
+            if (sizeByFormat.size > 0) {
+                sizesByLabel.set(
+                    DatasetExpressionFormat.getLabel(sizeByFormat.format),
+                    sizeByFormat.size,
+                );
             }
         }
 
-        if(datasetSizes.extraDataSize > 0){
-            sizesByLabel.set("Other files (DUA, protocol...)", datasetSizes.extraDataSize);
+        if (datasetSizes.extraDataSize > 0) {
+            sizesByLabel.set(
+                "Other files (DUA, protocol...)",
+                datasetSizes.extraDataSize,
+            );
         }
 
         return sizesByLabel;
@@ -212,8 +240,10 @@ export class StudyDTOService {
         subject.tags = dtoSubject.tags;
         subject.qualityTag = dtoSubject.qualityTag;
         subject.studyId = dtoSubject.studyId;
-        subject.languageHemisphericDominance = dtoSubject.languageHemisphericDominance;
-        subject.manualHemisphericDominance = dtoSubject.manualHemisphericDominance;
+        subject.languageHemisphericDominance =
+            dtoSubject.languageHemisphericDominance;
+        subject.manualHemisphericDominance =
+            dtoSubject.manualHemisphericDominance;
         subject.identifier = dtoSubject.identifier;
         subject.preclinical = dtoSubject.preclinical;
         subject.sex = dtoSubject.sex;
@@ -240,16 +270,18 @@ export class StudyDTOService {
         study.name = dto.name;
         study.profile = dto.profile;
         if (dto.studyCenterList) {
-            study.studyCenterList = (dto.studyCenterList as StudyCenterDTO[]).map(dtoStudyCenter => {
+            study.studyCenterList = (
+                dto.studyCenterList as StudyCenterDTO[]
+            ).map((dtoStudyCenter) => {
                 return this.dtoToStudyCenter(dtoStudyCenter);
             });
         } else {
             study.studyCenterList = [];
         }
         if (dto.tags) {
-          study.tags = dto.tags.map(this.tagDTOToTag);
+            study.tags = dto.tags.map(this.tagDTOToTag);
         } else {
-          study.tags = [];
+            study.tags = [];
         }
         return study;
     }
@@ -272,7 +304,7 @@ export class StudyDTO {
     profile: Profile;
     startDate: Date;
     studyCenterList: StudyCenterDTO[];
-    studyStatus: 'IN_PROGRESS' | 'FINISHED';
+    studyStatus: "IN_PROGRESS" | "FINISHED";
     studyType: StudyType;
     studyUserList: StudyUserDTO[];
     subjects: SubjectDTO[] = [];
@@ -294,31 +326,39 @@ export class StudyDTO {
         this.clinical = study.clinical;
         this.downloadableByDefault = study.downloadableByDefault;
         this.endDate = study.endDate;
-        this.experimentalGroupsOfSubjects = study.experimentalGroupsOfSubjects ? study.experimentalGroupsOfSubjects.map(egos => new Id(egos.id)) : null;
+        this.experimentalGroupsOfSubjects = study.experimentalGroupsOfSubjects
+            ? study.experimentalGroupsOfSubjects.map((egos) => new Id(egos.id))
+            : null;
         this.name = study.name;
         this.profile = study.profile;
         this.challenge = study.challenge;
         this.protocolFilePaths = study.protocolFilePaths;
         this.dataUserAgreementPaths = study.dataUserAgreementPaths;
         this.startDate = study.startDate;
-        this.studyCenterList = study.studyCenterList ? study.studyCenterList.map(sc => {
-            const dto = new StudyCenterDTO(sc);
-            dto.study = null;
-            return dto;
-        }) : null;
+        this.studyCenterList = study.studyCenterList
+            ? study.studyCenterList.map((sc) => {
+                  const dto = new StudyCenterDTO(sc);
+                  dto.study = null;
+                  return dto;
+              })
+            : null;
         this.studyStatus = study.studyStatus;
         this.studyType = study.studyType;
-        this.studyUserList = study.studyUserList ? study.studyUserList.map(su => {
-            const dto = new StudyUserDTO(su);
-            dto.study = null;
-            return dto;
-        }) : null;
-        this.subjects = study.subjects ? study.subjects.map(su => {
-            su.study = study;
-            const dto = new SubjectDTO(su);
-            dto.study = null;
-            return dto;
-        }) : null;
+        this.studyUserList = study.studyUserList
+            ? study.studyUserList.map((su) => {
+                  const dto = new StudyUserDTO(su);
+                  dto.study = null;
+                  return dto;
+              })
+            : null;
+        this.subjects = study.subjects
+            ? study.subjects.map((su) => {
+                  su.study = study;
+                  const dto = new SubjectDTO(su);
+                  dto.study = null;
+                  return dto;
+              })
+            : null;
         this.visibleByDefault = study.visibleByDefault;
         this.studyCardPolicy = study.studyCardPolicy;
         this.withExamination = study.withExamination;
@@ -328,16 +368,16 @@ export class StudyDTO {
         this.license = study.license;
         this.isDraft = study.isDraft;
         this.extraDetails = {
-            "expectedNbOfSubjects": study.expectedNbOfSubjects,
-            "averageExaminationSize": study.averageExaminationSize,
-            "estimatedTotalVolume": study.estimatedTotalVolume,
-            "expectedNbOfCenters": study.expectedNbOfCenters,
-            "inclusionRate": study.inclusionRate,
-            "inclusionRateUnit": study.inclusionRateUnit,
-            "sponsor": study.sponsor,
-            "principalInvestigator": study.principalInvestigator,
-            "scientificAdvisor": study.scientificAdvisor
-        }
+            expectedNbOfSubjects: study.expectedNbOfSubjects,
+            averageExaminationSize: study.averageExaminationSize,
+            estimatedTotalVolume: study.estimatedTotalVolume,
+            expectedNbOfCenters: study.expectedNbOfCenters,
+            inclusionRate: study.inclusionRate,
+            inclusionRateUnit: study.inclusionRateUnit,
+            sponsor: study.sponsor,
+            principalInvestigator: study.principalInvestigator,
+            scientificAdvisor: study.scientificAdvisor,
+        };
     }
 }
 
@@ -350,30 +390,28 @@ export class CenterStudyDTO {
 }
 
 export class StudyLight {
-  downloadableByDefault: boolean;
-  challenge: boolean;
-  endDate: Date;
-  id: number;
-  name: string;
-  nbExaminations: number;
-  nbSubjects: number;
-  startDate: Date;
-  studyStatus: "IN_PROGRESS" | "FINISHED";
-  studyType: StudyType;
-  description: string;
-  license: string;
-  studyTags: Tag[];
-  profile: Profile;
-  isDraft: boolean;
+    downloadableByDefault: boolean;
+    challenge: boolean;
+    endDate: Date;
+    id: number;
+    name: string;
+    nbExaminations: number;
+    nbSubjects: number;
+    startDate: Date;
+    studyStatus: "IN_PROGRESS" | "FINISHED";
+    studyType: StudyType;
+    description: string;
+    license: string;
+    studyTags: Tag[];
+    profile: Profile;
+    isDraft: boolean;
 }
-
 
 export class StudyStorageVolumeDTO {
     total: number;
     volumeByFormat: VolumeByFormatDTO[];
     extraDataSize: number;
 }
-
 
 export class VolumeByFormatDTO {
     format: DatasetExpressionFormat;
@@ -386,7 +424,7 @@ class StudyExtraDetailsDTO {
     estimatedTotalVolume: number;
     expectedNbOfCenters: number;
     inclusionRate: number;
-    inclusionRateUnit: 'PER_DAY' | 'PER_WEEK' | 'PER_MONTH' | 'PER_YEAR';
+    inclusionRateUnit: "PER_DAY" | "PER_WEEK" | "PER_MONTH" | "PER_YEAR";
     sponsor: string;
     principalInvestigator: string;
     scientificAdvisor: string;
@@ -400,6 +438,6 @@ class StudyExtraDetailsDTO {
         this.inclusionRateUnit = study.inclusionRateUnit;
         this.sponsor = study.sponsor;
         this.principalInvestigator = study.principalInvestigator;
-        this.scientificAdvisor = study.scientificAdvisor
+        this.scientificAdvisor = study.scientificAdvisor;
     }
 }

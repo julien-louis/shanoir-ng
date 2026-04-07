@@ -11,14 +11,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Center } from '../../centers/shared/center.model';
-import { Entity } from '../../shared/components/entity/entity.abstract';
-import { IdName } from '../../shared/models/id-name.model';
-import { Study } from '../../studies/shared/study.model';
-import { Subject } from '../../subjects/shared/subject.model';
-import { InstrumentBasedAssessment } from '../instrument-assessment/instrument.model';
+import { Center } from "../../centers/shared/center.model";
+import { Entity } from "../../shared/components/entity/entity.abstract";
+import { IdName } from "../../shared/models/id-name.model";
+import { Study } from "../../studies/shared/study.model";
+import { Subject } from "../../subjects/shared/subject.model";
+import { InstrumentBasedAssessment } from "../instrument-assessment/instrument.model";
 import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
-import { Field } from '../../shared/reflect/field.decorator';
+import { Field } from "../../shared/reflect/field.decorator";
 
 export class Examination extends Entity {
     @Field() id: number;

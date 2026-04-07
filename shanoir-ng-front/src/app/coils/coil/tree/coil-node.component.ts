@@ -11,36 +11,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from "@angular/core";
 
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { TreeService } from 'src/app/studies/study/tree.service';
-import { CoilNode } from 'src/app/tree/tree.model';
-
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "src/app/studies/study/tree.service";
+import { CoilNode } from "src/app/tree/tree.model";
 
 @Component({
-    selector: 'coil-node',
-    templateUrl: 'coil-node.component.html',
-    standalone: false
+    selector: "coil-node",
+    templateUrl: "coil-node.component.html",
+    standalone: false,
 })
-
-export class CoilNodeComponent extends TreeNodeAbstractComponent<CoilNode> implements OnChanges {
-
+export class CoilNodeComponent
+    extends TreeNodeAbstractComponent<CoilNode>
+    implements OnChanges
+{
     @Input() input: CoilNode;
-    detailsPath: string = '/coil/details/';
+    detailsPath: string = "/coil/details/";
 
     constructor(
-            protected treeService: TreeService,
-            elementRef: ElementRef) {
+        protected treeService: TreeService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input']) {
+        if (changes["input"]) {
             if (this.input instanceof CoilNode) {
                 this.node = this.input;
             } else {
-                throw new Error('not implemented yet');
+                throw new Error("not implemented yet");
             }
         }
     }

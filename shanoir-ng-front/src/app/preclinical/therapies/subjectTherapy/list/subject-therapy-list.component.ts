@@ -12,61 +12,77 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, EventEmitter, forwardRef, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { Mode } from 'src/app/shared/components/entity/entity.component.abstract';
-import { BrowserPaging } from 'src/app/shared/components/table/browser-paging.model';
-import { FilterablePageable, Page } from 'src/app/shared/components/table/pageable.model';
-import { KeycloakService } from 'src/app/shared/keycloak/keycloak.service';
-import { SuperPromise } from 'src/app/utils/super-promise';
+import { Mode } from "src/app/shared/components/entity/entity.component.abstract";
+import { BrowserPaging } from "src/app/shared/components/table/browser-paging.model";
+import {
+    FilterablePageable,
+    Page,
+} from "src/app/shared/components/table/pageable.model";
+import { KeycloakService } from "src/app/shared/keycloak/keycloak.service";
+import { SuperPromise } from "src/app/utils/super-promise";
 
-import { ColumnDefinition } from '../../../../shared/components/table/column.definition.type';
-import { SubjectTherapy } from '../shared/subjectTherapy.model';
+import { ColumnDefinition } from "../../../../shared/components/table/column.definition.type";
+import { SubjectTherapy } from "../shared/subjectTherapy.model";
 
 @Component({
-    selector: 'subject-therapy-list',
-    templateUrl: './subject-therapy-list.component.html',
+    selector: "subject-therapy-list",
+    templateUrl: "./subject-therapy-list.component.html",
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => SubjectTherapyListComponent),
             multi: true,
-        }
+        },
     ],
-    standalone: false
+    standalone: false,
 })
-export class SubjectTherapyListComponent implements ControlValueAccessor, OnChanges {
-
+export class SubjectTherapyListComponent
+    implements ControlValueAccessor, OnChanges
+{
     @Input() mode: Mode;
     @Output() openCreationForm: EventEmitter<void> = new EventEmitter<void>(); // To avoid Angular warning
     protected paging: BrowserPaging<SubjectTherapy>;
     protected columnDefs: ColumnDefinition[];
     protected customActionDefs: any[];
     protected options: any = {
-        view: false // Specify that we can't view a therapy
+        view: false, // Specify that we can't view a therapy
     };
     protected disabled: boolean = false;
-    protected propagateChange = (_: any) => { return; };
-    protected propagateTouched = () => { return; };
-    protected refreshTable: SuperPromise<(number?) => void> = new SuperPromise<(number?) => void>();
+    protected propagateChange = (_: any) => {
+        return;
+    };
+    protected propagateTouched = () => {
+        return;
+    };
+    protected refreshTable: SuperPromise<(number?) => void> = new SuperPromise<
+        (number?) => void
+    >();
 
-    constructor(
-        private keycloakService: KeycloakService) {
-
+    constructor(private keycloakService: KeycloakService) {
         this.columnDefs = this.getColumnDefs();
         this.paging = new BrowserPaging<SubjectTherapy>([], this.columnDefs);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['mode']) {
+        if (changes["mode"]) {
             this.completeCustomActions();
         }
     }
 
     writeValue(obj: any): void {
         this.paging.setItems(obj ? obj : []);
-        this.refreshTable.then(refresh => {
+        this.refreshTable.then((refresh) => {
             refresh(1);
         });
     }
@@ -89,23 +105,39 @@ export class SubjectTherapyListComponent implements ControlValueAccessor, OnChan
             { headerName: "Type", field: "therapy.therapyType" },
             { headerName: "Dose", field: "dose" },
             { headerName: "Molecule", field: "molecule" },
-            { headerName: "Dose Unit", field: "doseUnit", cellRenderer: (params) => params.data?.doseUnit?.value },
+            {
+                headerName: "Dose Unit",
+                field: "doseUnit",
+                cellRenderer: (params) => params.data?.doseUnit?.value,
+            },
             { headerName: "Start Date", field: "startDate", type: "date" },
             { headerName: "End Date", field: "endDate", type: "date" },
         ];
         setTimeout(() => {
-            if (this.mode != 'view' && this.keycloakService.isUserAdminOrExpert()) {
-                columnDefs.push({ headerName: "", type: "button", awesome: "fa-regular fa-trash-can", action: (item) => this.removeItem(item) });
+            if (
+                this.mode != "view" &&
+                this.keycloakService.isUserAdminOrExpert()
+            ) {
+                columnDefs.push({
+                    headerName: "",
+                    type: "button",
+                    awesome: "fa-regular fa-trash-can",
+                    action: (item) => this.removeItem(item),
+                });
             }
         });
         return columnDefs;
     }
 
     private completeCustomActions(): void {
-        if (this.mode != 'view' && this.keycloakService.isUserAdminOrExpert()) {
-            this.customActionDefs = [{
-                title: "New", awesome: "fa-solid fa-plus", action: () => this.openCreateSubjectTherapy()
-            }];
+        if (this.mode != "view" && this.keycloakService.isUserAdminOrExpert()) {
+            this.customActionDefs = [
+                {
+                    title: "New",
+                    awesome: "fa-solid fa-plus",
+                    action: () => this.openCreateSubjectTherapy(),
+                },
+            ];
         } else {
             this.customActionDefs = [];
         }
@@ -116,13 +148,16 @@ export class SubjectTherapyListComponent implements ControlValueAccessor, OnChan
     }
 
     protected removeItem(item: SubjectTherapy) {
-        this.paging.setItems(this.paging.items.filter(p => p !== item));
-        this.refreshTable.then(refresh => refresh());
+        this.paging.setItems(this.paging.items.filter((p) => p !== item));
+        this.refreshTable.then((refresh) => refresh());
         this.propagateChange(this.paging.items);
         this.propagateTouched();
     }
 
-    protected getPage(pageable: FilterablePageable, _forceRefresh: boolean = false): Promise<Page<SubjectTherapy>> {
+    protected getPage(
+        pageable: FilterablePageable,
+        _forceRefresh: boolean = false,
+    ): Promise<Page<SubjectTherapy>> {
         return Promise.resolve(this.paging.getPage(pageable));
     }
 }

@@ -12,19 +12,18 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Field } from 'src/app/shared/reflect/field.decorator';
-import { Subject } from 'src/app/subjects/shared/subject.model';
-import { SubjectDTO } from 'src/app/subjects/shared/subject.dto';
+import { Field } from "src/app/shared/reflect/field.decorator";
+import { Subject } from "src/app/subjects/shared/subject.model";
+import { SubjectDTO } from "src/app/subjects/shared/subject.dto";
 
 import { Entity } from "../../../shared/components/entity/entity.abstract";
 import { ImagedObjectCategory } from "../../../subjects/shared/imaged-object-category.enum";
 import { Sex } from "../../../subjects/shared/subject.types";
-import { SubjectPathology } from '../../pathologies/subjectPathology/shared/subjectPathology.model';
-import { SubjectTherapy } from '../../therapies/subjectTherapy/shared/subjectTherapy.model';
-import { Reference } from '../../reference/shared/reference.model';
+import { SubjectPathology } from "../../pathologies/subjectPathology/shared/subjectPathology.model";
+import { SubjectTherapy } from "../../therapies/subjectTherapy/shared/subjectTherapy.model";
+import { Reference } from "../../reference/shared/reference.model";
 
 export class AnimalSubject extends Entity {
-
     @Field() id: number;
     @Field() name: string;
     @Field() imagedObjectCategory: ImagedObjectCategory;
@@ -33,16 +32,14 @@ export class AnimalSubject extends Entity {
     @Field() specie: Reference;
     @Field() strain: Reference;
     @Field() biotype: Reference;
-    @Field() provider : Reference;
+    @Field() provider: Reference;
     @Field() stabulation: Reference;
     @Field() subjectPathologies: SubjectPathology[];
-	@Field() subjectTherapies: SubjectTherapy[];
+    @Field() subjectTherapies: SubjectTherapy[];
     @Field() subject: Subject;
 }
 
-
 export class AnimalSubjectDTO {
-
     constructor(animalSubject: AnimalSubject) {
         this.id = animalSubject.id;
         this.name = animalSubject.name;
@@ -67,9 +64,9 @@ export class AnimalSubjectDTO {
     specie: Reference;
     strain: Reference;
     biotype: Reference;
-    provider : Reference;
+    provider: Reference;
     stabulation: Reference;
     subjectPathologies: SubjectPathology[];
-	subjectTherapies: SubjectTherapy[];
+    subjectTherapies: SubjectTherapy[];
     subject: SubjectDTO;
 }

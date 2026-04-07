@@ -12,48 +12,67 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { EntityService } from '../../shared/components/entity/entity.abstract.service';
-import * as AppUtils from '../../utils/app.utils';
-import { ServiceLocator } from '../../utils/locator.service';
+import { EntityService } from "../../shared/components/entity/entity.abstract.service";
+import * as AppUtils from "../../utils/app.utils";
+import { ServiceLocator } from "../../utils/locator.service";
 
-import { StudyCardDTOService } from './study-card.dto';
-import { StudyCardDTO } from './study-card.dto.model';
-import { StudyCard } from './study-card.model';
+import { StudyCardDTOService } from "./study-card.dto";
+import { StudyCardDTO } from "./study-card.dto.model";
+import { StudyCard } from "./study-card.model";
 
 @Injectable()
 export class StudyCardService extends EntityService<StudyCard> {
-
     API_URL = AppUtils.BACKEND_API_STUDY_CARD_URL;
 
-    private studyCardDTOService: StudyCardDTOService = ServiceLocator.injector.get(StudyCardDTOService);
+    private studyCardDTOService: StudyCardDTOService =
+        ServiceLocator.injector.get(StudyCardDTOService);
 
-    getEntityInstance() { return new StudyCard(); }
+    getEntityInstance() {
+        return new StudyCard();
+    }
 
     getAllForStudy(studyId: number): Promise<StudyCard[]> {
-        return this.http.get<any[]>(this.API_URL + '/byStudy/' + studyId)
+        return this.http
+            .get<any[]>(this.API_URL + "/byStudy/" + studyId)
             .toPromise()
             .then(this.mapEntityList);
     }
 
-    protected mapEntity = (dto: StudyCardDTO, result?: StudyCard): Promise<StudyCard> => {
+    protected mapEntity = (
+        dto: StudyCardDTO,
+        result?: StudyCard,
+    ): Promise<StudyCard> => {
         if (result == undefined) result = this.getEntityInstance();
         return this.studyCardDTOService.toEntity(dto, result);
-    }
+    };
 
-    protected mapEntityList = (dtos: StudyCardDTO[], result?: StudyCard[]): Promise<StudyCard[]> => {
+    protected mapEntityList = (
+        dtos: StudyCardDTO[],
+        result?: StudyCard[],
+    ): Promise<StudyCard[]> => {
         if (result == undefined) result = [];
         if (dtos) return this.studyCardDTOService.toEntityList(dtos, result);
-    }
+    };
 
     public stringify(entity: StudyCard) {
         const dto = new StudyCardDTO(entity);
         return JSON.stringify(dto, this.customReplacer);
     }
 
-    applyStudyCardOn(studyCardId: number, datasetAcquisitionIds: number[]): Promise<any> {
-        return this.http.post<any[]>(this.API_URL + '/apply', JSON.stringify({studyCardId: studyCardId, datasetAcquisitionIds: datasetAcquisitionIds}))
+    applyStudyCardOn(
+        studyCardId: number,
+        datasetAcquisitionIds: number[],
+    ): Promise<any> {
+        return this.http
+            .post<any[]>(
+                this.API_URL + "/apply",
+                JSON.stringify({
+                    studyCardId: studyCardId,
+                    datasetAcquisitionIds: datasetAcquisitionIds,
+                }),
+            )
             .toPromise()
             .then();
     }

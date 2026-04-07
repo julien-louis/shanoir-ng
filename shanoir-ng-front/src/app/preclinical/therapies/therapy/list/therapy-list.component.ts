@@ -2,45 +2,44 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import {Component, ViewChild} from '@angular/core'
+import { Component, ViewChild } from "@angular/core";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { Therapy } from '../shared/therapy.model';
-import { TherapyService } from '../shared/therapy.service';
+import { Therapy } from "../shared/therapy.model";
+import { TherapyService } from "../shared/therapy.service";
 import { TherapyType } from "../../../shared/enum/therapyType";
-import { SubjectTherapyService } from '../../subjectTherapy/shared/subjectTherapy.service';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../../../shared/components/table/column.definition.type';
-import { BrowserPaginEntityListComponent } from '../../../../shared/components/entity/entity-list.browser.component.abstract';
-import { ShanoirError } from '../../../../shared/models/error.model';
-
-
+import { SubjectTherapyService } from "../../subjectTherapy/shared/subjectTherapy.service";
+import { TableComponent } from "../../../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../../../shared/components/table/column.definition.type";
+import { BrowserPaginEntityListComponent } from "../../../../shared/components/entity/entity-list.browser.component.abstract";
+import { ShanoirError } from "../../../../shared/models/error.model";
 
 @Component({
-    selector: 'therapy-list',
-    templateUrl: 'therapy-list.component.html',
-    styleUrls: ['therapy-list.component.css'],
-    standalone: false
+    selector: "therapy-list",
+    templateUrl: "therapy-list.component.html",
+    styleUrls: ["therapy-list.component.css"],
+    standalone: false,
 })
-export class TherapiesListComponent  extends BrowserPaginEntityListComponent<Therapy> {
-  @ViewChild('therapiesTable') table: TableComponent;
-    
+export class TherapiesListComponent extends BrowserPaginEntityListComponent<Therapy> {
+    @ViewChild("therapiesTable") table: TableComponent;
+
     constructor(
-        private therapyService: TherapyService, 
-        private subjectTherapyService: SubjectTherapyService) {
-            super('preclinical-therapy');
-        }
+        private therapyService: TherapyService,
+        private subjectTherapyService: SubjectTherapyService,
+    ) {
+        super("preclinical-therapy");
+    }
 
     getService(): EntityService<Therapy> {
         return this.therapyService;
@@ -49,9 +48,9 @@ export class TherapiesListComponent  extends BrowserPaginEntityListComponent<The
     getOptions() {
         return {
             new: true,
-            view: true, 
-            edit: this.keycloakService.isUserAdminOrExpert(), 
-            delete: this.keycloakService.isUserAdminOrExpert()
+            view: true,
+            edit: this.keycloakService.isUserAdminOrExpert(),
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
@@ -61,60 +60,81 @@ export class TherapiesListComponent  extends BrowserPaginEntityListComponent<The
 
     getColumnDefs(): ColumnDefinition[] {
         return [
-            {headerName: "Name", field: "name"},
-            {headerName: "Type", field: "therapyType", cellRenderer: function (params: any) {
-                return TherapyType[params.data.therapyType];
-            }},
-            {headerName: "Comment", field: "comment"}   
-        ];    
+            { headerName: "Name", field: "name" },
+            {
+                headerName: "Type",
+                field: "therapyType",
+                cellRenderer: function (params: any) {
+                    return TherapyType[params.data.therapyType];
+                },
+            },
+            { headerName: "Comment", field: "comment" },
+        ];
     }
 
     getCustomActionsDefs(): any[] {
         return [];
     }
 
-
     protected openDeleteConfirmDialog = (entity: Therapy) => {
-        this.subjectTherapyService.getAllSubjectForTherapy(entity.id).then(subjectTherapies => {
-    		if (subjectTherapies){
-    			let hasSubjects: boolean  = false;
-    			hasSubjects = subjectTherapies.length > 0;
-    			if (hasSubjects){
-    				this.confirmDialogService
-                		.confirm('Delete therapy', 'This therapy is linked to subjects, it can not be deleted')
-    			}else{
-    				this.openDeleteTherapyConfirmDialog(entity);
-    			}
-    		}else{
-    			this.openDeleteTherapyConfirmDialog(entity);
-    		}
-    	}).catch((error) => {
-            this.openDeleteTherapyConfirmDialog(entity);
-            throw error;
-    	});    
-    }   
+        this.subjectTherapyService
+            .getAllSubjectForTherapy(entity.id)
+            .then((subjectTherapies) => {
+                if (subjectTherapies) {
+                    let hasSubjects: boolean = false;
+                    hasSubjects = subjectTherapies.length > 0;
+                    if (hasSubjects) {
+                        this.confirmDialogService.confirm(
+                            "Delete therapy",
+                            "This therapy is linked to subjects, it can not be deleted",
+                        );
+                    } else {
+                        this.openDeleteTherapyConfirmDialog(entity);
+                    }
+                } else {
+                    this.openDeleteTherapyConfirmDialog(entity);
+                }
+            })
+            .catch((error) => {
+                this.openDeleteTherapyConfirmDialog(entity);
+                throw error;
+            });
+    };
 
     private openDeleteTherapyConfirmDialog = (entity: Therapy) => {
         if (!this.keycloakService.isUserAdminOrExpert()) return;
         this.confirmDialogService
             .confirm(
-                'Delete', 'Are you sure you want to delete preclinical-therapy n° ' + entity.id + ' ?'
-            ).then(res => {
+                "Delete",
+                "Are you sure you want to delete preclinical-therapy n° " +
+                    entity.id +
+                    " ?",
+            )
+            .then((res) => {
                 if (res) {
-                    this.getService().delete(entity.id).then(() => {
-                        this.onDelete.next({entity: entity});
-                        this.table.refresh();
-                        this.consoleService.log('info', 'The preclinical-therapy n°' + entity.id + ' was sucessfully deleted');
-                    }).catch(reason => {
-                        if (reason && reason.error) {
-                            this.onDelete.next({entity: entity, error: new ShanoirError(reason)});
-                            if (reason.error.code != 422) throw Error(reason);
-                        }
-                    });                    
+                    this.getService()
+                        .delete(entity.id)
+                        .then(() => {
+                            this.onDelete.next({ entity: entity });
+                            this.table.refresh();
+                            this.consoleService.log(
+                                "info",
+                                "The preclinical-therapy n°" +
+                                    entity.id +
+                                    " was sucessfully deleted",
+                            );
+                        })
+                        .catch((reason) => {
+                            if (reason && reason.error) {
+                                this.onDelete.next({
+                                    entity: entity,
+                                    error: new ShanoirError(reason),
+                                });
+                                if (reason.error.code != 422)
+                                    throw Error(reason);
+                            }
+                        });
                 }
-            })
-    }
-
-    
-    
+            });
+    };
 }

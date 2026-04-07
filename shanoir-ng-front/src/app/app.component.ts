@@ -12,49 +12,59 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, ElementRef, HostBinding, HostListener, ViewChild, ViewContainerRef, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+    Component,
+    ElementRef,
+    HostBinding,
+    HostListener,
+    ViewChild,
+    ViewContainerRef,
+    OnInit,
+} from "@angular/core";
+import { Router } from "@angular/router";
 
-import { parent, slideMarginLeft, slideRight } from './shared/animations/animations';
-import { ConfirmDialogService } from './shared/components/confirm-dialog/confirm-dialog.service';
-import { ConsoleComponent } from './shared/console/console.component';
-import { KeycloakService } from './shared/keycloak/keycloak.service';
-import { GlobalService } from './shared/services/global.service';
-import { WindowService } from './shared/services/window.service';
-import { KeycloakSessionService } from './shared/session/keycloak-session.service';
-import { StudyService } from './studies/shared/study.service';
-import { TreeService } from './studies/study/tree.service';
-import { UserService } from './users/shared/user.service';
-import { ServiceLocator } from './utils/locator.service';
-import { NotificationsService } from './shared/notifications/notifications.service';
+import {
+    parent,
+    slideMarginLeft,
+    slideRight,
+} from "./shared/animations/animations";
+import { ConfirmDialogService } from "./shared/components/confirm-dialog/confirm-dialog.service";
+import { ConsoleComponent } from "./shared/console/console.component";
+import { KeycloakService } from "./shared/keycloak/keycloak.service";
+import { GlobalService } from "./shared/services/global.service";
+import { WindowService } from "./shared/services/window.service";
+import { KeycloakSessionService } from "./shared/session/keycloak-session.service";
+import { StudyService } from "./studies/shared/study.service";
+import { TreeService } from "./studies/study/tree.service";
+import { UserService } from "./users/shared/user.service";
+import { ServiceLocator } from "./utils/locator.service";
+import { NotificationsService } from "./shared/notifications/notifications.service";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: 'app.component.html',
-    styleUrls: ['app.component.css'],
+    selector: "app-root",
+    templateUrl: "app.component.html",
+    styleUrls: ["app.component.css"],
     animations: [slideRight, slideMarginLeft, parent],
-    standalone: false
+    standalone: false,
 })
-
 export class AppComponent implements OnInit {
-
-    @HostBinding('@parent') public menuOpen: boolean = true;
-    @ViewChild('console') consoleComponenent: ConsoleComponent;
+    @HostBinding("@parent") public menuOpen: boolean = true;
+    @ViewChild("console") consoleComponenent: ConsoleComponent;
 
     constructor(
-            public viewContainerRef: ViewContainerRef,
-            private globalService: GlobalService,
-            private windowService: WindowService,
-            private element: ElementRef,
-            private keycloakService: KeycloakService,
-            private keycloakSessionService: KeycloakSessionService,
-            private confirmService: ConfirmDialogService,
-            protected router: Router,
-            private studyService: StudyService,
-            private userService: UserService,
-            public treeService: TreeService,
-            private notificationsService: NotificationsService) {
-
+        public viewContainerRef: ViewContainerRef,
+        private globalService: GlobalService,
+        private windowService: WindowService,
+        private element: ElementRef,
+        private keycloakService: KeycloakService,
+        private keycloakSessionService: KeycloakSessionService,
+        private confirmService: ConfirmDialogService,
+        protected router: Router,
+        private studyService: StudyService,
+        private userService: UserService,
+        public treeService: TreeService,
+        private notificationsService: NotificationsService,
+    ) {
         ServiceLocator.rootViewContainerRef = this.viewContainerRef;
     }
 
@@ -65,21 +75,19 @@ export class AppComponent implements OnInit {
             this.userService.getAccessRequestsForAdmin();
             this.duaAlert();
 
-            if (this.keycloakService.isUserAdmin())
-                this.draftStudiesAlert();
+            if (this.keycloakService.isUserAdmin()) this.draftStudiesAlert();
         }
     }
 
-    @HostListener('window:resize', ['$event'])
+    @HostListener("window:resize", ["$event"])
     onResize(event) {
         this.windowService.width = event.target.innerWidth;
     }
 
-    @HostListener('window:beforeunload')
+    @HostListener("window:beforeunload")
     canDeactivate(): boolean {
         return !this.notificationsService.hasOnGoingDownloads();
     }
-
 
     toggleMenu(open: boolean) {
         this.menuOpen = open;
@@ -94,11 +102,11 @@ export class AppComponent implements OnInit {
     }
 
     private duaAlert() {
-        this.studyService.getMyDUA().then(dua => {
+        this.studyService.getMyDUA().then((dua) => {
             const hasDUA: boolean = dua && dua.length > 0;
             if (hasDUA && !this.keycloakSessionService.hasBeenAskedDUA) {
                 this.keycloakSessionService.hasBeenAskedDUA = true;
-                if (this.router.url != '/dua' && this.router.url != '/home') {
+                if (this.router.url != "/dua" && this.router.url != "/home") {
                     this.askForDuaSigning();
                 }
             }
@@ -110,13 +118,17 @@ export class AppComponent implements OnInit {
     }
 
     private askForDuaSigning() {
-        const title: string = 'Data User Agreement awaiting for signing';
-        const text: string = 'You are a member of at least one study that needs you to accept its data user agreement. '
-            + 'Until you have agreed those terms you cannot access to any data from these studies. '
-            + 'Would you like to review those terms now?';
-        const buttons = {yes: 'Yes, proceed to the signing page', cancel: 'Later'};
-        this.confirmService.confirm(title, text, buttons).then(response => {
-                if (response == true) this.router.navigate(['/dua']);
-            });
+        const title: string = "Data User Agreement awaiting for signing";
+        const text: string =
+            "You are a member of at least one study that needs you to accept its data user agreement. " +
+            "Until you have agreed those terms you cannot access to any data from these studies. " +
+            "Would you like to review those terms now?";
+        const buttons = {
+            yes: "Yes, proceed to the signing page",
+            cancel: "Later",
+        };
+        this.confirmService.confirm(title, text, buttons).then((response) => {
+            if (response == true) this.router.navigate(["/dua"]);
+        });
     }
 }

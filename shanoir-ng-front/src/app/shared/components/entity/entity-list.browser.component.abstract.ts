@@ -2,12 +2,12 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -20,10 +20,11 @@ import { BrowserPaging } from "../table/browser-paging.model";
 import { EntityListComponent } from "./entity-list.component.abstract";
 import { Entity } from "./entity.abstract";
 
-
 @Directive()
-export abstract class BrowserPaginEntityListComponent<T extends Entity> extends EntityListComponent<T> implements OnInit {
-
+export abstract class BrowserPaginEntityListComponent<T extends Entity>
+    extends EntityListComponent<T>
+    implements OnInit
+{
     protected entitiesPromise: Promise<void>;
     protected browserPaging: BrowserPaging<T>;
 
@@ -31,18 +32,24 @@ export abstract class BrowserPaginEntityListComponent<T extends Entity> extends 
         super.ngOnInit();
         this.loadEntities();
     }
-    
+
     private loadEntities(eager: boolean = false): Promise<void> {
         this.entitiesPromise = this.getEntities(eager).then((entities) => {
-            this.browserPaging = new BrowserPaging(entities, this.columnDefs)
+            this.browserPaging = new BrowserPaging(entities, this.columnDefs);
         });
         return this.entitiesPromise;
     }
 
-    getPage(pageable: FilterablePageable, forceRefresh: boolean = false, eager: boolean = false): Promise<Page<T>> {
+    getPage(
+        pageable: FilterablePageable,
+        forceRefresh: boolean = false,
+        eager: boolean = false,
+    ): Promise<Page<T>> {
         return this.entitiesPromise.then(() => {
             if (forceRefresh) {
-                return this.loadEntities(eager).then(() => this.browserPaging.getPage(pageable));
+                return this.loadEntities(eager).then(() =>
+                    this.browserPaging.getPage(pageable),
+                );
             } else {
                 return this.browserPaging.getPage(pageable);
             }
@@ -50,5 +57,4 @@ export abstract class BrowserPaginEntityListComponent<T extends Entity> extends 
     }
 
     abstract getEntities(eager?: boolean): Promise<T[]>;
-
 }

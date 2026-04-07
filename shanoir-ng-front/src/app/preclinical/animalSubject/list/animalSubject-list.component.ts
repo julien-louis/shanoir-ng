@@ -11,38 +11,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from "@angular/core";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import {
-    BrowserPaginEntityListComponent
-} from '../../../shared/components/entity/entity-list.browser.component.abstract';
-import { ColumnDefinition } from '../../../shared/components/table/column.definition.type';
-import { TableComponent } from '../../../shared/components/table/table.component';
-import { ShanoirError } from '../../../shared/models/error.model';
-import { ImagedObjectCategory } from '../../../subjects/shared/imaged-object-category.enum';
-import { SubjectService } from '../../../subjects/shared/subject.service';
-import { AnimalSubjectService } from '../shared/animalSubject.service';
-import { AnimalSubject } from '../shared/animalSubject.model';
-
+import { BrowserPaginEntityListComponent } from "../../../shared/components/entity/entity-list.browser.component.abstract";
+import { ColumnDefinition } from "../../../shared/components/table/column.definition.type";
+import { TableComponent } from "../../../shared/components/table/table.component";
+import { ShanoirError } from "../../../shared/models/error.model";
+import { ImagedObjectCategory } from "../../../subjects/shared/imaged-object-category.enum";
+import { SubjectService } from "../../../subjects/shared/subject.service";
+import { AnimalSubjectService } from "../shared/animalSubject.service";
+import { AnimalSubject } from "../shared/animalSubject.model";
 
 @Component({
-    selector: 'animalSubject-list',
-    templateUrl: 'animalSubject-list.component.html',
-    styleUrls: ['animalSubject-list.component.css'],
-    standalone: false
+    selector: "animalSubject-list",
+    templateUrl: "animalSubject-list.component.html",
+    styleUrls: ["animalSubject-list.component.css"],
+    standalone: false,
 })
-export class AnimalSubjectsListComponent  extends BrowserPaginEntityListComponent<AnimalSubject>{
-
-    @ViewChild('preclinicalSubjectsTable', { static: false }) table: TableComponent;
+export class AnimalSubjectsListComponent extends BrowserPaginEntityListComponent<AnimalSubject> {
+    @ViewChild("preclinicalSubjectsTable", { static: false })
+    table: TableComponent;
 
     public animalSubjects: AnimalSubject[];
 
     constructor(
         private animalSubjectService: AnimalSubjectService,
-        private subjectService: SubjectService) {
-            super('preclinical-subject');
+        private subjectService: SubjectService,
+    ) {
+        super("preclinical-subject");
     }
 
     getService(): EntityService<AnimalSubject> {
@@ -50,11 +48,9 @@ export class AnimalSubjectsListComponent  extends BrowserPaginEntityListComponen
     }
 
     getEntities(): Promise<AnimalSubject[]> {
-
         this.animalSubjects = [];
 
-        return this.subjectService.getPreclinicalSubjects().then(subjects => {
-
+        return this.subjectService.getPreclinicalSubjects().then((subjects) => {
             if (!subjects) {
                 return [];
             }
@@ -64,49 +60,71 @@ export class AnimalSubjectsListComponent  extends BrowserPaginEntityListComponen
                 subMap.set(sub.id, sub);
             }
 
-            return this.animalSubjectService.getAnimalSubjects(subMap.keys()).then(animalSubject => {
+            return this.animalSubjectService
+                .getAnimalSubjects(subMap.keys())
+                .then((animalSubject) => {
+                    if (!animalSubject) {
+                        return [];
+                    }
 
-                if (!animalSubject) {
-                    return [];
-                }
-
-                for (const aSub of animalSubject){
-                    const preSubject: AnimalSubject = aSub;
-                    preSubject.id = aSub.id;
-                    preSubject.subject = subMap.get(preSubject.id);
-                    this.animalSubjects.push(preSubject);
-                }
-                return this.animalSubjects;
-            });
+                    for (const aSub of animalSubject) {
+                        const preSubject: AnimalSubject = aSub;
+                        preSubject.id = aSub.id;
+                        preSubject.subject = subMap.get(preSubject.id);
+                        this.animalSubjects.push(preSubject);
+                    }
+                    return this.animalSubjects;
+                });
         });
     }
 
-
     getColumnDefs(): ColumnDefinition[] {
         const colDef: ColumnDefinition[] = [
-            {headerName: "Common name", field: "subject.name"},
-            {headerName: "Imaged object category", field: "subject.imagedObjectCategory", cellRenderer: function (params: any) {
-                    if(!params.data.subject){
+            { headerName: "Common name", field: "subject.name" },
+            {
+                headerName: "Imaged object category",
+                field: "subject.imagedObjectCategory",
+                cellRenderer: function (params: any) {
+                    if (!params.data.subject) {
                         return "";
                     }
-                    const imagedObjectCat: ImagedObjectCategory = params.data.subject.imagedObjectCategory;
-                    if (ImagedObjectCategory[imagedObjectCat] === ImagedObjectCategory.PHANTOM) {
-                    	return 'Phantom';
-                    }else if (ImagedObjectCategory[imagedObjectCat] === ImagedObjectCategory.LIVING_ANIMAL) {
-                     	return 'Living animal';
-                    }else if (ImagedObjectCategory[imagedObjectCat] === ImagedObjectCategory.ANIMAL_CADAVER) {
-                     	return 'Animal cadaver';
-                    }else if (ImagedObjectCategory[imagedObjectCat] === ImagedObjectCategory.ANATOMICAL_PIECE) {
-                     	return 'Anatomical piece';
+                    const imagedObjectCat: ImagedObjectCategory =
+                        params.data.subject.imagedObjectCategory;
+                    if (
+                        ImagedObjectCategory[imagedObjectCat] ===
+                        ImagedObjectCategory.PHANTOM
+                    ) {
+                        return "Phantom";
+                    } else if (
+                        ImagedObjectCategory[imagedObjectCat] ===
+                        ImagedObjectCategory.LIVING_ANIMAL
+                    ) {
+                        return "Living animal";
+                    } else if (
+                        ImagedObjectCategory[imagedObjectCat] ===
+                        ImagedObjectCategory.ANIMAL_CADAVER
+                    ) {
+                        return "Animal cadaver";
+                    } else if (
+                        ImagedObjectCategory[imagedObjectCat] ===
+                        ImagedObjectCategory.ANATOMICAL_PIECE
+                    ) {
+                        return "Anatomical piece";
                     }
                     return ImagedObjectCategory[imagedObjectCat];
-                }
+                },
             },
-            {headerName: "Species", field: "animalSubject.specie.value"},
-            {headerName: "Strain", field: "animalSubject.strain.value"},
-            {headerName: "Biological type", field: "animalSubject.biotype.value"},
-            {headerName: "Provider", field: "animalSubject.provider.value"},
-            {headerName: "Stabulation", field: "animalSubject.stabulation.value"}
+            { headerName: "Species", field: "animalSubject.specie.value" },
+            { headerName: "Strain", field: "animalSubject.strain.value" },
+            {
+                headerName: "Biological type",
+                field: "animalSubject.biotype.value",
+            },
+            { headerName: "Provider", field: "animalSubject.provider.value" },
+            {
+                headerName: "Stabulation",
+                field: "animalSubject.stabulation.value",
+            },
         ];
         return colDef;
     }
@@ -120,7 +138,7 @@ export class AnimalSubjectsListComponent  extends BrowserPaginEntityListComponen
             new: false,
             view: true,
             edit: this.keycloakService.isUserAdminOrExpert(),
-            delete: this.keycloakService.isUserAdminOrExpert()
+            delete: this.keycloakService.isUserAdminOrExpert(),
         };
     }
 
@@ -128,29 +146,41 @@ export class AnimalSubjectsListComponent  extends BrowserPaginEntityListComponen
         if (!this.keycloakService.isUserAdminOrExpert()) return;
         this.confirmDialogService
             .confirm(
-                'Delete', 'Are you sure you want to delete preclinical-subject n° ' + entity.id + ' ?'
-            ).then(res => {
+                "Delete",
+                "Are you sure you want to delete preclinical-subject n° " +
+                    entity.id +
+                    " ?",
+            )
+            .then((res) => {
                 if (res) {
-                    this.subjectService.delete(entity.id).then(() => {
-                        this.onDelete.next({entity: entity});
-                        const index: number = this.animalSubjects.indexOf(entity);
-                        if (index !== -1) {
-                            this.animalSubjects.splice(index);
-                        }
-                        this.table.refresh();
-                        this.consoleService.log('info', 'The preclinical-subject n°' + entity.id + ' was sucessfully deleted');
-                    }
-                    ).catch(reason => {
-                        if (reason && reason.error) {
-                            this.onDelete.next({entity: entity, error: new ShanoirError(reason)});
-                            if (reason.error.code != 422) throw Error(reason);
-                        }
-                    });
+                    this.subjectService
+                        .delete(entity.id)
+                        .then(() => {
+                            this.onDelete.next({ entity: entity });
+                            const index: number =
+                                this.animalSubjects.indexOf(entity);
+                            if (index !== -1) {
+                                this.animalSubjects.splice(index);
+                            }
+                            this.table.refresh();
+                            this.consoleService.log(
+                                "info",
+                                "The preclinical-subject n°" +
+                                    entity.id +
+                                    " was sucessfully deleted",
+                            );
+                        })
+                        .catch((reason) => {
+                            if (reason && reason.error) {
+                                this.onDelete.next({
+                                    entity: entity,
+                                    error: new ShanoirError(reason),
+                                });
+                                if (reason.error.code != 422)
+                                    throw Error(reason);
+                            }
+                        });
                 }
-            }
-        )
-    }
-
-
-
+            });
+    };
 }

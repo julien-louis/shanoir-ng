@@ -1,25 +1,29 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { resolve, relative } = require('path');
+const { resolve, relative } = require("path");
 
-const { gitDescribeSync } = require('git-describe');
-const { writeFileSync } = require('fs-extra');
+const { gitDescribeSync } = require("git-describe");
+const { writeFileSync } = require("fs-extra");
 
-const { version } = require('../package.json');
-
+const { version } = require("../package.json");
 
 const gitInfo = gitDescribeSync({
-    match: 'NG_v[0-9]*',
-    longSemver: true
+    match: "NG_v[0-9]*",
+    longSemver: true,
 });
 
 gitInfo.version = version;
 
-const file = resolve(__dirname, '..', 'src', 'environments', 'version.ts');
-writeFileSync(file,
-`// IMPORTANT: THIS FILE IS AUTO GENERATED! DO NOT MANUALLY EDIT OR CHECKIN!
+const file = resolve(__dirname, "..", "src", "environments", "version.ts");
+writeFileSync(
+    file,
+    `// IMPORTANT: THIS FILE IS AUTO GENERATED! DO NOT MANUALLY EDIT OR CHECKIN!
 /* tslint:disable */
 export const VERSION = ${JSON.stringify(gitInfo, null, 4)};
 /* tslint:enable */
-`, { encoding: 'utf-8' });
+`,
+    { encoding: "utf-8" },
+);
 
-console.log(`Wrote version info ${gitInfo.raw} to ${relative(resolve(__dirname, '..'), file)}`);
+console.log(
+    `Wrote version info ${gitInfo.raw} to ${relative(resolve(__dirname, ".."), file)}`,
+);

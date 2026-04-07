@@ -11,11 +11,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {Entity} from "../components/entity/entity.abstract";
+import { Entity } from "../components/entity/entity.abstract";
 import { Field } from "../reflect/field.decorator";
 
 export class Profile extends Entity {
-
     @Field() public id: number;
     @Field() public profileName: string;
 }

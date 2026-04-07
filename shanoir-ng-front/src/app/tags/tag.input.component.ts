@@ -11,37 +11,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, EventEmitter, forwardRef, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { Option } from '../shared/select/select.component';
-import { isDarkColor } from '../utils/app.utils';
+import { Option } from "../shared/select/select.component";
+import { isDarkColor } from "../utils/app.utils";
 
-import { Tag } from './tag.model';
+import { Tag } from "./tag.model";
 
-
-export type Mode =  "view" | "edit" | "create";
+export type Mode = "view" | "edit" | "create";
 @Component({
-    selector: 'tag-list',
-    templateUrl: 'tag.input.component.html',
-    styleUrls: ['tag.input.component.css'],
+    selector: "tag-list",
+    templateUrl: "tag.input.component.html",
+    styleUrls: ["tag.input.component.css"],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => TagInputComponent),
-            multi: true
-        }
+            multi: true,
+        },
     ],
-    standalone: false
+    standalone: false,
 })
-
 export class TagInputComponent implements ControlValueAccessor, OnChanges {
-
     tags: Tag[];
     @Input() availableTags: Tag[];
     tagOptions: Option<Tag>[] = [];
-    private onTouchedCallback = () => { return; };
-    private onChangeCallback: (any) => void = () => { return; };
+    private onTouchedCallback = () => {
+        return;
+    };
+    private onChangeCallback: (any) => void = () => {
+        return;
+    };
     @Output() userChange: EventEmitter<Tag[]> = new EventEmitter<Tag[]>();
 
     writeValue(obj: any): void {
@@ -50,7 +59,6 @@ export class TagInputComponent implements ControlValueAccessor, OnChanges {
             this.updateOptions();
         }
     }
-
 
     registerOnChange(fn: any): void {
         this.onChangeCallback = fn;
@@ -70,7 +78,7 @@ export class TagInputComponent implements ControlValueAccessor, OnChanges {
     }
 
     onTagAdd(tag: Tag) {
-        if (this.tags.findIndex(element => element.equals(tag)) == -1) {
+        if (this.tags.findIndex((element) => element.equals(tag)) == -1) {
             this.tags.push(tag);
             this.updateOptions();
             this.onChangeCallback(this.tags);
@@ -89,7 +97,7 @@ export class TagInputComponent implements ControlValueAccessor, OnChanges {
 
     private updateOptions() {
         this.tagOptions = this.availableTags?.reduce((options, tag) => {
-            if (!this.tags.find(ssTag => ssTag.equals(tag))) {
+            if (!this.tags.find((ssTag) => ssTag.equals(tag))) {
                 const option: Option<Tag> = new Option(tag, tag.name);
                 option.color = tag.color;
                 options.push(option);

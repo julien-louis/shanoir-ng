@@ -12,46 +12,51 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component } from "@angular/core";
+import {
+    UntypedFormBuilder,
+    UntypedFormGroup,
+    Validators,
+} from "@angular/forms";
 
-import { BreadcrumbsService } from '../../breadcrumbs/breadcrumbs.service';
-import { DatasetService } from '../shared/dataset.service';
+import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
+import { DatasetService } from "../shared/dataset.service";
 
 @Component({
-    selector: 'download-statistics',
-    templateUrl: 'download-statistics.component.html',
-    standalone: false
+    selector: "download-statistics",
+    templateUrl: "download-statistics.component.html",
+    standalone: false,
 })
-
-export class DownloadStatisticsComponent{
-
+export class DownloadStatisticsComponent {
     public form: UntypedFormGroup;
 
-    constructor(private datasetService: DatasetService,
-            private breadcrumbsService: BreadcrumbsService,
-            private formBuilder: UntypedFormBuilder) {
-
+    constructor(
+        private datasetService: DatasetService,
+        private breadcrumbsService: BreadcrumbsService,
+        private formBuilder: UntypedFormBuilder,
+    ) {
         setTimeout(() => {
             breadcrumbsService.currentStepAsMilestone();
-            breadcrumbsService.currentStep.label = 'Download statistics';
+            breadcrumbsService.currentStep.label = "Download statistics";
         });
         this.buildForm();
     }
 
     downloadStatistics(): void {
-        this.datasetService.downloadStatistics(this.form.get('studyNameInRegExp').value,
-                                                this.form.get('studyNameOutRegExp').value,
-                                                this.form.get('subjectNameInRegExp').value,
-                                                this.form.get('subjectNameOutRegExp').value);
+        this.datasetService.downloadStatistics(
+            this.form.get("studyNameInRegExp").value,
+            this.form.get("studyNameOutRegExp").value,
+            this.form.get("subjectNameInRegExp").value,
+            this.form.get("subjectNameOutRegExp").value,
+        );
     }
 
     buildForm(): void {
         this.form = this.formBuilder.group({
-            'studyNameInRegExp': ['', [Validators.maxLength(255)]],
-            'studyNameOutRegExp': ['', [Validators.maxLength(255)]],
-            'subjectNameInRegExp': ['', [Validators.maxLength(255)]],
-            'subjectNameOutRegExp': ['', [Validators.maxLength(255)]],
+            studyNameInRegExp: ["", [Validators.maxLength(255)]],
+            studyNameOutRegExp: ["", [Validators.maxLength(255)]],
+            subjectNameInRegExp: ["", [Validators.maxLength(255)]],
+            subjectNameOutRegExp: ["", [Validators.maxLength(255)]],
         });
     }
 
@@ -66,8 +71,8 @@ export class DownloadStatisticsComponent{
     hasError(fieldName: string, errors: string[]) {
         const formError = this.formErrors(fieldName);
         if (formError) {
-            for(const errorName of errors) {
-                if(formError[errorName]) return true;
+            for (const errorName of errors) {
+                if (formError[errorName]) return true;
             }
         }
         return false;

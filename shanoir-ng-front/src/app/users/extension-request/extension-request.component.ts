@@ -12,37 +12,50 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {
+    Component,
+    EventEmitter,
+    OnDestroy,
+    OnInit,
+    Output,
+} from "@angular/core";
+import {
+    UntypedFormBuilder,
+    UntypedFormGroup,
+    Validators,
+} from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Subscription } from "rxjs";
 
-import * as AppUtils from '../../utils/app.utils';
-import { UserService } from '../shared/user.service';
+import * as AppUtils from "../../utils/app.utils";
+import { UserService } from "../shared/user.service";
 
-import { ExtensionRequestInfo } from './extension-request-info.model';
+import { ExtensionRequestInfo } from "./extension-request-info.model";
 
 @Component({
-    selector: 'extensionRequest',
-    templateUrl: 'extension-request.component.html',
-    styleUrls: ['extension-request.component.css'],
-    standalone: false
+    selector: "extensionRequest",
+    templateUrl: "extension-request.component.html",
+    styleUrls: ["extension-request.component.css"],
+    standalone: false,
 })
-
 export class ExtensionRequestComponent implements OnInit, OnDestroy {
     @Output() closing = new EventEmitter();
-    public extensionRequestInfo: ExtensionRequestInfo = new ExtensionRequestInfo();
+    public extensionRequestInfo: ExtensionRequestInfo =
+        new ExtensionRequestInfo();
     extensionRequestForm: UntypedFormGroup;
     isDateValid: boolean = true;
     userId: number;
-    selectedDateNormal: string = '';
+    selectedDateNormal: string = "";
     private subscriptions: Subscription[] = [];
     requestSent: boolean = false;
     errorMessage: string;
 
-    constructor(private router: Router, private route: ActivatedRoute,
-        private userService: UserService, private fb: UntypedFormBuilder) {
-    }
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private userService: UserService,
+        private fb: UntypedFormBuilder,
+    ) {}
 
     ngOnInit(): void {
         this.buildForm();
@@ -54,20 +67,23 @@ export class ExtensionRequestComponent implements OnInit, OnDestroy {
 
     extensionRequest(): void {
         this.submit();
-        this.userService.requestExtension(this.extensionRequestInfo)
+        this.userService
+            .requestExtension(this.extensionRequestInfo)
             .then(() => {
                 this.requestSent = true;
                 this.errorMessage = null;
-            }).catch(exception => {
+            })
+            .catch((exception) => {
                 if (exception.status == 406) {
                     this.requestSent = true;
-                    this.errorMessage = "This account is not disabled or has already an extension request pending. Please contact an administrator for more information."
+                    this.errorMessage =
+                        "This account is not disabled or has already an extension request pending. Please contact an administrator for more information.";
                 } else if (exception.status == 400) {
-                    this.errorMessage = "No account associated to this email, please enter a valid email address."
+                    this.errorMessage =
+                        "No account associated to this email, please enter a valid email address.";
                 } else {
                     throw exception;
                 }
-
             });
     }
 
@@ -85,32 +101,48 @@ export class ExtensionRequestComponent implements OnInit, OnDestroy {
 
     buildForm(): void {
         this.extensionRequestForm = this.fb.group({
-            'email': [this.extensionRequestInfo.email, [Validators.required]],
-            'extensionDate': [this.extensionRequestInfo.extensionDate, [Validators.required]],
-            'extensionMotivation': [this.extensionRequestInfo.extensionMotivation, [Validators.required]]
-            });
+            email: [this.extensionRequestInfo.email, [Validators.required]],
+            extensionDate: [
+                this.extensionRequestInfo.extensionDate,
+                [Validators.required],
+            ],
+            extensionMotivation: [
+                this.extensionRequestInfo.extensionMotivation,
+                [Validators.required],
+            ],
+        });
 
         this.subscriptions.push(
-            this.extensionRequestForm.valueChanges.subscribe(() => this.onValueChanged()),
-            this.extensionRequestForm.get('extensionDate').valueChanges.subscribe(value => {
-                this.extensionRequestInfo.extensionDate = value;
-            }),
-            this.extensionRequestForm.get('extensionMotivation').valueChanges.subscribe(value => {
-                this.extensionRequestInfo.extensionMotivation = value;
-            }),
-            this.extensionRequestForm.get('email').valueChanges.subscribe(value => {
-                this.extensionRequestInfo.email = value;
-            })
+            this.extensionRequestForm.valueChanges.subscribe(() =>
+                this.onValueChanged(),
+            ),
+            this.extensionRequestForm
+                .get("extensionDate")
+                .valueChanges.subscribe((value) => {
+                    this.extensionRequestInfo.extensionDate = value;
+                }),
+            this.extensionRequestForm
+                .get("extensionMotivation")
+                .valueChanges.subscribe((value) => {
+                    this.extensionRequestInfo.extensionMotivation = value;
+                }),
+            this.extensionRequestForm
+                .get("email")
+                .valueChanges.subscribe((value) => {
+                    this.extensionRequestInfo.email = value;
+                }),
         );
         this.onValueChanged(); // (re)set validation messages now
     }
 
     onValueChanged() {
-        if (!this.extensionRequestForm) { return; }
+        if (!this.extensionRequestForm) {
+            return;
+        }
         const form = this.extensionRequestForm;
         for (const field in this.formErrors) {
             // clear previous error message (if any)
-            this.formErrors[field] = '';
+            this.formErrors[field] = "";
             const control = form.get(field);
             if (control && control.dirty && !control.valid) {
                 for (const key in control.errors) {
@@ -121,18 +153,26 @@ export class ExtensionRequestComponent implements OnInit, OnDestroy {
     }
 
     formErrors = {
-        'extensionDate': '',
-        'extensionMotivation': ''
+        extensionDate: "",
+        extensionMotivation: "",
     };
 
     getDateToDatePicker(extensionRequestInfo: ExtensionRequestInfo): void {
-        if (extensionRequestInfo && extensionRequestInfo.extensionDate && !isNaN(new Date(extensionRequestInfo.extensionDate).getTime())) {
-            const date: string = new Date(extensionRequestInfo.extensionDate).toLocaleDateString();
+        if (
+            extensionRequestInfo &&
+            extensionRequestInfo.extensionDate &&
+            !isNaN(new Date(extensionRequestInfo.extensionDate).getTime())
+        ) {
+            const date: string = new Date(
+                extensionRequestInfo.extensionDate,
+            ).toLocaleDateString();
             this.selectedDateNormal = date;
         }
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach(subscription => subscription.unsubscribe());
+        this.subscriptions.forEach((subscription) =>
+            subscription.unsubscribe(),
+        );
     }
 }

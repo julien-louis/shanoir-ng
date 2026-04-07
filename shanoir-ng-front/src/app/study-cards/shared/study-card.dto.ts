@@ -2,35 +2,34 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { AcquisitionEquipmentService } from '../../acquisition-equipments/shared/acquisition-equipment.service';
-import { StudyService } from '../../studies/shared/study.service';
-import { Coil } from '../../coils/shared/coil.model';
-import { CoilService } from '../../coils/shared/coil.service';
+import { AcquisitionEquipmentService } from "../../acquisition-equipments/shared/acquisition-equipment.service";
+import { StudyService } from "../../studies/shared/study.service";
+import { Coil } from "../../coils/shared/coil.model";
+import { CoilService } from "../../coils/shared/coil.service";
 
-import { DicomService } from './dicom.service';
-import { DicomTag, StudyCard } from './study-card.model';
-import { StudyCardDTO } from './study-card.dto.model';
-import { StudyCardDTOServiceAbstract } from './study-card.dto.abstract';
+import { DicomService } from "./dicom.service";
+import { DicomTag, StudyCard } from "./study-card.model";
+import { StudyCardDTO } from "./study-card.dto.model";
+import { StudyCardDTOServiceAbstract } from "./study-card.dto.abstract";
 
 @Injectable()
 export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
-
     constructor(
         private acqEqService: AcquisitionEquipmentService,
         private studyService: StudyService,
         private dicomService: DicomService,
-        private coilService: CoilService
+        private coilService: CoilService,
     ) {
         super();
     }
@@ -44,10 +43,20 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
         if (!result) result = new StudyCard();
         StudyCardDTOService.mapSyncFields(dto, result);
         return Promise.all([
-            this.studyService.get(dto.studyId).then(study => result.study = study),
-            dto.acquisitionEquipmentId ? this.acqEqService.get(dto.acquisitionEquipmentId).then(acqEq => result.acquisitionEquipment = acqEq) : null,
-            this.dicomService.getDicomTags().then(tags => this.completeDicomTagNames(result, tags)),
-            this.coilService.getAll().then(coils => this.completeCoils(result, coils))
+            this.studyService
+                .get(dto.studyId)
+                .then((study) => (result.study = study)),
+            dto.acquisitionEquipmentId
+                ? this.acqEqService
+                      .get(dto.acquisitionEquipmentId)
+                      .then((acqEq) => (result.acquisitionEquipment = acqEq))
+                : null,
+            this.dicomService
+                .getDicomTags()
+                .then((tags) => this.completeDicomTagNames(result, tags)),
+            this.coilService
+                .getAll()
+                .then((coils) => this.completeCoils(result, coils)),
         ]).then(() => {
             return result;
         });
@@ -58,7 +67,11 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
             for (const rule of result.rules) {
                 if (rule.conditions) {
                     for (const condition of rule.conditions) {
-                        condition.dicomTag = tags.find(tag => !!condition.dicomTag && tag.code == condition.dicomTag.code);
+                        condition.dicomTag = tags.find(
+                            (tag) =>
+                                !!condition.dicomTag &&
+                                tag.code == condition.dicomTag.code,
+                        );
                     }
                 }
             }
@@ -71,14 +84,21 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
                 if (rule.assignments) {
                     for (const assigment of rule.assignments) {
                         if (StudyCardDTOService.isCoil(assigment.field)) {
-                            if (assigment.value instanceof Coil) assigment.value = coils.find(coil => coil.id == (assigment.value as Coil).id);
+                            if (assigment.value instanceof Coil)
+                                assigment.value = coils.find(
+                                    (coil) =>
+                                        coil.id == (assigment.value as Coil).id,
+                                );
                         }
                     }
                 }
-                rule.conditions?.forEach(cond => {
+                rule.conditions?.forEach((cond) => {
                     cond.values?.forEach((val, index) => {
                         if (StudyCardDTOService.isCoil(cond.shanoirField)) {
-                            if (val instanceof Coil) cond.values[index] = coils.find(coil => coil.id == (val as Coil).id);
+                            if (val instanceof Coil)
+                                cond.values[index] = coils.find(
+                                    (coil) => coil.id == (val as Coil).id,
+                                );
                         }
                     });
                 });
@@ -90,7 +110,10 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
      * Convert from a DTO list to an Entity list
      * @param result can be used to get an immediate temporary result without waiting async data
      */
-    public toEntityList(dtos: StudyCardDTO[], result?: StudyCard[]): Promise<StudyCard[]>{
+    public toEntityList(
+        dtos: StudyCardDTO[],
+        result?: StudyCard[],
+    ): Promise<StudyCard[]> {
         if (!result) result = [];
         if (dtos) {
             for (const dto of dtos ? dtos : []) {
@@ -100,16 +123,20 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
             }
         }
         return Promise.all([
-            this.studyService.getStudiesNames().then(studies => {
+            this.studyService.getStudiesNames().then((studies) => {
                 for (const entity of result) {
-                    if (entity.study) 
-                        entity.study.name = studies.find(study => study.id == entity.study.id)?.name;
+                    if (entity.study)
+                        entity.study.name = studies.find(
+                            (study) => study.id == entity.study.id,
+                        )?.name;
                 }
             }),
-            this.acqEqService.getAll().then(acqs => {
+            this.acqEqService.getAll().then((acqs) => {
                 for (const entity of result) {
-                    if (entity.acquisitionEquipment) 
-                        entity.acquisitionEquipment = acqs.find(acq => acq.id == entity.acquisitionEquipment?.id);
+                    if (entity.acquisitionEquipment)
+                        entity.acquisitionEquipment = acqs.find(
+                            (acq) => acq.id == entity.acquisitionEquipment?.id,
+                        );
                 }
             }),
             // this.dicomService.getDicomTags().then(tags => {
@@ -119,7 +146,6 @@ export class StudyCardDTOService extends StudyCardDTOServiceAbstract {
             // })
         ]).then(() => {
             return result;
-        })
+        });
     }
-
 }

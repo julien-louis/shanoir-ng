@@ -11,57 +11,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
 
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { TreeService } from 'src/app/studies/study/tree.service';
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "src/app/studies/study/tree.service";
 
-import { CardNode } from '../../tree/tree.model';
-import { QualityCard } from '../shared/quality-card.model';
-import { QualityCardService } from '../shared/quality-card.service';
-import { StudyCard } from '../shared/study-card.model';
+import { CardNode } from "../../tree/tree.model";
+import { QualityCard } from "../shared/quality-card.model";
+import { QualityCardService } from "../shared/quality-card.service";
+import { StudyCard } from "../shared/study-card.model";
 import { StudyCardService } from "../shared/study-card.service";
 
-
 @Component({
-    selector: 'card-node',
-    templateUrl: 'study-card-node.component.html',
-    standalone: false
+    selector: "card-node",
+    templateUrl: "study-card-node.component.html",
+    standalone: false,
 })
-
-export class StudyCardNodeComponent extends TreeNodeAbstractComponent<CardNode> implements OnChanges {
-
+export class StudyCardNodeComponent
+    extends TreeNodeAbstractComponent<CardNode>
+    implements OnChanges
+{
     @Input() input: CardNode | StudyCard | QualityCard;
     @Output() cardDelete: EventEmitter<void> = new EventEmitter();
     @Input() detailsPath: string;
 
     constructor(
-            private studycardService: StudyCardService,
-            private qualitycardService: QualityCardService,
-            protected treeService: TreeService,
-            elementRef: ElementRef) {
+        private studycardService: StudyCardService,
+        private qualitycardService: QualityCardService,
+        protected treeService: TreeService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input']) {
+        if (changes["input"]) {
             if (this.input instanceof CardNode) {
                 this.node = this.input;
             } else {
-                throw new Error('not implemented yet');
+                throw new Error("not implemented yet");
             }
         }
     }
 
     deleteStudyCard() {
-        const service = this.node.type == 'studycard' ? this.studycardService : this.qualitycardService;
+        const service =
+            this.node.type == "studycard"
+                ? this.studycardService
+                : this.qualitycardService;
 
-        service.get(this.node.id).then(entity => {
-            service.deleteWithConfirmDialog(this.node.title, entity).then(deleted => {
-                if (deleted) {
-                    this.cardDelete.emit();
-                }
-            });
-        })
+        service.get(this.node.id).then((entity) => {
+            service
+                .deleteWithConfirmDialog(this.node.title, entity)
+                .then((deleted) => {
+                    if (deleted) {
+                        this.cardDelete.emit();
+                    }
+                });
+        });
     }
 }

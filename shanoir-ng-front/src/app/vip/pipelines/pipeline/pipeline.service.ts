@@ -21,11 +21,9 @@ import { Pipeline } from "../../models/pipeline";
 
 @Injectable()
 export class PipelineService {
-
     pipelineUrl: string = AppUtils.BACKEND_API_VIP_PIPE_URL;
 
-    constructor(protected httpClient: HttpClient) {
-    }
+    constructor(protected httpClient: HttpClient) {}
 
     /**
      * Show the definition of a pipeline
@@ -33,11 +31,16 @@ export class PipelineService {
      * @param pipelineIdentifier
      */
     public getPipeline(pipelineIdentifier: string): Promise<Pipeline> {
-
         if (pipelineIdentifier === null || pipelineIdentifier === undefined) {
-            throw new Error('Required parameter pipelineIdentifier was null or undefined when calling getPipeline.');
+            throw new Error(
+                "Required parameter pipelineIdentifier was null or undefined when calling getPipeline.",
+            );
         }
-        return firstValueFrom(this.httpClient.get<Pipeline>(`${this.pipelineUrl}/${pipelineIdentifier}`));
+        return firstValueFrom(
+            this.httpClient.get<Pipeline>(
+                `${this.pipelineUrl}/${pipelineIdentifier}`,
+            ),
+        );
     }
 
     /**
@@ -48,6 +51,8 @@ export class PipelineService {
      * @param propertyValue A property value on which to filter the returned pipelines. The \&quot;property\&quot; parameter must also be present. All the returned pipelines must have this property equal to the value given in this parameter.
      */
     public listPipelines(): Promise<Pipeline[]> {
-        return firstValueFrom(this.httpClient.get<Pipeline[]>(`${this.pipelineUrl}`));
+        return firstValueFrom(
+            this.httpClient.get<Pipeline[]>(`${this.pipelineUrl}`),
+        );
     }
 }

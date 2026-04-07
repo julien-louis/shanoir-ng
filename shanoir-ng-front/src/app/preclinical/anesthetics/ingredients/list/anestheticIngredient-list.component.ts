@@ -2,170 +2,205 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
-
 import {
-    BrowserPaginEntityListComponent,
-} from '../../../../shared/components/entity/entity-list.browser.component.abstract';
-import { ColumnDefinition } from '../../../../shared/components/table/column.definition.type';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { ShanoirError } from '../../../../shared/models/error.model';
-import { AnestheticType } from '../../../shared/enum/anestheticType';
-import { Anesthetic } from '../../anesthetic/shared/anesthetic.model';
-import { AnestheticIngredient } from '../shared/anestheticIngredient.model';
-import { AnestheticIngredientService } from '../shared/anestheticIngredient.service';
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    ViewChild,
+} from "@angular/core";
 
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-export type Mode =  "view" | "edit" | "create";
+import { BrowserPaginEntityListComponent } from "../../../../shared/components/entity/entity-list.browser.component.abstract";
+import { ColumnDefinition } from "../../../../shared/components/table/column.definition.type";
+import { TableComponent } from "../../../../shared/components/table/table.component";
+import { ShanoirError } from "../../../../shared/models/error.model";
+import { AnestheticType } from "../../../shared/enum/anestheticType";
+import { Anesthetic } from "../../anesthetic/shared/anesthetic.model";
+import { AnestheticIngredient } from "../shared/anestheticIngredient.model";
+import { AnestheticIngredientService } from "../shared/anestheticIngredient.service";
 
+export type Mode = "view" | "edit" | "create";
 
 @Component({
-    selector: 'ingredients-list',
-    templateUrl: 'anestheticIngredient-list.component.html',
-    styleUrls: ['anestheticIngredient-list.component.css'],
-    standalone: false
+    selector: "ingredients-list",
+    templateUrl: "anestheticIngredient-list.component.html",
+    styleUrls: ["anestheticIngredient-list.component.css"],
+    standalone: false,
 })
-
-export class AnestheticIngredientsListComponent  extends BrowserPaginEntityListComponent<AnestheticIngredient> {
-    
-    @Input() mode:Mode ;
+export class AnestheticIngredientsListComponent extends BrowserPaginEntityListComponent<AnestheticIngredient> {
+    @Input() mode: Mode;
     @Input() canModify: boolean = false;
     @Input() anesthetic: Anesthetic;
     public toggleFormAI: boolean = false;
     public createAIMode: boolean = false;
-    public ingredientSelected : AnestheticIngredient;
+    public ingredientSelected: AnestheticIngredient;
     @Output() ingredientAdded = new EventEmitter();
     @Output() ingredientDeleted = new EventEmitter();
-    @ViewChild('ingredientsTable', { static: false }) table: TableComponent;
+    @ViewChild("ingredientsTable", { static: false }) table: TableComponent;
 
-    
-
-    constructor(
-        private ingredientsService: AnestheticIngredientService) {
-            super('preclinical-anesthetic-ingredient');
+    constructor(private ingredientsService: AnestheticIngredientService) {
+        super("preclinical-anesthetic-ingredient");
     }
 
     getService(): EntityService<AnestheticIngredient> {
         return this.ingredientsService;
     }
-    
+
     getEntities(): Promise<AnestheticIngredient[]> {
-        if (this.anesthetic && this.anesthetic.id){
+        if (this.anesthetic && this.anesthetic.id) {
             return this.ingredientsService.getIngredients(this.anesthetic);
-        }else{
+        } else {
             return Promise.resolve([]);
         }
     }
-    
+
     getColumnDefs(): ColumnDefinition[] {
         return [
-            {headerName: "Name", field: "name.value"},
-            {headerName: "Concentration", field: "concentration", type: "number"},
-            {headerName: "Concentration Unit", field: "concentrationUnit.value"}    
-        ];     
+            { headerName: "Name", field: "name.value" },
+            {
+                headerName: "Concentration",
+                field: "concentration",
+                type: "number",
+            },
+            {
+                headerName: "Concentration Unit",
+                field: "concentrationUnit.value",
+            },
+        ];
     }
 
     getCustomActionsDefs(): any[] {
         return [];
     }
-    
-    
-    generateAnestheticName(){
-        if(this.anesthetic){
-            let generatedName = '';
-            if(this.anesthetic.anestheticType) generatedName = generatedName.concat(AnestheticType[this.anesthetic.anestheticType]).concat(' ');
-            if(this.anesthetic.ingredients){
-                for(const ingredient of this.anesthetic.ingredients){
-                    let strIngredient = '';
-                    strIngredient = strIngredient.concat(ingredient.name.value.substring(0,3)).concat('. ');
-                    if(ingredient.concentration) strIngredient = strIngredient.concat(String(ingredient.concentration));
-                    if(ingredient.concentrationUnit) strIngredient = strIngredient.concat(ingredient.concentrationUnit.value);
-                    strIngredient = strIngredient.concat(' ');
-                    if(generatedName.indexOf(strIngredient) < 0){
+
+    generateAnestheticName() {
+        if (this.anesthetic) {
+            let generatedName = "";
+            if (this.anesthetic.anestheticType)
+                generatedName = generatedName
+                    .concat(AnestheticType[this.anesthetic.anestheticType])
+                    .concat(" ");
+            if (this.anesthetic.ingredients) {
+                for (const ingredient of this.anesthetic.ingredients) {
+                    let strIngredient = "";
+                    strIngredient = strIngredient
+                        .concat(ingredient.name.value.substring(0, 3))
+                        .concat(". ");
+                    if (ingredient.concentration)
+                        strIngredient = strIngredient.concat(
+                            String(ingredient.concentration),
+                        );
+                    if (ingredient.concentrationUnit)
+                        strIngredient = strIngredient.concat(
+                            ingredient.concentrationUnit.value,
+                        );
+                    strIngredient = strIngredient.concat(" ");
+                    if (generatedName.indexOf(strIngredient) < 0) {
                         generatedName = generatedName.concat(strIngredient);
-                    }            
+                    }
                 }
             }
             this.ingredientAdded.emit(this.anesthetic.ingredients);
-            
         }
     }
-        
+
     refreshDisplay() {
         this.toggleFormAI = false;
         this.createAIMode = false;
         this.generateAnestheticName();
         this.table.refresh();
     }
-    
+
     protected openDeleteConfirmDialog = (entity: AnestheticIngredient) => {
         if (!this.keycloakService.isUserAdminOrExpert()) return;
-        this.getSelectedIngredient(entity.id).then(selectedIngredient => {
+        this.getSelectedIngredient(entity.id).then((selectedIngredient) => {
             this.confirmDialogService
                 .confirm(
-                    'Delete', 'Are you sure you want to delete preclinical-anesthetic-ingredient n° ' + entity.id + ' ?'
-                ).then(res => {
+                    "Delete",
+                    "Are you sure you want to delete preclinical-anesthetic-ingredient n° " +
+                        entity.id +
+                        " ?",
+                )
+                .then((res) => {
                     if (res) {
-                        this.ingredientsService.deleteAnestheticIngredient(this.anesthetic.id, entity.id).then(() => {
-                            this.getAnestheticIngredient(selectedIngredient)
-                            this.onDelete.next({entity: selectedIngredient});
-                            const index = this.anesthetic.ingredients.findIndex(i => i.id === entity.id); //find index in your array
-                            this.anesthetic.ingredients.splice(index, 1);
-                            this.table.refresh();
-                            this.consoleService.log('info', 'The preclinical-anesthetic-ingredient n° ' + entity.id + ' sucessfully deleted');
-                        }).catch(reason => {
-                            if (reason && reason.error) {
-                                this.onDelete.next({entity: entity, error: new ShanoirError(reason)});
-                                if (reason.error.code != 422) throw Error(reason);
-                            }
-                        });                    
+                        this.ingredientsService
+                            .deleteAnestheticIngredient(
+                                this.anesthetic.id,
+                                entity.id,
+                            )
+                            .then(() => {
+                                this.getAnestheticIngredient(
+                                    selectedIngredient,
+                                );
+                                this.onDelete.next({
+                                    entity: selectedIngredient,
+                                });
+                                const index =
+                                    this.anesthetic.ingredients.findIndex(
+                                        (i) => i.id === entity.id,
+                                    ); //find index in your array
+                                this.anesthetic.ingredients.splice(index, 1);
+                                this.table.refresh();
+                                this.consoleService.log(
+                                    "info",
+                                    "The preclinical-anesthetic-ingredient n° " +
+                                        entity.id +
+                                        " sucessfully deleted",
+                                );
+                            })
+                            .catch((reason) => {
+                                if (reason && reason.error) {
+                                    this.onDelete.next({
+                                        entity: entity,
+                                        error: new ShanoirError(reason),
+                                    });
+                                    if (reason.error.code != 422)
+                                        throw Error(reason);
+                                }
+                            });
                     }
                 });
         });
-    }
+    };
 
-    private getSelectedIngredient(id : number): Promise<AnestheticIngredient>{
-        return this.ingredientsService.get(id).then(anestheticIngredient => {
+    private getSelectedIngredient(id: number): Promise<AnestheticIngredient> {
+        return this.ingredientsService.get(id).then((anestheticIngredient) => {
             return anestheticIngredient;
-        }
-        );
+        });
     }
 
     getAnestheticIngredient(ingredient: AnestheticIngredient): void {
-    	this.ingredientDeleted.emit(ingredient);
-      	this.generateAnestheticName();
+        this.ingredientDeleted.emit(ingredient);
+        this.generateAnestheticName();
     }
-    
-    
+
     viewIngredient = (ingredient: AnestheticIngredient) => {
         this.toggleFormAI = true;
         this.createAIMode = false;
         this.ingredientSelected = ingredient;
         //this.generateAnestheticName();
-    }
-    
-    toggleIngredientForm(){
-    	this.ingredientSelected = new AnestheticIngredient();
+    };
+
+    toggleIngredientForm() {
+        this.ingredientSelected = new AnestheticIngredient();
         this.createAIMode = true;
-        if(this.toggleFormAI==false){
+        if (this.toggleFormAI == false) {
             this.toggleFormAI = true;
-        }else if(this.toggleFormAI==true){
+        } else if (this.toggleFormAI == true) {
             this.toggleFormAI = false;
-        }else{
+        } else {
             this.toggleFormAI = true;
         }
     }
-    
-    
 }

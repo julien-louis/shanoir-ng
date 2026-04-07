@@ -11,50 +11,63 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
-import { EntityService } from '../../../shared/components/entity/entity.abstract.service';
-import { Subject } from '../../../subjects/shared/subject.model';
-import * as AppUtils from '../../../utils/app.utils';
-import * as PreclinicalUtils from '../../utils/preclinical.utils';
+import { EntityService } from "../../../shared/components/entity/entity.abstract.service";
+import { Subject } from "../../../subjects/shared/subject.model";
+import * as AppUtils from "../../../utils/app.utils";
+import * as PreclinicalUtils from "../../utils/preclinical.utils";
 
-import { AnimalSubject, AnimalSubjectDTO } from './animalSubject.model';
-
+import { AnimalSubject, AnimalSubjectDTO } from "./animalSubject.model";
 
 @Injectable()
-export class AnimalSubjectService extends EntityService<AnimalSubject>{
-
+export class AnimalSubjectService extends EntityService<AnimalSubject> {
     API_URL = PreclinicalUtils.PRECLINICAL_API_SUBJECTS_URL;
 
     constructor(protected http: HttpClient) {
-        super(http)
+        super(http);
     }
 
-    getEntityInstance() { return new AnimalSubject(); }
+    getEntityInstance() {
+        return new AnimalSubject();
+    }
 
-    getAnimalSubjects(ids: IterableIterator<any>): Promise<AnimalSubject[]>{
+    getAnimalSubjects(ids: IterableIterator<any>): Promise<AnimalSubject[]> {
         const formData: FormData = new FormData();
-        formData.set('ids', Array.from(ids).join(","));
-        return this.http.post<AnimalSubject[]>(PreclinicalUtils.PRECLINICAL_API_SUBJECT_FIND_URL, formData)
+        formData.set("ids", Array.from(ids).join(","));
+        return this.http
+            .post<
+                AnimalSubject[]
+            >(PreclinicalUtils.PRECLINICAL_API_SUBJECT_FIND_URL, formData)
             .toPromise();
     }
 
-    getAnimalSubject(id: number): Promise<AnimalSubject>{
-        return this.http.get<AnimalSubject>(PreclinicalUtils.PRECLINICAL_API_SUBJECTS_URL+"/"+id)
+    getAnimalSubject(id: number): Promise<AnimalSubject> {
+        return this.http
+            .get<AnimalSubject>(
+                PreclinicalUtils.PRECLINICAL_API_SUBJECTS_URL + "/" + id,
+            )
             .toPromise();
     }
 
     updateAnimalSubject(animalSubject: AnimalSubject): Promise<AnimalSubject> {
-        const url = `${PreclinicalUtils.PRECLINICAL_API_SUBJECTS_URL}/`+animalSubject.id;
+        const url =
+            `${PreclinicalUtils.PRECLINICAL_API_SUBJECTS_URL}/` +
+            animalSubject.id;
         return this.http
             .put<AnimalSubject>(url, this.stringify(animalSubject))
             .toPromise();
     }
 
     findSubjectByIdentifier(identifier: string): Promise<Subject> {
-        return this.http.get<Subject>(AppUtils.BACKEND_API_SUBJECT_FIND_BY_IDENTIFIER + '/' + identifier)
-        .toPromise()    ;
+        return this.http
+            .get<Subject>(
+                AppUtils.BACKEND_API_SUBJECT_FIND_BY_IDENTIFIER +
+                    "/" +
+                    identifier,
+            )
+            .toPromise();
     }
 
     public stringify(entity: AnimalSubject) {

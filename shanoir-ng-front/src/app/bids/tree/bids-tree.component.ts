@@ -11,28 +11,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
-import { Component, ElementRef, Input, OnDestroy, OnInit} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
+import { Component, ElementRef, Input, OnDestroy, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
 
-import { TreeNodeComponent } from '../../shared/components/tree/tree-node.component';
-import { BidsElement } from '../model/bidsElement.model'
-import * as AppUtils from '../../utils/app.utils';
-import { GlobalService } from '../../shared/services/global.service';
-import { StudyRightsService } from '../../studies/shared/study-rights.service';
-import { StudyUserRight } from '../../studies/shared/study-user-right.enum';
-import { KeycloakService } from '../../shared/keycloak/keycloak.service';
-import {DatasetService} from "../../datasets/shared/dataset.service";
+import { TreeNodeComponent } from "../../shared/components/tree/tree-node.component";
+import { BidsElement } from "../model/bidsElement.model";
+import * as AppUtils from "../../utils/app.utils";
+import { GlobalService } from "../../shared/services/global.service";
+import { StudyRightsService } from "../../studies/shared/study-rights.service";
+import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
+import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { DatasetService } from "../../datasets/shared/dataset.service";
 
 @Component({
-    selector: 'bids-tree',
-    templateUrl: 'bids-tree.component.html',
-    styleUrls: ['bids-tree.component.css'],
-    standalone: false
+    selector: "bids-tree",
+    templateUrl: "bids-tree.component.html",
+    styleUrls: ["bids-tree.component.css"],
+    standalone: false,
 })
-
 export class BidsTreeComponent implements OnDestroy, OnInit {
-
     API_URL = AppUtils.BACKEND_API_BIDS_URL;
     @Input() studyId: number;
     @Input() studyName: string;
@@ -45,24 +43,34 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
     public load: string;
     private hasDownloadRight: boolean;
 
-    constructor(private globalService: GlobalService,
-                private elementRef: ElementRef,
-                private datasetService: DatasetService,
-                protected http: HttpClient,
-                private keycloakService: KeycloakService,
-                private studyRightsService: StudyRightsService) {
-        this.globalClickSubscription = globalService.onGlobalClick.subscribe(clickEvent => {
-            if (!this.elementRef.nativeElement.contains(clickEvent.target)) {
-                this.selectedIndex = null;
-                this.removeContent();
-            }
-        })
+    constructor(
+        private globalService: GlobalService,
+        private elementRef: ElementRef,
+        private datasetService: DatasetService,
+        protected http: HttpClient,
+        private keycloakService: KeycloakService,
+        private studyRightsService: StudyRightsService,
+    ) {
+        this.globalClickSubscription = globalService.onGlobalClick.subscribe(
+            (clickEvent) => {
+                if (
+                    !this.elementRef.nativeElement.contains(clickEvent.target)
+                ) {
+                    this.selectedIndex = null;
+                    this.removeContent();
+                }
+            },
+        );
     }
 
     ngOnInit(): void {
-        this.studyRightsService.getMyRightsForStudy(this.studyId).then(rights => {
-            this.hasDownloadRight = rights.includes(StudyUserRight.CAN_DOWNLOAD);
-        })
+        this.studyRightsService
+            .getMyRightsForStudy(this.studyId)
+            .then((rights) => {
+                this.hasDownloadRight = rights.includes(
+                    StudyUserRight.CAN_DOWNLOAD,
+                );
+            });
     }
 
     ngOnDestroy(): void {
@@ -70,13 +78,15 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
     }
 
     getBidsStructure() {
-       if (!this.load) {
-        this.load="loading"
-            this.datasetService.getBidsStructure(this.studyId).then(element => {
-                this.sort(element);
-                this.list = [element];
-                this.load = "loaded";
-            });
+        if (!this.load) {
+            this.load = "loading";
+            this.datasetService
+                .getBidsStructure(this.studyId)
+                .then((element) => {
+                    this.sort(element);
+                    this.list = [element];
+                    this.load = "loaded";
+                });
         }
     }
 
@@ -84,23 +94,28 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
         this.removeContent();
         this.load = null;
         if (!this.load) {
-            this.load ="loading";
-            this.datasetService.refreshBidsStructure(this.studyId, this.studyName).then(element => {
-                this.sort(element);
-                this.list = [element];
-                this.load = "loaded";
-            })
+            this.load = "loading";
+            this.datasetService
+                .refreshBidsStructure(this.studyId, this.studyName)
+                .then((element) => {
+                    this.sort(element);
+                    this.list = [element];
+                    this.load = "loaded";
+                });
         }
     }
 
     sort(element: BidsElement) {
         if (element.elements) {
-            element.elements.sort(function(elem1, elem2) {
+            element.elements.sort(function (elem1, elem2) {
                 if (elem1.file && !elem2.file) {
-                    return 1
+                    return 1;
                 } else if (!elem1.file && elem2.file) {
                     return -1;
-                } else if (elem1.file && elem2.file || !elem1.file && !elem2.file) {
+                } else if (
+                    (elem1.file && elem2.file) ||
+                    (!elem1.file && !elem2.file)
+                ) {
                     return elem1.path < elem2.path ? -1 : 1;
                 }
             });
@@ -112,7 +127,7 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
     }
 
     getFileName(element): string {
-        return element.split('\\').pop().split('/').pop();
+        return element.split("\\").pop().split("/").pop();
     }
 
     getDetail(component: TreeNodeComponent) {
@@ -130,18 +145,18 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
         this.selectedIndex = id;
         if (bidsElem.content) {
             this.title = this.getFileName(bidsElem.path);
-            if (bidsElem.path.indexOf('.json') != -1) {
+            if (bidsElem.path.indexOf(".json") != -1) {
                 this.json = JSON.parse(bidsElem.content);
-            } else if (bidsElem.path.indexOf('.tsv') != -1) {
+            } else if (bidsElem.path.indexOf(".tsv") != -1) {
                 this.tsv = this.parseTsv(bidsElem.content);
-            } else if (bidsElem.path.indexOf('README') != -1) {
-                 this.json = JSON.parse(bidsElem.content);
+            } else if (bidsElem.path.indexOf("README") != -1) {
+                this.json = JSON.parse(bidsElem.content);
             }
         }
     }
 
     private parseTsv(tsv: string): string[][] {
-        return tsv.split('\n').map(line => line.split('\t'));
+        return tsv.split("\n").map((line) => line.split("\t"));
     }
 
     removeContent() {
@@ -154,26 +169,36 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
         const endpoint = this.API_URL + "/exportBIDS/studyId/" + this.studyId;
         const params = new HttpParams().set("filePath", item.path);
 
-        this.http.get(endpoint, { observe: 'response', responseType: 'blob', params: params }).toPromise().then(response => {
-            if (response.status == 200) {
-                this.downloadIntoBrowser(response);
-            }
-        });
+        this.http
+            .get(endpoint, {
+                observe: "response",
+                responseType: "blob",
+                params: params,
+            })
+            .toPromise()
+            .then((response) => {
+                if (response.status == 200) {
+                    this.downloadIntoBrowser(response);
+                }
+            });
     }
 
     private getFilename(response: HttpResponse<any>): string {
-        const prefix = 'attachment;filename=';
-        const contentDispHeader: string = response.headers.get('Content-Disposition');
-        return contentDispHeader.slice(contentDispHeader.indexOf(prefix) + prefix.length, contentDispHeader.length);
+        const prefix = "attachment;filename=";
+        const contentDispHeader: string = response.headers.get(
+            "Content-Disposition",
+        );
+        return contentDispHeader.slice(
+            contentDispHeader.indexOf(prefix) + prefix.length,
+            contentDispHeader.length,
+        );
     }
 
-    private downloadIntoBrowser(response: HttpResponse<Blob>){
+    private downloadIntoBrowser(response: HttpResponse<Blob>) {
         AppUtils.browserDownloadFile(response.body, this.getFilename(response));
     }
 
     public hasDownloadRights(): boolean {
         return this.keycloakService.isUserAdmin() || this.hasDownloadRight;
     }
-
-
 }

@@ -13,82 +13,98 @@
  */
 export type ColumnDefinition = {
     /** the header for that column */
-    headerName?: string,
+    headerName?: string;
 
     /** the row item's field displayed in this column, ie if the item is 'car' you can set 'owner' or 'owner.name' as field */
-    field?: string,
+    field?: string;
 
     /** used if field gives nothing */
-    defaultField?: string,
+    defaultField?: string;
 
     /** default is string, progress should be included in [0, 1] */
-    type?: 'string' | 'number' | 'boolean' | 'button' | 'link' | 'date' | 'dateTime' | 'progress',
+    type?:
+        | "string"
+        | "number"
+        | "boolean"
+        | "button"
+        | "link"
+        | "date"
+        | "dateTime"
+        | "progress";
 
     /** tells if the table is sorted by this column by default */
-    defaultSortCol?: boolean,
+    defaultSortCol?: boolean;
 
     /** tells if the default sorting (the first click) for this column is ascending */
-    defaultAsc?: boolean,
+    defaultAsc?: boolean;
 
     /** when ordering by this columns has to be based on another field(s), ie: {field: 'equipment', orderBy: ['equipment.id']} */
-    orderBy?: string[],
+    orderBy?: string[];
 
     /** disable the possibility of sorting the table based on that column */
-    disableSorting?: boolean,
+    disableSorting?: boolean;
 
     /** disable the possibility search based on that column */
-    disableSearch?: boolean,
+    disableSearch?: boolean;
 
     /** default width of the column as a css representation (20px, 15%, ...) */
-    width?: string,
+    width?: string;
 
     /** hide the column */
-    hidden?: boolean,
+    hidden?: boolean;
 
     /** a list or a function that return a list of possible values for using a select box as an input for ths column in edit mode */
-    possibleValues?: any[] | ((item: any) => any[]),
+    possibleValues?: any[] | ((item: any) => any[]);
 
     /** tells if this field is an array */
-    multi?: boolean,
+    multi?: boolean;
 
     /** builds the route string that will be used when clicking a cell from this column */
-    route?: (item: any) => string,
+    route?: (item: any) => string;
 
     /** custom function that should return the displayed value of data (= the item) for this column */
-    cellRenderer?: ((params?: {data?: any}) => any),
+    cellRenderer?: (params?: { data?: any }) => any;
 
     /** perform an action when clicking a button type cell */
-    action?: (item: any) => void,
+    action?: (item: any) => void;
 
     /** condition for displaying a button */
-    condition?: (item: any) => boolean,
+    condition?: (item: any) => boolean;
 
     /** boolean true value icon representation or button icon. See https://fontawesome.com/icons/ */
-    awesome?: `fa${string} fa${string}`,
+    awesome?: `fa${string} fa${string}`;
 
     /** css color the the awesome icon */
-    color?: string,
+    color?: string;
 
     /** boolean false value icon */
-    awesomeFalse?: `fa${string} fa${string}`,
+    awesomeFalse?: `fa${string} fa${string}`;
 
     /** css color the the awesome icon */
-    colorFalse?: string,
+    colorFalse?: string;
 
-    awesomeFunction?: (item: any) => { awesome: `fa${string} fa${string}`, color: string }
+    awesomeFunction?: (item: any) => {
+        awesome: `fa${string} fa${string}`;
+        color: string;
+    };
 
     /** add a description when cursor stands still a few second over the column */
-    tip?: (item: any) => string,
+    tip?: (item: any) => string;
 
     /** is this field editable in edit mode ? */
-    editable?: boolean | ((item: any) => boolean),
+    editable?: boolean | ((item: any) => boolean);
 
     /** field edition callback */
-    onEdit?: (item: any, fieldValue: any) => void,
+    onEdit?: (item: any, fieldValue: any) => void;
 
     /** custom graphics of the cell */
-    cellGraphics?: (item) => {color?: string, backgroundColor?: string, tag?: boolean, awesome?: string},
+    cellGraphics?: (item) => {
+        color?: string;
+        backgroundColor?: string;
+        tag?: boolean;
+        awesome?: string;
+    };
 
     /** enable text wrapping for this column */
     wrap?: boolean;
-}
+};

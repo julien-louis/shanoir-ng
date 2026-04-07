@@ -11,9 +11,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Page, Pageable } from '../shared/components/table/pageable.model';
-import { Range } from '../shared/models/range.model';
-
+import { Page, Pageable } from "../shared/components/table/pageable.model";
+import { Range } from "../shared/models/range.model";
 
 export class SolrDocument {
     datasetId: string;
@@ -55,10 +54,10 @@ export class SolrRequest {
     centerName: string[];
     centerId: string[];
     datasetName: string[];
-    datasetStartDate: Date | 'invalid';
-    datasetEndDate: Date | 'invalid';
-    importStartDate: Date | 'invalid';
-    importEndDate: Date | 'invalid';
+    datasetStartDate: Date | "invalid";
+    datasetEndDate: Date | "invalid";
+    importStartDate: Date | "invalid";
+    importEndDate: Date | "invalid";
     datasetType: string[];
     processed: boolean[];
     datasetNature: string[];
@@ -70,7 +69,7 @@ export class SolrRequest {
     pixelBandwidth: Range = new Range(null, null);
     magneticFieldStrength: Range = new Range(null, null);
     facetPaging: Map<string, FacetPageable>;
- }
+}
 
 export class FacetField {
     field: { name: string };
@@ -81,10 +80,9 @@ export class FacetField {
     hidden: boolean;
 }
 
-export class FacetResultPage extends Page<FacetField>{}
+export class FacetResultPage extends Page<FacetField> {}
 
-export class SolrResultPage extends Page<SolrDocument>{
-
+export class SolrResultPage extends Page<SolrDocument> {
     facetResultPages: FacetResultPage[];
 }
 
@@ -92,11 +90,16 @@ export class FacetPageable {
     constructor(
         public pageNumber: number,
         public pageSize: number,
-        public facetOrder?: 'COUNT' | 'INDEX',
-        public filter?: string
+        public facetOrder?: "COUNT" | "INDEX",
+        public filter?: string,
     ) {}
 
     static build(pageable: Pageable, filter: string): FacetPageable {
-        return new FacetPageable(pageable.pageNumber, pageable.pageSize, 'COUNT', filter);
+        return new FacetPageable(
+            pageable.pageNumber,
+            pageable.pageSize,
+            "COUNT",
+            filter,
+        );
     }
 }

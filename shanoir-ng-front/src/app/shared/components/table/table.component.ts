@@ -11,35 +11,58 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
 import { Router } from "@angular/router";
-import { fromEvent, Subscription } from 'rxjs';
-import shajs from 'sha.js';
+import { fromEvent, Subscription } from "rxjs";
+import shajs from "sha.js";
 
-import { Task, TaskStatus } from '../../../async-tasks/task.model';
-import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
-import * as AppUtils from '../../../utils/app.utils';
+import { Task, TaskStatus } from "../../../async-tasks/task.model";
+import { BreadcrumbsService } from "../../../breadcrumbs/breadcrumbs.service";
+import * as AppUtils from "../../../utils/app.utils";
 import { isDarkColor } from "../../../utils/app.utils";
-import { slideDown } from '../../animations/animations';
-import { KeycloakService } from '../../keycloak/keycloak.service';
-import { NotificationsService } from '../../notifications/notifications.service';
-import { GlobalService } from '../../services/global.service';
-import { SessionService } from '../../services/session.service';
-import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
+import { slideDown } from "../../animations/animations";
+import { KeycloakService } from "../../keycloak/keycloak.service";
+import { NotificationsService } from "../../notifications/notifications.service";
+import { GlobalService } from "../../services/global.service";
+import { SessionService } from "../../services/session.service";
+import { ConfirmDialogService } from "../confirm-dialog/confirm-dialog.service";
 
-import { ColumnDefinition } from './column.definition.type';
-import { Filter, FilterablePageable, Order, Page, Pageable, Sort } from './pageable.model';
+import { ColumnDefinition } from "./column.definition.type";
+import {
+    Filter,
+    FilterablePageable,
+    Order,
+    Page,
+    Pageable,
+    Sort,
+} from "./pageable.model";
 
 @Component({
-    selector: 'shanoir-table',
-    templateUrl: 'table.component.html',
-    styleUrls: ['table.component.css'],
+    selector: "shanoir-table",
+    templateUrl: "table.component.html",
+    styleUrls: ["table.component.css"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class TableComponent implements OnInit, OnChanges, OnDestroy {
-    @Input() getPage: (pageable: Pageable, forceRefresh?: boolean, eager?: boolean) => Promise<Page<any>> | Page<any>;
+    @Input() getPage: (
+        pageable: Pageable,
+        forceRefresh?: boolean,
+        eager?: boolean,
+    ) => Promise<Page<any>> | Page<any>;
     @Input() rowRoute: (item: any) => string;
     @Input() columnDefs: ColumnDefinition[];
     @Input() subRowsDefs: ColumnDefinition[];
@@ -47,8 +70,10 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     @Input() selectionAllowed: boolean = false;
     @Input() selection: Set<number> = new Set();
     @Input() selectedId: number;
-    @Output() selectionChange: EventEmitter<Set<number>> = new EventEmitter<Set<number>>();
-    selectAll: boolean | 'indeterminate' = false;
+    @Output() selectionChange: EventEmitter<Set<number>> = new EventEmitter<
+        Set<number>
+    >();
+    selectAll: boolean | "indeterminate" = false;
     @Input() browserSearch: boolean = true;
     @Input() collapseControls: boolean = false;
     @Input() editMode: boolean = false;
@@ -59,7 +84,8 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     @Input() greyedCondition: (item: any) => boolean;
     @Input() maxResults: number = 20;
     @Input() subRowsKey: string;
-    @Output() registerRefresh: EventEmitter<(number?) => void> = new EventEmitter();
+    @Output() registerRefresh: EventEmitter<(number?) => void> =
+        new EventEmitter();
     @Output() downloadStatsEvent: EventEmitter<any> = new EventEmitter();
     page: Page<object>;
     isLoading: boolean = false;
@@ -72,10 +98,15 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     isError: boolean = false;
     filter: Filter = new Filter(null, null);
     firstLoading: boolean = true;
-    currentDrag: {columns: any; leftOrigin: number, totalWidth: number, leftColIndex: number};
+    currentDrag: {
+        columns: any;
+        leftOrigin: number;
+        totalWidth: number;
+        leftColIndex: number;
+    };
     private subscriptions: Subscription[] = [];
     private hash: string;
-    private colSave: { width: string, hidden: boolean }[];
+    private colSave: { width: string; hidden: boolean }[];
     compactMode: boolean = false;
     nbColumns: number;
     expended: boolean[] = [];
@@ -84,25 +115,32 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     settingsOpened: boolean = false;
 
     constructor(
-            private elementRef: ElementRef,
-            private breadcrumbsService: BreadcrumbsService,
-            private globalClickService: GlobalService,
-            protected router: Router,
-            private dialogService: ConfirmDialogService,
-            private notificationService: NotificationsService,
-            private sessionService: SessionService) {
+        private elementRef: ElementRef,
+        private breadcrumbsService: BreadcrumbsService,
+        private globalClickService: GlobalService,
+        protected router: Router,
+        private dialogService: ConfirmDialogService,
+        private notificationService: NotificationsService,
+        private sessionService: SessionService,
+    ) {
         this.maxResultsField = this.maxResults;
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['selection'] && !changes['selection'].isFirstChange()) {
+        if (changes["selection"] && !changes["selection"].isFirstChange()) {
             this.saveSelection();
         }
         if (changes.columnDefs && this.columnDefs) {
             setTimeout(() => {
-                this.colSave = this.columnDefs.map(col => { return { width: col.width, hidden: col.hidden } });
+                this.colSave = this.columnDefs.map((col) => {
+                    return { width: col.width, hidden: col.hidden };
+                });
                 if (this.subRowsDefs) {
-                    this.colSave = this.colSave.concat(this.subRowsDefs.map(col => { return { width: col.width, hidden: col.hidden } }));
+                    this.colSave = this.colSave.concat(
+                        this.subRowsDefs.map((col) => {
+                            return { width: col.width, hidden: col.hidden };
+                        }),
+                    );
                 }
                 this.hash = this.getHash();
                 this.reloadSettings();
@@ -115,14 +153,20 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
     }
 
     ngOnInit() {
-        this.subscriptions.push(this.globalClickService.onGlobalMouseUp.subscribe(() => this.stopDrag()));
-        this.subscriptions.push(fromEvent(window, 'resize').subscribe(() => {
-            this.checkCompactMode();
-        }));
+        this.subscriptions.push(
+            this.globalClickService.onGlobalMouseUp.subscribe(() =>
+                this.stopDrag(),
+            ),
+        );
+        this.subscriptions.push(
+            fromEvent(window, "resize").subscribe(() => {
+                this.checkCompactMode();
+            }),
+        );
         this.checkCompactMode();
         this.registerRefresh.emit(this.refresh.bind(this));
     }
@@ -131,10 +175,18 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         this.page?.content?.forEach((item, itemIndex) => {
             this.columnDefs?.forEach((col, colIndex) => {
                 if (col.possibleValues) {
-                    if (!this.page._savedContentRendering) this.page._savedContentRendering = [];
-                    if (!this.page._savedContentRendering[itemIndex]) this.page._savedContentRendering[itemIndex] = [];
-                    if (!this.page._savedContentRendering[itemIndex][colIndex]) this.page._savedContentRendering[itemIndex][colIndex] = {};
-                    this.page._savedContentRendering[itemIndex][colIndex].possibleValues = this.isFunction(col.possibleValues) ? (col.possibleValues as ((item: any) => any[]))(item) : col.possibleValues;
+                    if (!this.page._savedContentRendering)
+                        this.page._savedContentRendering = [];
+                    if (!this.page._savedContentRendering[itemIndex])
+                        this.page._savedContentRendering[itemIndex] = [];
+                    if (!this.page._savedContentRendering[itemIndex][colIndex])
+                        this.page._savedContentRendering[itemIndex][colIndex] =
+                            {};
+                    this.page._savedContentRendering[itemIndex][
+                        colIndex
+                    ].possibleValues = this.isFunction(col.possibleValues)
+                        ? (col.possibleValues as (item: any) => any[])(item)
+                        : col.possibleValues;
                 }
             });
         });
@@ -146,24 +198,35 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private reloadPreviousState() {
-        const currentStep = this.breadcrumbsService.currentStep
-        const savedState = currentStep && currentStep.data.tableState ? currentStep.data.tableState[this.hash] : null;
+        const currentStep = this.breadcrumbsService.currentStep;
+        const savedState =
+            currentStep && currentStep.data.tableState
+                ? currentStep.data.tableState[this.hash]
+                : null;
         if (savedState) {
-            this.lastSortedCol = this.columnDefs.find(col => col && savedState.lastSortedCol && col.field == savedState.lastSortedCol.field);
+            this.lastSortedCol = this.columnDefs.find(
+                (col) =>
+                    col &&
+                    savedState.lastSortedCol &&
+                    col.field == savedState.lastSortedCol.field,
+            );
             this.lastSortedAsc = savedState.lastSortedAsc;
             this.filter = savedState.filter;
             this.maxResults = savedState.maxResults;
-            if (savedState.selection && Symbol.iterator in Object(savedState.selection)) {
+            if (
+                savedState.selection &&
+                Symbol.iterator in Object(savedState.selection)
+            ) {
                 this.selection = new Set();
-                savedState.selection.forEach(id => this.selection.add(id));
+                savedState.selection.forEach((id) => this.selection.add(id));
                 this.emitSelectionChange();
             }
-            this.goToPage(savedState.currentPage ? savedState.currentPage : 1)
-                .then(() => this.firstLoading = false);
+            this.goToPage(
+                savedState.currentPage ? savedState.currentPage : 1,
+            ).then(() => (this.firstLoading = false));
         } else {
             this.getDefaultSorting();
-            this.goToPage(1)
-                .then(() => this.firstLoading = false);
+            this.goToPage(1).then(() => (this.firstLoading = false));
         }
     }
 
@@ -171,16 +234,16 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         return this.page ? this.page.content : [];
     }
 
-
     sortBy(col: any): void {
-        if (col['disableSorting'] || col["type"] == "button") return;
-        const defaultAsc: boolean = col["defaultAsc"] != undefined ? col["defaultAsc"] : true;
-        const asc: boolean = col == this.lastSortedCol ? !this.lastSortedAsc : defaultAsc;
+        if (col["disableSorting"] || col["type"] == "button") return;
+        const defaultAsc: boolean =
+            col["defaultAsc"] != undefined ? col["defaultAsc"] : true;
+        const asc: boolean =
+            col == this.lastSortedCol ? !this.lastSortedAsc : defaultAsc;
         this.lastSortedCol = col;
         this.lastSortedAsc = asc;
         this.goToPage(1);
     }
-
 
     onSearchChange(filter: Filter) {
         this.filter = filter;
@@ -188,10 +251,11 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         this.goToPage(1);
     }
 
-
     onRowClick(item: any) {
-        if (this.rowClick.observers.length > 0 && !this.rowDisabled(item)) this.rowClick.emit(item);
-        else if (this.selectionAllowed) this.onSelectChange(item, !this.isSelected(item));
+        if (this.rowClick.observers.length > 0 && !this.rowDisabled(item))
+            this.rowClick.emit(item);
+        else if (this.selectionAllowed)
+            this.onSelectChange(item, !this.isSelected(item));
     }
 
     downloadStats(item) {
@@ -209,11 +273,9 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
             const fieldValue = this.getFieldRawValue(item, col["field"]);
             if (fieldValue) {
                 return fieldValue;
-            }
-            else if (col.defaultField)
+            } else if (col.defaultField)
                 return this.getFieldRawValue(item, col["defaultField"]);
-            else
-                return;
+            else return;
         }
     }
 
@@ -233,8 +295,10 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     public static getFieldRawValue(obj: any, path: string): any {
         if (!path) return;
-        function index(robj: any, i: string) { return robj ? robj[i] : undefined };
-        return path.split('.').reduce(index, obj);
+        function index(robj: any, i: string) {
+            return robj ? robj[i] : undefined;
+        }
+        return path.split(".").reduce(index, obj);
     }
 
     /**
@@ -256,21 +320,21 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
      */
     private setFieldRawValue(obj: any, path: string, value: any) {
         if (path == undefined || path == null) return;
-        const split = path.split('.');
+        const split = path.split(".");
         let currentObj = obj;
-        for(let i=0; i<split.length-1; i++) {
+        for (let i = 0; i < split.length - 1; i++) {
             currentObj = currentObj[split[i]];
         }
-        currentObj[split[split.length-1]] = value;
+        currentObj[split[split.length - 1]] = value;
     }
 
     /**
      * Triggered when a field is edited
      */
     onFieldEdit(obj: any, col: any, value: any) {
-        this.setFieldRawValue(obj, col['field'], value);
+        this.setFieldRawValue(obj, col["field"], value);
         this.rowEdit.emit(obj);
-        if (col['onEdit']) col['onEdit'](obj, value);
+        if (col["onEdit"]) col["onEdit"](obj, value);
     }
 
     /**
@@ -280,11 +344,27 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         const result: any = this.getCellValue(item, col);
         if (result == null || this.isValueBoolean(result)) {
             return "";
-        } else if ((col.type == 'date' || col.type == 'dateTime') && !col.cellRenderer) {
+        } else if (
+            (col.type == "date" || col.type == "dateTime") &&
+            !col.cellRenderer
+        ) {
             const date: Date = TableComponent.harmonizeToDate(result);
             let dateFormat;
-            if (col.type == 'dateTime') dateFormat = {year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false };
-            else dateFormat = {year: "numeric", month: "2-digit", day: "2-digit"};
+            if (col.type == "dateTime")
+                dateFormat = {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                };
+            else
+                dateFormat = {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                };
             return date?.toLocaleDateString(undefined, dateFormat) || result;
         } else if (result.text) {
             return result;
@@ -295,12 +375,12 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     private static stringToDate(dateString: string): Date {
         if (!dateString) return null;
-        dateString += '';
-        const split: string[] = dateString.split('-');
+        dateString += "";
+        const split: string[] = dateString.split("-");
         if (split.length != 3) return null;
-        const splitNum: number[] = split.map(elt => parseInt(elt));
+        const splitNum: number[] = split.map((elt) => parseInt(elt));
         if (splitNum.includes(NaN)) return null;
-        return new Date(splitNum[2],splitNum[1],splitNum[0]);
+        return new Date(splitNum[2], splitNum[1], splitNum[0]);
     }
 
     getCellGraphics(item: any, col: ColumnDefinition): any {
@@ -313,30 +393,33 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
      * Test if a cell content is a boolean
      */
     isFieldBoolean(col: ColumnDefinition): boolean {
-        if (!this.items || this.items.length == 0) throw new Error('Cannot determine type of a column if there is no data');
+        if (!this.items || this.items.length == 0)
+            throw new Error(
+                "Cannot determine type of a column if there is no data",
+            );
         const val = this.getCellValue(this.items[0], col);
-        return col.type == 'boolean' || this.isValueBoolean(val);
+        return col.type == "boolean" || this.isValueBoolean(val);
     }
 
     isColumnText(col: ColumnDefinition): boolean {
-        return !this.isFieldBoolean(col)
-            && col.type != 'link'
-            && col.type != 'button'
-            && col.type != 'date'
-            && col.type != 'number';
+        return (
+            !this.isFieldBoolean(col) &&
+            col.type != "link" &&
+            col.type != "button" &&
+            col.type != "date" &&
+            col.type != "number"
+        );
     }
 
     isColumnNumber(col: ColumnDefinition): boolean {
-        return col.type == 'number';
+        return col.type == "number";
     }
 
     /**
      * Test if a value is a boolean
      */
     private isValueBoolean(val: any): boolean {
-        return val != undefined
-            && val != null
-            && typeof val == "boolean";
+        return val != undefined && val != null && typeof val == "boolean";
     }
 
     /**
@@ -379,25 +462,29 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     goToPage(p: number, forceRefresh: boolean = false): Promise<Page<any>> {
         this.currentPage = p;
         this.isLoading = true;
-        const getPage: Page<any> | Promise<Page<any>> = this.getPage(this.getPageable(), forceRefresh)
+        const getPage: Page<any> | Promise<Page<any>> = this.getPage(
+            this.getPageable(),
+            forceRefresh,
+        );
         if (getPage instanceof Promise) {
-            return getPage.then(page => {
-                this.pageLoaded.emit(page);
-                return this.computePage(page);
-            }).catch(reason => {
-                setTimeout(() => {
-                    this.isError = true;
-                    this.isLoading = false;
-                }, 200);
-                throw reason;
-            });
+            return getPage
+                .then((page) => {
+                    this.pageLoaded.emit(page);
+                    return this.computePage(page);
+                })
+                .catch((reason) => {
+                    setTimeout(() => {
+                        this.isError = true;
+                        this.isLoading = false;
+                    }, 200);
+                    throw reason;
+                });
         } else if (getPage instanceof Page) {
-            return Promise.resolve(this.computePage(getPage)).then(page => {
+            return Promise.resolve(this.computePage(getPage)).then((page) => {
                 this.pageLoaded.emit(page);
                 return page;
             });
         }
-
     }
 
     private computePage(page: Page<any>): Page<any> {
@@ -416,7 +503,7 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
      * Call to refresh from outside
      */
     public refresh(page?: number): Promise<Page<any>> {
-        if (page < 1) throw new Error('page must be >= 1');
+        if (page < 1) throw new Error("page must be >= 1");
         if (page == undefined) {
             return this.goToPage(this.currentPage, true);
         } else {
@@ -428,12 +515,19 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         this.saveState();
         const orders: Order[] = [];
         if (this.lastSortedCol) {
-            if (this.lastSortedCol['orderBy']) {
-                for (const orderBy of this.lastSortedCol['orderBy']) {
-                    orders.push(new Order(this.lastSortedAsc ? 'ASC' : 'DESC', orderBy));
+            if (this.lastSortedCol["orderBy"]) {
+                for (const orderBy of this.lastSortedCol["orderBy"]) {
+                    orders.push(
+                        new Order(this.lastSortedAsc ? "ASC" : "DESC", orderBy),
+                    );
                 }
             } else {
-                orders.push((new Order(this.lastSortedAsc ? 'ASC' : 'DESC', this.lastSortedCol["field"])));
+                orders.push(
+                    new Order(
+                        this.lastSortedAsc ? "ASC" : "DESC",
+                        this.lastSortedCol["field"],
+                    ),
+                );
             }
         }
         if (this.filter) {
@@ -441,28 +535,29 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
                 this.currentPage,
                 this.maxResults,
                 new Sort(orders),
-                this.filter
+                this.filter,
             );
         } else {
             return new Pageable(
                 this.currentPage,
                 this.maxResults,
-                new Sort(orders)
+                new Sort(orders),
             );
         }
     }
 
     private saveState() {
-        const currentStep = this.breadcrumbsService.currentStep
-        if(currentStep) {
-            if (!this.breadcrumbsService.currentStep.data.tableState) this.breadcrumbsService.currentStep.data.tableState = [];
+        const currentStep = this.breadcrumbsService.currentStep;
+        if (currentStep) {
+            if (!this.breadcrumbsService.currentStep.data.tableState)
+                this.breadcrumbsService.currentStep.data.tableState = [];
             this.breadcrumbsService.currentStep.data.tableState[this.hash] = {
                 lastSortedCol: this.lastSortedCol,
                 lastSortedAsc: this.lastSortedAsc,
                 filter: this.filter,
                 currentPage: this.currentPage,
                 maxResults: this.maxResults,
-                selection: []
+                selection: [],
             };
             this.saveSettings();
             this.saveSelection();
@@ -471,9 +566,15 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     saveSettings() {
         const pref: TablePreferences = new TablePreferences();
-        pref.colWidths = this.columnDefs.map(col => { return {width: col.width, hidden: col.hidden}; });
+        pref.colWidths = this.columnDefs.map((col) => {
+            return { width: col.width, hidden: col.hidden };
+        });
         if (this.subRowsDefs) {
-            pref.colWidths = pref.colWidths.concat(this.subRowsDefs.map(col => { return {width: col.width, hidden: col.hidden}; }));
+            pref.colWidths = pref.colWidths.concat(
+                this.subRowsDefs.map((col) => {
+                    return { width: col.width, hidden: col.hidden };
+                }),
+            );
         }
         pref.pageSize = this.maxResultsField;
         localStorage.setItem(this.hash, JSON.stringify(pref));
@@ -496,9 +597,13 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     saveSelection() {
-        if (!this.breadcrumbsService.currentStep.data.tableState) this.breadcrumbsService.currentStep.data.tableState = [];
-        if (!this.breadcrumbsService.currentStep.data.tableState[this.hash]) this.breadcrumbsService.currentStep.data.tableState[this.hash] = {};
-        this.breadcrumbsService.currentStep.data.tableState[this.hash].selection = [...this.selection];
+        if (!this.breadcrumbsService.currentStep.data.tableState)
+            this.breadcrumbsService.currentStep.data.tableState = [];
+        if (!this.breadcrumbsService.currentStep.data.tableState[this.hash])
+            this.breadcrumbsService.currentStep.data.tableState[this.hash] = {};
+        this.breadcrumbsService.currentStep.data.tableState[
+            this.hash
+        ].selection = [...this.selection];
     }
 
     updateMaxResults(): void {
@@ -513,11 +618,11 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     onSelectAllChange() {
         if (this.selectAll == true) {
-            this.page.content.forEach(elt => this.selection.add(elt['id']));
+            this.page.content.forEach((elt) => this.selection.add(elt["id"]));
             this.emitSelectionChange();
         } else if (this.selectAll == false) {
-            this.page.content.forEach(elt => {
-                this.selection.delete(elt['id']);
+            this.page.content.forEach((elt) => {
+                this.selection.delete(elt["id"]);
             });
             this.emitSelectionChange();
         }
@@ -531,13 +636,15 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     computeSelectAll() {
         if (this.page && this.page.content) {
-            const selectedOnCurrentPage: any[] = this.page.content.filter(row => this.selection.has(row['id']));
+            const selectedOnCurrentPage: any[] = this.page.content.filter(
+                (row) => this.selection.has(row["id"]),
+            );
             if (selectedOnCurrentPage.length == this.page.content.length) {
                 this.selectAll = true;
             } else if (selectedOnCurrentPage.length == 0) {
                 this.selectAll = false;
             } else {
-                this.selectAll = 'indeterminate';
+                this.selectAll = "indeterminate";
             }
         }
     }
@@ -549,34 +656,40 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     onSelectChange(item: any, selected: boolean) {
         if (selected) {
-            if (item['id']) this.selection.add(item['id']);
+            if (item["id"]) this.selection.add(item["id"]);
         } else {
-            this.selection.delete(item['id']);
+            this.selection.delete(item["id"]);
         }
         this.computeSelectAll();
         this.emitSelectionChange();
     }
 
     isSelected(item: any): boolean {
-        if (!item['id']) {
+        if (!item["id"]) {
             this.selectionAllowed = false;
-            throw new Error('TableComponent : if you are going to use the selectionAllowed input your items must have an id. (it\'s like in a night club)');
+            throw new Error(
+                "TableComponent : if you are going to use the selectionAllowed input your items must have an id. (it's like in a night club)",
+            );
         }
-        return this.selection.has(item['id']);
+        return this.selection.has(item["id"]);
     }
 
     private getDefaultSorting() {
         for (const col of this.columnDefs) {
             if (col.defaultSortCol) {
                 this.lastSortedCol = col;
-                this.lastSortedAsc = col.defaultAsc != undefined ? col.defaultAsc : true;
+                this.lastSortedAsc =
+                    col.defaultAsc != undefined ? col.defaultAsc : true;
                 return;
             }
         }
     }
 
     cellEditable(item, col) {
-        const colEditable: boolean = typeof col.editable === 'function' ? col.editable(item) : col.editable;
+        const colEditable: boolean =
+            typeof col.editable === "function"
+                ? col.editable(item)
+                : col.editable;
         return colEditable && !this.rowDisabled(item);
     }
 
@@ -585,38 +698,66 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     rowGreyedOut(item): boolean {
-        return this.rowDisabled(item) || (this.greyedCondition && this.greyedCondition(item));
+        return (
+            this.rowDisabled(item) ||
+            (this.greyedCondition && this.greyedCondition(item))
+        );
     }
 
-    @HostListener('document:keypress', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        if (event.key == '²') {
-            console.log('table items', this.items);
+    @HostListener("document:keypress", ["$event"]) onKeydownHandler(
+        event: KeyboardEvent,
+    ) {
+        if (event.key == "²") {
+            console.log("table items", this.items);
         }
     }
 
-    startDrag(leftColIndex: number, thRef: HTMLElement, event: MouseEvent, columnDefs: ColumnDefinition) {
+    startDrag(
+        leftColIndex: number,
+        thRef: HTMLElement,
+        event: MouseEvent,
+        columnDefs: ColumnDefinition,
+    ) {
         this.currentDrag = {
             columns: columnDefs,
             leftOrigin: event.pageX - thRef.offsetWidth + 10,
-            totalWidth: (thRef.nextElementSibling as HTMLElement).offsetWidth + thRef.offsetWidth - 22,
-            leftColIndex: leftColIndex
+            totalWidth:
+                (thRef.nextElementSibling as HTMLElement).offsetWidth +
+                thRef.offsetWidth -
+                22,
+            leftColIndex: leftColIndex,
         };
     }
 
     moveDrag(event: MouseEvent) {
         if (this.currentDrag) {
-            const leftDragWidth: number = event.pageX - this.currentDrag.leftOrigin;
-            const nextIndex: number = this.currentDrag.columns.slice(this.currentDrag.leftColIndex + 1).findIndex(col => !col.hidden);
+            const leftDragWidth: number =
+                event.pageX - this.currentDrag.leftOrigin;
+            const nextIndex: number = this.currentDrag.columns
+                .slice(this.currentDrag.leftColIndex + 1)
+                .findIndex((col) => !col.hidden);
             if (leftDragWidth >= 10) {
-                this.currentDrag.columns[this.currentDrag.leftColIndex].width = (leftDragWidth + 0) + 'px';
-                if (this.currentDrag.totalWidth - leftDragWidth < 10 && nextIndex != -1) {
-                    this.currentDrag.columns[nextIndex + this.currentDrag.leftColIndex + 1].width = 10 + 'px';
+                this.currentDrag.columns[this.currentDrag.leftColIndex].width =
+                    leftDragWidth + 0 + "px";
+                if (
+                    this.currentDrag.totalWidth - leftDragWidth < 10 &&
+                    nextIndex != -1
+                ) {
+                    this.currentDrag.columns[
+                        nextIndex + this.currentDrag.leftColIndex + 1
+                    ].width = 10 + "px";
                 } else {
-                    this.currentDrag.columns[nextIndex + this.currentDrag.leftColIndex + 1].width = (this.currentDrag.totalWidth - leftDragWidth) + 'px';
+                    this.currentDrag.columns[
+                        nextIndex + this.currentDrag.leftColIndex + 1
+                    ].width =
+                        this.currentDrag.totalWidth - leftDragWidth + "px";
                 }
             } else {
-                this.currentDrag.columns[this.currentDrag.leftColIndex].width = 10 + 'px';
-                this.currentDrag.columns[nextIndex + this.currentDrag.leftColIndex + 1].width = (this.currentDrag.totalWidth - 10) + 'px';
+                this.currentDrag.columns[this.currentDrag.leftColIndex].width =
+                    10 + "px";
+                this.currentDrag.columns[
+                    nextIndex + this.currentDrag.leftColIndex + 1
+                ].width = this.currentDrag.totalWidth - 10 + "px";
             }
         }
     }
@@ -630,8 +771,13 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     private getHash(): string {
         const username: string = KeycloakService.auth.authz.tokenParsed.name;
-        const stringToBeHashed: string = username + '_' + this.columnDefs.map(col => col.headerName + '-' + col.headerName).join('_');
-        const hash = shajs('sha').update(stringToBeHashed).digest('hex');
+        const stringToBeHashed: string =
+            username +
+            "_" +
+            this.columnDefs
+                .map((col) => col.headerName + "-" + col.headerName)
+                .join("_");
+        const hash = shajs("sha").update(stringToBeHashed).digest("hex");
         const hex = hash.substring(0, 30);
         return hex;
     }
@@ -651,23 +797,37 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     exportTable() {
         const MAX_ROWS: number = 50000;
         if (this.page.totalElements > MAX_ROWS) {
-            this.dialogService.error('Too Many Rows', 'You are trying to export ' + this.page.totalElements
-                + ' rows, the current max is at ' + MAX_ROWS + ', sorry.');
+            this.dialogService.error(
+                "Too Many Rows",
+                "You are trying to export " +
+                    this.page.totalElements +
+                    " rows, the current max is at " +
+                    MAX_ROWS +
+                    ", sorry.",
+            );
         } else {
             let task: Task;
-            let csvStr: string = '';
-            const exportedColumns: ColumnDefinition[] = this.columnDefs.filter(col => !col.hidden && !['button', 'progress'].includes(col.type));
-            csvStr += exportedColumns.map(col => col.headerName).join(','); // headers
+            let csvStr: string = "";
+            const exportedColumns: ColumnDefinition[] = this.columnDefs.filter(
+                (col) =>
+                    !col.hidden && !["button", "progress"].includes(col.type),
+            );
+            csvStr += exportedColumns.map((col) => col.headerName).join(","); // headers
             let completion: Promise<void> = Promise.resolve();
             const startTs: number = performance.now();
-            for (let i = 0; i < this.page.totalPages; i++) { // here we could use a fixed page size
+            for (let i = 0; i < this.page.totalPages; i++) {
+                // here we could use a fixed page size
                 const pageable: Pageable = this.getPageable();
                 pageable.pageNumber = i + 1;
-                completion = completion.then(() => { // load pages sequentially
-                    const getPage: Page<any> | Promise<Page<any>> = this.getPage(pageable, false, true)
-                    if (!task 
-                            && (performance.now() - startTs > 5000) 
-                            && (i / this.page.totalPages < 0.8)) {
+                completion = completion.then(() => {
+                    // load pages sequentially
+                    const getPage: Page<any> | Promise<Page<any>> =
+                        this.getPage(pageable, false, true);
+                    if (
+                        !task &&
+                        performance.now() - startTs > 5000 &&
+                        i / this.page.totalPages < 0.8
+                    ) {
                         task = this.startNofification(i / this.page.totalPages);
                     } else if (task) {
                         task.progress = i / this.page.totalPages;
@@ -675,37 +835,60 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
                         this.notificationService.pushLocalTask(task);
                     }
                     if (getPage instanceof Promise) {
-                        return getPage.then(page => {
+                        return getPage.then((page) => {
                             for (const entry of page.content) {
-                                csvStr += '\n' + exportedColumns.map(col => '"' + this.exportCsvCell(entry, col) + '"').join(',');
+                                csvStr +=
+                                    "\n" +
+                                    exportedColumns
+                                        .map(
+                                            (col) =>
+                                                '"' +
+                                                this.exportCsvCell(entry, col) +
+                                                '"',
+                                        )
+                                        .join(",");
                             }
                         });
                     } else if (getPage instanceof Page) {
                         for (const entry of getPage.content) {
-                            csvStr += '\n' + exportedColumns.map(col => '"' + this.exportCsvCell(entry, col) + '"').join(',');
+                            csvStr +=
+                                "\n" +
+                                exportedColumns
+                                    .map(
+                                        (col) =>
+                                            '"' +
+                                            this.exportCsvCell(entry, col) +
+                                            '"',
+                                    )
+                                    .join(",");
                         }
                         return Promise.resolve();
                     }
                 });
             }
-            completion.then(() => {
-                const csvBlob = new Blob([csvStr], {
-                    type: 'text/csv'
+            completion
+                .then(() => {
+                    const csvBlob = new Blob([csvStr], {
+                        type: "text/csv",
+                    });
+                    AppUtils.browserDownloadFile(
+                        csvBlob,
+                        "tableExport_" + new Date().toLocaleString("fr-FR"),
+                    );
+                    if (task) {
+                        task.progress = 1;
+                        task.status = TaskStatus.DONE;
+                        task.lastUpdate = new Date();
+                        this.notificationService.pushLocalTask(task);
+                    }
+                })
+                .catch(() => {
+                    if (task) {
+                        task.status = TaskStatus.ERROR;
+                        task.lastUpdate = new Date();
+                        this.notificationService.pushLocalTask(task);
+                    }
                 });
-                AppUtils.browserDownloadFile(csvBlob, 'tableExport_' + new Date().toLocaleString('fr-FR'));
-                if (task) {
-                    task.progress = 1;
-                    task.status = TaskStatus.DONE;
-                    task.lastUpdate = new Date();
-                    this.notificationService.pushLocalTask(task);
-                }
-            }).catch(() => {
-                if (task) {
-                    task.status = TaskStatus.ERROR;
-                    task.lastUpdate = new Date();
-                    this.notificationService.pushLocalTask(task);
-                }
-            });
         }
     }
 
@@ -717,7 +900,7 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         task.message = "Exporting table";
         task.progress = progress;
         task.status = TaskStatus.IN_PROGRESS;
-        task.eventType = 'exportTable.event';
+        task.eventType = "exportTable.event";
         task.sessionId = this.sessionService.sessionId;
         this.notificationService.pushLocalTask(task);
         return task;
@@ -726,11 +909,11 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     /** Deal with the dates */
     private exportCsvCell(entry: any, col: ColumnDefinition): string {
         const value = TableComponent.getCellValue(entry, col);
-        if (value == null) return '';
+        if (value == null) return "";
         if (value instanceof Date) {
-            if (col.type == 'date') {
+            if (col.type == "date") {
                 return value.toISOString().substring(0, 10);
-            } else if (col.type == 'dateTime') {
+            } else if (col.type == "dateTime") {
                 return value.toISOString();
             }
         }
@@ -746,16 +929,15 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     isFunction(a: any): boolean {
-        return typeof a === 'function';
+        return typeof a === "function";
     }
 
     getFontColor(colorInp: string): boolean {
-      return isDarkColor(colorInp);
+        return isDarkColor(colorInp);
     }
 }
 
 export class TablePreferences {
-
-    colWidths: {width: string, hidden: boolean}[];
+    colWidths: { width: string; hidden: boolean }[];
     pageSize: number;
 }

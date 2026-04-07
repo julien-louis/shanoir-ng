@@ -2,53 +2,58 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Location } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { Location } from "@angular/common";
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    OnChanges,
+    SimpleChanges,
+} from "@angular/core";
+import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 
-import { KeycloakService } from '../../shared/keycloak/keycloak.service';
-import { IdName } from '../../shared/models/id-name.model';
-import { ConsoleService } from '../../shared/console/console.service';
-import { Examination } from '../shared/examination.model';
-import { ExaminationService } from '../shared/examination.service';
-import { Option } from '../../shared/select/select.component';
+import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { IdName } from "../../shared/models/id-name.model";
+import { ConsoleService } from "../../shared/console/console.service";
+import { Examination } from "../shared/examination.model";
+import { ExaminationService } from "../shared/examination.service";
+import { Option } from "../../shared/select/select.component";
 
 @Component({
-    selector: 'upload-extra-data',
-    templateUrl: 'upload-extra-data.component.html',
-    standalone: false
+    selector: "upload-extra-data",
+    templateUrl: "upload-extra-data.component.html",
+    standalone: false,
 })
-
 export class UploadExtraDataComponent implements OnInit, OnChanges {
-
     public uploadExtraDataForm: UntypedFormGroup;
     public mode: "view" | "edit" | "create";
     fileToUpload: File = null;
     @Input() examination: Examination;
-    @Input() studies:  IdName[];
+    @Input() studies: IdName[];
     public studyOptions: Option<number>[];
     @Output() closing: EventEmitter<any> = new EventEmitter();
     public canModify: boolean = false;
     examinationStudyId = null;
 
     constructor(
-            private fb: UntypedFormBuilder, 
-            private location: Location,
-            private keycloakService: KeycloakService,
-            private examinationService: ExaminationService,
-            private consoleService: ConsoleService) {
-
-    }
+        private fb: UntypedFormBuilder,
+        private location: Location,
+        private keycloakService: KeycloakService,
+        private examinationService: ExaminationService,
+        private consoleService: ConsoleService,
+    ) {}
 
     ngOnInit(): void {
         this.buildForm();
@@ -61,21 +66,23 @@ export class UploadExtraDataComponent implements OnInit, OnChanges {
         if (changes.studies) {
             this.studyOptions = [];
             if (this.studies) {
-                this.studies.forEach(study => {
-                    const option: Option<number> = new Option<number>(study.id, study.name);
+                this.studies.forEach((study) => {
+                    const option: Option<number> = new Option<number>(
+                        study.id,
+                        study.name,
+                    );
                     this.studyOptions.push(option);
-                })
+                });
             }
         }
     }
 
     buildForm(): void {
         this.uploadExtraDataForm = this.fb.group({
-            add: 'add',
-            studyId: 'studyId',
-            examination: 'examination'
+            add: "add",
+            studyId: "studyId",
+            examination: "examination",
         });
-
     }
 
     handleFileInput(files: FileList) {
@@ -83,18 +90,26 @@ export class UploadExtraDataComponent implements OnInit, OnChanges {
     }
 
     uploadFileToActivity() {
-        this.examinationService.postFile(this.fileToUpload, this.examination.id).then(() => {
-            this.consoleService.log('info', 'File "' + this.fileToUpload.name + '" has been sucessfully uploaded to examination ' + this.examination.id);
-        });
-      }
+        this.examinationService
+            .postFile(this.fileToUpload, this.examination.id)
+            .then(() => {
+                this.consoleService.log(
+                    "info",
+                    'File "' +
+                        this.fileToUpload.name +
+                        '" has been sucessfully uploaded to examination ' +
+                        this.examination.id,
+                );
+            });
+    }
 
     formErrors = {
-        'add': ''
+        add: "",
     };
 
-   back(id?: number): void {
+    back(id?: number): void {
         if (this.closing.observers.length > 0) {
-           this.closing.emit(id);
+            this.closing.emit(id);
         } else {
             this.location.back();
         }

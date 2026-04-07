@@ -12,32 +12,30 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { Component, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { HttpEventType, HttpResponse } from "@angular/common/http";
+import { Component, OnDestroy } from "@angular/core";
+import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 
-import { TaskState } from 'src/app/async-tasks/task.model';
+import { TaskState } from "src/app/async-tasks/task.model";
 
-import { BreadcrumbsService } from '../../breadcrumbs/breadcrumbs.service';
-import { slideDown } from '../../shared/animations/animations';
-import { EegImportJob } from '../shared/eeg-data.model';
-import { ImportDataService } from '../shared/import.data-service';
-import { ImportService } from '../shared/import.service';
+import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
+import { slideDown } from "../../shared/animations/animations";
+import { EegImportJob } from "../shared/eeg-data.model";
+import { ImportDataService } from "../shared/import.data-service";
+import { ImportService } from "../shared/import.service";
 
-
-type Status = 'none' | 'uploading' | 'uploaded' | 'error';
+type Status = "none" | "uploading" | "uploaded" | "error";
 
 @Component({
-    selector: 'eeg-upload',
-    templateUrl: 'eeg-upload.component.html',
-    styleUrls: ['eeg-upload.component.css', '../shared/import.step.css'],
+    selector: "eeg-upload",
+    templateUrl: "eeg-upload.component.html",
+    styleUrls: ["eeg-upload.component.css", "../shared/import.step.css"],
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class EegUploadComponent implements OnDestroy {
-
-    public archiveStatus: Status = 'none';
+    public archiveStatus: Status = "none";
     protected extensionError: boolean;
     private modality: string;
     public errorMessage: string;
@@ -45,71 +43,84 @@ export class EegUploadComponent implements OnDestroy {
     subscriptions: Subscription[] = [];
 
     constructor(
-            private importService: ImportService,
-            private router: Router,
-            private breadcrumbsService: BreadcrumbsService,
-            private importDataService: ImportDataService) {
-
+        private importService: ImportService,
+        private router: Router,
+        private breadcrumbsService: BreadcrumbsService,
+        private importDataService: ImportDataService,
+    ) {
         setTimeout(() => {
             breadcrumbsService.currentStepAsMilestone();
-            breadcrumbsService.currentStep.label = '1. Upload';
+            breadcrumbsService.currentStep.label = "1. Upload";
             breadcrumbsService.currentStep.importStart = true;
-            breadcrumbsService.currentStep.importMode = 'EEG';
+            breadcrumbsService.currentStep.importMode = "EEG";
         });
     }
 
     ngOnDestroy(): void {
-        this.subscriptions?.forEach(sub => sub.unsubscribe());
+        this.subscriptions?.forEach((sub) => sub.unsubscribe());
     }
 
     public uploadArchive(fileEvent: any): void {
         if (fileEvent.target.files.length > 0) {
-            this.setArchiveStatus('uploading');
+            this.setArchiveStatus("uploading");
             this.uploadToServer(fileEvent.target.files);
         } else {
-            this.setArchiveStatus('none');
+            this.setArchiveStatus("none");
             this.modality = null;
         }
     }
 
     private uploadToServer(file: any) {
-        this.extensionError = file[0].name.substring(file[0].name.lastIndexOf("."), file[0].name.length) != '.zip';
+        this.extensionError =
+            file[0].name.substring(
+                file[0].name.lastIndexOf("."),
+                file[0].name.length,
+            ) != ".zip";
 
         this.modality = null;
         const formData: FormData = new FormData();
-        formData.append('file', file[0], file[0].name);
+        formData.append("file", file[0], file[0].name);
         this.subscriptions.push(
-            this.importService.uploadEegFile(formData)
-                .subscribe(
-                    event => {
+            this.importService.uploadEegFile(formData).subscribe(
+                (event) => {
                     if (event.type === HttpEventType.Sent) {
                         this.uploadState.progress = 0;
                     } else if (event.type === HttpEventType.UploadProgress) {
-                        this.uploadState.progress = (event.loaded / (event.total + 0.05));
+                        this.uploadState.progress =
+                            event.loaded / (event.total + 0.05);
                     } else if (event instanceof HttpResponse) {
-                        this.importDataService.eegImportJob =  event.body;
+                        this.importDataService.eegImportJob = event.body;
                         this.errorMessage = "";
-                        this.importService.analyseEegFile(this.importDataService.eegImportJob)
+                        this.importService
+                            .analyseEegFile(this.importDataService.eegImportJob)
                             .then((importJobAnalysed: EegImportJob) => {
-                                this.importDataService.eegImportJob = importJobAnalysed;
-                                this.setArchiveStatus('uploaded');
+                                this.importDataService.eegImportJob =
+                                    importJobAnalysed;
+                                this.setArchiveStatus("uploaded");
                                 this.uploadState.progress = 1;
                                 this.errorMessage = "";
-                            }).catch(error => {
-                                this.setArchiveStatus('error');
+                            })
+                            .catch((error) => {
+                                this.setArchiveStatus("error");
                                 this.uploadState.progress = 0;
-                                if (error && error.error && error.error.message) {
+                                if (
+                                    error &&
+                                    error.error &&
+                                    error.error.message
+                                ) {
                                     this.errorMessage = error.error.message;
                                 }
                             });
                     }
-                }, error => {
-                    this.setArchiveStatus('error');
+                },
+                (error) => {
+                    this.setArchiveStatus("error");
                     this.uploadState.progress = 0;
                     if (error && error.error && error.error.message) {
                         this.errorMessage = error.error.message;
                     }
-                })
+                },
+            ),
         );
     }
 
@@ -118,11 +129,10 @@ export class EegUploadComponent implements OnDestroy {
     }
 
     get valid(): boolean {
-        return this.archiveStatus == 'uploaded';
+        return this.archiveStatus == "uploaded";
     }
 
     public next() {
-        this.router.navigate(['imports/eegseries']);
+        this.router.navigate(["imports/eegseries"]);
     }
-
 }

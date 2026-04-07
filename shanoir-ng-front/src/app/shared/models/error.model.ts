@@ -12,26 +12,32 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-
 export class ShanoirError {
     public code: number;
     public details: any;
     public message: string;
 
-    static FILE_PATH_TOO_LONG: string = 'FILE_PATH_TOO_LONG';
-    static FILE_TOO_BIG: string = 'FILE_TOO_BIG';
-    static UNKNOWN_REASON: string = 'UNKNOWN_REASON';
+    static FILE_PATH_TOO_LONG: string = "FILE_PATH_TOO_LONG";
+    static FILE_TOO_BIG: string = "FILE_TOO_BIG";
+    static UNKNOWN_REASON: string = "UNKNOWN_REASON";
 
-    constructor(reason: {error: {code?: any, details?: any, message?: any}}) {
+    constructor(reason: {
+        error: { code?: any; details?: any; message?: any };
+    }) {
         this.code = reason.error.code;
         this.details = reason.error.details;
         this.message = reason.error.message;
     }
 
     public hasFieldError(field: string, code: string, value?: string): boolean {
-        if (this.details && this.details.fieldErrors && this.details.fieldErrors[field]) {
+        if (
+            this.details &&
+            this.details.fieldErrors &&
+            this.details.fieldErrors[field]
+        ) {
             for (const error of this.details.fieldErrors[field]) {
-                if (error.code == code && (!value || error.givenValue == value)) return true;
+                if (error.code == code && (!value || error.givenValue == value))
+                    return true;
             }
         }
     }
@@ -39,6 +45,6 @@ export class ShanoirError {
 
 export class RightsError extends Error {
     constructor() {
-        super('You don\'t have the required rights to perform this action.');
+        super("You don't have the required rights to perform this action.");
     }
 }

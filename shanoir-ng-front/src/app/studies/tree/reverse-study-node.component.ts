@@ -11,68 +11,86 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from "@angular/core";
+import { Router } from "@angular/router";
 
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
+import { SuperPromise } from "src/app/utils/super-promise";
 
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.service';
-import { SuperPromise } from 'src/app/utils/super-promise';
-
-import { ExaminationPipe } from '../../examinations/shared/examination.pipe';
+import { ExaminationPipe } from "../../examinations/shared/examination.pipe";
 import { TaskState } from "../../async-tasks/task.model";
-import { ExaminationService } from '../../examinations/shared/examination.service';
-import { SubjectExamination } from '../../examinations/shared/subject-examination.model';
+import { ExaminationService } from "../../examinations/shared/examination.service";
+import { SubjectExamination } from "../../examinations/shared/subject-examination.model";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
-import { ExaminationNode, ReverseStudyNode, ShanoirNode, UNLOADED } from '../../tree/tree.model';
+import {
+    ExaminationNode,
+    ReverseStudyNode,
+    ShanoirNode,
+    UNLOADED,
+} from "../../tree/tree.model";
 import { StudyRightsService } from "../shared/study-rights.service";
 import { StudyUserRight } from "../shared/study-user-right.enum";
-import { Study } from '../shared/study.model';
+import { Study } from "../shared/study.model";
 
 @Component({
-    selector: 'reverse-study-node',
-    templateUrl: 'reverse-study-node.component.html',
-    standalone: false
+    selector: "reverse-study-node",
+    templateUrl: "reverse-study-node.component.html",
+    standalone: false,
 })
-
-export class ReverseStudyNodeComponent extends TreeNodeAbstractComponent<ReverseStudyNode> implements OnChanges {
-
-    @Input() input: ReverseStudyNode | {study: Study, parentNode: ShanoirNode};
+export class ReverseStudyNodeComponent
+    extends TreeNodeAbstractComponent<ReverseStudyNode>
+    implements OnChanges
+{
+    @Input() input:
+        | ReverseStudyNode
+        | { study: Study; parentNode: ShanoirNode };
     @Input() subjectId: number;
     studyCardsLoading: boolean = false;
     hasDicom: boolean = true;
-    detailsPath: string = '/study/details/';
+    detailsPath: string = "/study/details/";
     private canAdmin: boolean = false;
     private canDownload: boolean = false;
     public downloadState: TaskState = new TaskState();
     idPromise: SuperPromise<number> = new SuperPromise();
 
     constructor(
-            private router: Router,
-            private examinationService: ExaminationService,
-            private examPipe: ExaminationPipe,
-            private keycloakService: KeycloakService,
-            private studyRightsService: StudyRightsService,
-            private downloadService: MassDownloadService,
-            elementRef: ElementRef) {
-
+        private router: Router,
+        private examinationService: ExaminationService,
+        private examPipe: ExaminationPipe,
+        private keycloakService: KeycloakService,
+        private studyRightsService: StudyRightsService,
+        private downloadService: MassDownloadService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
-        this.idPromise.then(id => {
+        this.idPromise.then((id) => {
             (this.keycloakService.isUserAdmin
                 ? Promise.resolve(StudyUserRight.all())
                 : this.studyRightsService.getMyRightsForStudy(id)
-            ).then(rights => {
-                this.canAdmin = rights.includes(StudyUserRight.CAN_ADMINISTRATE);
+            ).then((rights) => {
+                this.canAdmin = rights.includes(
+                    StudyUserRight.CAN_ADMINISTRATE,
+                );
                 this.canDownload = rights.includes(StudyUserRight.CAN_DOWNLOAD);
             });
         });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (!changes['input']) {
+        if (!changes["input"]) {
             return;
         }
-        const id: number = this.input instanceof ReverseStudyNode ? this.input.id : this.input.study.id;
+        const id: number =
+            this.input instanceof ReverseStudyNode
+                ? this.input.id
+                : this.input.study.id;
         this.idPromise.resolve(id);
         if (this.input instanceof ReverseStudyNode) {
             this.node = this.input;
@@ -82,46 +100,69 @@ export class ReverseStudyNodeComponent extends TreeNodeAbstractComponent<Reverse
                 this.input.study.id,
                 this.input.study.name,
                 [],
-                UNLOADED);
+                UNLOADED,
+            );
         }
         this.nodeInit.emit(this.node);
-        this.showDetails = this.router.url != '/study/details/' + this.node.id;
+        this.showDetails = this.router.url != "/study/details/" + this.node.id;
     }
 
     loadExaminations() {
         this.idPromise.then(() => {
             if (this.node.examinations == UNLOADED) {
                 this.loading = true;
-                this.examinationService.findExaminationsBySubjectAndStudy(this.subjectId, this.node.id)
-                .then(examinations => {
-                    const sortedExaminations = examinations.sort((a: SubjectExamination, b: SubjectExamination) => {
-                        return (new Date(a.examinationDate)).getTime() - (new Date(b.examinationDate)).getTime();
+                this.examinationService
+                    .findExaminationsBySubjectAndStudy(
+                        this.subjectId,
+                        this.node.id,
+                    )
+                    .then((examinations) => {
+                        const sortedExaminations = examinations.sort(
+                            (a: SubjectExamination, b: SubjectExamination) => {
+                                return (
+                                    new Date(a.examinationDate).getTime() -
+                                    new Date(b.examinationDate).getTime()
+                                );
+                            },
+                        );
+                        this.node.examinations = [];
+                        if (sortedExaminations) {
+                            sortedExaminations.forEach((exam) => {
+                                const examNode = ExaminationNode.fromExam(
+                                    exam,
+                                    this.node,
+                                    this.canAdmin,
+                                    this.canDownload,
+                                );
+                                (
+                                    this.node.examinations as ExaminationNode[]
+                                ).push(examNode);
+                            });
+                        }
+                        this.loading = false;
+                        this.node.open();
                     })
-                    this.node.examinations = [];
-                    if (sortedExaminations) {
-                        sortedExaminations.forEach(exam => {
-                            const examNode = ExaminationNode.fromExam(exam, this.node, this.canAdmin, this.canDownload);
-                            (this.node.examinations as ExaminationNode[]).push(examNode);
-                        });
-                    }
-                    this.loading = false;
-                    this.node.open();
-                }).catch(() => {
-                    this.loading = false;
-                });
+                    .catch(() => {
+                        this.loading = false;
+                    });
             }
         });
     }
 
-    hasDependency(dependencyArr: any[] | UNLOADED): boolean | 'unknown' {
+    hasDependency(dependencyArr: any[] | UNLOADED): boolean | "unknown" {
         if (!dependencyArr) return false;
-        else if (dependencyArr == UNLOADED) return 'unknown';
+        else if (dependencyArr == UNLOADED) return "unknown";
         else return dependencyArr.length > 0;
     }
 
     download() {
         this.loading = true;
-        this.downloadService.downloadAllByStudyIdAndSubjectId(this.node.id, this.subjectId, this.downloadState)
-            .finally(() => this.loading = false);
+        this.downloadService
+            .downloadAllByStudyIdAndSubjectId(
+                this.node.id,
+                this.subjectId,
+                this.downloadState,
+            )
+            .finally(() => (this.loading = false));
     }
 }

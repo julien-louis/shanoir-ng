@@ -11,106 +11,158 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
 
+import { AcquisitionEquipmentService } from "src/app/acquisition-equipments/shared/acquisition-equipment.service";
+import { CoilService } from "src/app/coils/shared/coil.service";
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "src/app/studies/study/tree.service";
 
-import { AcquisitionEquipmentService } from 'src/app/acquisition-equipments/shared/acquisition-equipment.service';
-import { CoilService } from 'src/app/coils/shared/coil.service';
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { TreeService } from 'src/app/studies/study/tree.service';
-
-import { AcquisitionEquipmentPipe } from '../../acquisition-equipments/shared/acquisition-equipment.pipe';
+import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/acquisition-equipment.pipe";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
-import { AcquisitionEquipmentNode, CenterNode, CoilNode, UNLOADED } from '../../tree/tree.model';
-import { Center } from '../shared/center.model';
-import { CenterService } from '../shared/center.service';
-
+import {
+    AcquisitionEquipmentNode,
+    CenterNode,
+    CoilNode,
+    UNLOADED,
+} from "../../tree/tree.model";
+import { Center } from "../shared/center.model";
+import { CenterService } from "../shared/center.service";
 
 @Component({
-    selector: 'center-node',
-    templateUrl: 'center-node.component.html',
-    standalone: false
+    selector: "center-node",
+    templateUrl: "center-node.component.html",
+    standalone: false,
 })
-
-export class CenterNodeComponent extends TreeNodeAbstractComponent<CenterNode> implements OnChanges {
-
+export class CenterNodeComponent
+    extends TreeNodeAbstractComponent<CenterNode>
+    implements OnChanges
+{
     @Input() input: CenterNode | Center;
     @Output() equipementNodeSelect: EventEmitter<number> = new EventEmitter();
-    detailsPath: string = '/center/details/';
+    detailsPath: string = "/center/details/";
 
     constructor(
-            private centerService: CenterService,
-            private acquisitionEquipmentService: AcquisitionEquipmentService,
-            private acquisitionEquipmentPipe: AcquisitionEquipmentPipe,
-            private coilService: CoilService,
-            private keycloakService: KeycloakService,
-            protected treeService: TreeService,
-            elementRef: ElementRef) {
+        private centerService: CenterService,
+        private acquisitionEquipmentService: AcquisitionEquipmentService,
+        private acquisitionEquipmentPipe: AcquisitionEquipmentPipe,
+        private coilService: CoilService,
+        private keycloakService: KeycloakService,
+        protected treeService: TreeService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input']) {
+        if (changes["input"]) {
             if (this.input instanceof CenterNode) {
                 this.node = this.input;
             } else {
-                throw new Error('not implemented yet');
+                throw new Error("not implemented yet");
             }
             this.node.registerOpenPromise(this.contentLoaded);
         }
     }
 
-    hasChildren(): boolean | 'unknown' {
+    hasChildren(): boolean | "unknown" {
         if (!this.node.acquisitionEquipments && !this.node.coils) return false;
-        else if (this.node.acquisitionEquipments == UNLOADED && this.node.coils == UNLOADED ) return 'unknown';
-        else return this.node.acquisitionEquipments?.length + this.node.coils?.length > 0;
+        else if (
+            this.node.acquisitionEquipments == UNLOADED &&
+            this.node.coils == UNLOADED
+        )
+            return "unknown";
+        else
+            return (
+                this.node.acquisitionEquipments?.length +
+                    this.node.coils?.length >
+                0
+            );
     }
 
     loadEquipments(): Promise<void> {
         this.loading = true;
-        return this.centerService.get(this.node.id).then(
-            center =>  {
+        return this.centerService
+            .get(this.node.id)
+            .then((center) => {
                 if (center.acquisitionEquipments) {
-                    this.node.acquisitionEquipments = center.acquisitionEquipments.map(
-                            acqEq => new AcquisitionEquipmentNode(this.node, acqEq.id, this.acquisitionEquipmentPipe.transform(acqEq), 'UNLOADED', this.keycloakService.isUserAdminOrExpert()));
+                    this.node.acquisitionEquipments =
+                        center.acquisitionEquipments.map(
+                            (acqEq) =>
+                                new AcquisitionEquipmentNode(
+                                    this.node,
+                                    acqEq.id,
+                                    this.acquisitionEquipmentPipe.transform(
+                                        acqEq,
+                                    ),
+                                    "UNLOADED",
+                                    this.keycloakService.isUserAdminOrExpert(),
+                                ),
+                        );
                     this.loading = false;
                     this.node.open();
                 } else {
-                    return this.acquisitionEquipmentService.getAllByCenter(this.node.id).then(eqs => {
-                        this.node.acquisitionEquipments = eqs.map(acqEq => new AcquisitionEquipmentNode(this.node, acqEq.id, this.acquisitionEquipmentPipe.transform(acqEq), 'UNLOADED', this.keycloakService.isUserAdminOrExpert()));
-                        this.loading = false;
-                        this.node.open();
-                    });
+                    return this.acquisitionEquipmentService
+                        .getAllByCenter(this.node.id)
+                        .then((eqs) => {
+                            this.node.acquisitionEquipments = eqs.map(
+                                (acqEq) =>
+                                    new AcquisitionEquipmentNode(
+                                        this.node,
+                                        acqEq.id,
+                                        this.acquisitionEquipmentPipe.transform(
+                                            acqEq,
+                                        ),
+                                        "UNLOADED",
+                                        this.keycloakService.isUserAdminOrExpert(),
+                                    ),
+                            );
+                            this.loading = false;
+                            this.node.open();
+                        });
                 }
-            }).catch(() => {
+            })
+            .catch(() => {
                 this.loading = false;
             });
     }
 
     loadCoils(): Promise<void> {
         this.loading = true;
-        return this.coilService.findByCenter(this.node.id).then(
-            coils =>  {
+        return this.coilService
+            .findByCenter(this.node.id)
+            .then((coils) => {
                 if (coils) {
-                    this.node.coils = coils.map(coil => new CoilNode(this.node, coil.id, coil.name));
+                    this.node.coils = coils.map(
+                        (coil) => new CoilNode(this.node, coil.id, coil.name),
+                    );
                 }
                 this.loading = false;
                 this.node.open();
-            }).catch(() => {
+            })
+            .catch(() => {
                 this.loading = false;
             });
     }
 
     onFirstOpen() {
-        Promise.all([
-            this.loadEquipments(),
-            this.loadCoils()
-        ]).then(() => {
+        Promise.all([this.loadEquipments(), this.loadCoils()]).then(() => {
             this.contentLoaded.resolve();
         });
     }
 
     onEquipmentDelete(index: number) {
-        (this.node.acquisitionEquipments as AcquisitionEquipmentNode[]).splice(index, 1) ;
+        (this.node.acquisitionEquipments as AcquisitionEquipmentNode[]).splice(
+            index,
+            1,
+        );
     }
 }

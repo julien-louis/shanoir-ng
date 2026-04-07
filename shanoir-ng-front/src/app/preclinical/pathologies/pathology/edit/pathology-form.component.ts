@@ -2,49 +2,51 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component } from '@angular/core';
-import { UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { UntypedFormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { EntityComponent } from '../../../../shared/components/entity/entity.component.abstract';
-import { Pathology } from '../shared/pathology.model';
-import { PathologyService } from '../shared/pathology.service';
-
+import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
+import { Pathology } from "../shared/pathology.model";
+import { PathologyService } from "../shared/pathology.service";
 
 @Component({
-    selector: 'pathology-form',
-    templateUrl: 'pathology-form.component.html',
-    standalone: false
+    selector: "pathology-form",
+    templateUrl: "pathology-form.component.html",
+    standalone: false,
 })
-export class PathologyFormComponent extends EntityComponent<Pathology>{
-
+export class PathologyFormComponent extends EntityComponent<Pathology> {
     public isPathologyUnique = true;
     public isModelUnique = true;
 
     constructor(
         private route: ActivatedRoute,
-        private pathologyService: PathologyService) {
-
-            super(route);
+        private pathologyService: PathologyService,
+    ) {
+        super(route);
     }
 
     protected getRoutingName(): string {
-        return 'preclinical-pathology';
+        return "preclinical-pathology";
     }
 
-    get pathology(): Pathology { return this.entity; }
-    set pathology(pathology: Pathology) { this.entity = pathology; }
+    get pathology(): Pathology {
+        return this.entity;
+    }
+    set pathology(pathology: Pathology) {
+        this.entity = pathology;
+    }
 
     getService(): EntityService<Pathology> {
         return this.pathologyService;
@@ -65,9 +67,7 @@ export class PathologyFormComponent extends EntityComponent<Pathology>{
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'name': [this.pathology.name, Validators.required]
+            name: [this.pathology.name, Validators.required],
         });
     }
-
-    
 }

@@ -12,25 +12,24 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { Center } from '../../centers/shared/center.model';
-import { SubjectExamination } from '../../examinations/shared/subject-examination.model';
-import { Study } from '../../studies/shared/study.model';
-import { StudyCard } from '../../study-cards/shared/study-card.model';
-import { ProcessedDatasetType } from '../../enum/processed-dataset-type.enum';
-import { DatasetType } from '../../datasets/shared/dataset-type.model';
-import { DatasetProcessing } from '../../datasets/shared/dataset-processing.model';
-import {Subject} from "../../subjects/shared/subject.model";
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { Center } from "../../centers/shared/center.model";
+import { SubjectExamination } from "../../examinations/shared/subject-examination.model";
+import { Study } from "../../studies/shared/study.model";
+import { StudyCard } from "../../study-cards/shared/study-card.model";
+import { ProcessedDatasetType } from "../../enum/processed-dataset-type.enum";
+import { DatasetType } from "../../datasets/shared/dataset-type.model";
+import { DatasetProcessing } from "../../datasets/shared/dataset-processing.model";
+import { Subject } from "../../subjects/shared/subject.model";
 
-import { ProcessedDatasetImportJob } from './processed-dataset-data.model';
-import { EegImportJob } from './eeg-data.model';
-import { ImportJob, PatientDicom } from './dicom-data.model';
+import { ProcessedDatasetImportJob } from "./processed-dataset-data.model";
+import { EegImportJob } from "./eeg-data.model";
+import { ImportJob, PatientDicom } from "./dicom-data.model";
 
 export class ContextData {
-
-    constructor (
+    constructor(
         public study: Study,
         public studyCard: StudyCard,
         public useStudyCard: boolean,
@@ -47,9 +46,8 @@ export class ContextData {
     ) {}
 }
 
-export class EegContextData  {
-
-    constructor (
+export class EegContextData {
+    constructor(
         public study: Study,
         public studyCard: StudyCard,
         public useStudyCard: boolean,
@@ -68,7 +66,7 @@ export class EegContextData  {
 }
 
 export class ProcessedContextData {
-    constructor (
+    constructor(
         public study: Study,
         public subject: Subject,
         public datasetType: DatasetType,
@@ -80,20 +78,15 @@ export class ProcessedContextData {
     ) {}
 }
 
-
-
-
 @Injectable()
 export class ImportDataService {
-
-    private _archiveUploaded: ImportJob;  // 1. upload
-    private _patientList: ImportJob;   // 1. upload or pacs
-    private _eegImportJob: EegImportJob;   // 1. upload
-    private _processedDatasetImportJob: ProcessedDatasetImportJob;   // 1. upload
-    private _patients: PatientDicom[];    // 2. series
-    private _contextData: any;    // 3. context
+    private _archiveUploaded: ImportJob; // 1. upload
+    private _patientList: ImportJob; // 1. upload or pacs
+    private _eegImportJob: EegImportJob; // 1. upload
+    private _processedDatasetImportJob: ProcessedDatasetImportJob; // 1. upload
+    private _patients: PatientDicom[]; // 2. series
+    private _contextData: any; // 3. context
     public _contextBackup: any = {};
-
 
     public reset() {
         this._archiveUploaded = undefined;
@@ -107,7 +100,7 @@ export class ImportDataService {
 
     public setContextBackup(stepId, value): void {
         if (!this._contextBackup) this._contextBackup = {};
-        return this._contextBackup[stepId] = value;
+        return (this._contextBackup[stepId] = value);
     }
 
     public contextBackup(stepId): any {
@@ -135,7 +128,9 @@ export class ImportDataService {
         return this._processedDatasetImportJob;
     }
 
-    public set processedDatasetImportJob(processedFilePath: ProcessedDatasetImportJob) {
+    public set processedDatasetImportJob(
+        processedFilePath: ProcessedDatasetImportJob,
+    ) {
         this._processedDatasetImportJob = processedFilePath;
     }
 

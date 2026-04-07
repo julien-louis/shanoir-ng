@@ -12,31 +12,38 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
-import { UntypedFormGroup,  Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnChanges,
+} from "@angular/core";
+import { UntypedFormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
 
-import { AnestheticIngredient } from '../shared/anestheticIngredient.model';
-import { AnestheticIngredientService } from '../shared/anestheticIngredient.service';
-import { Anesthetic }   from '../../anesthetic/shared/anesthetic.model';
-import { ReferenceService } from '../../../reference/shared/reference.service';
-import { Reference }    from '../../../reference/shared/reference.model';
-import { EntityComponent } from '../../../../shared/components/entity/entity.component.abstract';
-import { slideDown } from '../../../../shared/animations/animations';
-import * as PreclinicalUtils from '../../../utils/preclinical.utils';
-import { Step } from '../../../../breadcrumbs/breadcrumbs.service';
-
+import { AnestheticIngredient } from "../shared/anestheticIngredient.model";
+import { AnestheticIngredientService } from "../shared/anestheticIngredient.service";
+import { Anesthetic } from "../../anesthetic/shared/anesthetic.model";
+import { ReferenceService } from "../../../reference/shared/reference.service";
+import { Reference } from "../../../reference/shared/reference.model";
+import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
+import { slideDown } from "../../../../shared/animations/animations";
+import * as PreclinicalUtils from "../../../utils/preclinical.utils";
+import { Step } from "../../../../breadcrumbs/breadcrumbs.service";
 
 @Component({
-    selector: 'anesthetic-ingredient-form',
-    templateUrl: 'anestheticIngredient-form.component.html',
+    selector: "anesthetic-ingredient-form",
+    templateUrl: "anestheticIngredient-form.component.html",
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
-export class AnestheticIngredientFormComponent extends EntityComponent<AnestheticIngredient> implements OnChanges {
-
+export class AnestheticIngredientFormComponent
+    extends EntityComponent<AnestheticIngredient>
+    implements OnChanges
+{
     @Input() anesthetic: Anesthetic;
     @Input() toggleForm: boolean = true;
     @Input() ingredientSelected: AnestheticIngredient;
@@ -48,18 +55,21 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
     constructor(
         private route: ActivatedRoute,
         private ingredientsService: AnestheticIngredientService,
-        private referenceService: ReferenceService)
-    {
-
+        private referenceService: ReferenceService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'preclinical-anesthetic-ingredient';
+        return "preclinical-anesthetic-ingredient";
     }
 
-    get ingredient(): AnestheticIngredient { return this.entity; }
-    set ingredient(ingredient: AnestheticIngredient) { this.entity = ingredient; }
+    get ingredient(): AnestheticIngredient {
+        return this.entity;
+    }
+    set ingredient(ingredient: AnestheticIngredient) {
+        this.entity = ingredient;
+    }
 
     getService(): EntityService<AnestheticIngredient> {
         return this.ingredientsService;
@@ -86,58 +96,72 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
 
     buildForm(): UntypedFormGroup {
         return this.formBuilder.group({
-            'name': [this.ingredient.name, Validators.required],
-            'concentration': [this.ingredient.concentration, Validators.required],
-            'concentrationUnit': [this.ingredient.concentrationUnit, Validators.required]
+            name: [this.ingredient.name, Validators.required],
+            concentration: [this.ingredient.concentration, Validators.required],
+            concentrationUnit: [
+                this.ingredient.concentrationUnit,
+                Validators.required,
+            ],
         });
     }
 
-    loadUnits(){
-       this.referenceService.getReferencesByCategoryAndType(PreclinicalUtils.PRECLINICAL_CAT_UNIT,PreclinicalUtils.PRECLINICAL_UNIT_CONCENTRATION).then(units => this.units = units);
+    loadUnits() {
+        this.referenceService
+            .getReferencesByCategoryAndType(
+                PreclinicalUtils.PRECLINICAL_CAT_UNIT,
+                PreclinicalUtils.PRECLINICAL_UNIT_CONCENTRATION,
+            )
+            .then((units) => (this.units = units));
     }
 
-    loadNames(){
-       this.referenceService.getReferencesByCategoryAndType(PreclinicalUtils.PRECLINICAL_ANESTHETIC,PreclinicalUtils.PRECLINICAL_ANESTHETIC_INGREDIENT).then(names => this.names = names);
+    loadNames() {
+        this.referenceService
+            .getReferencesByCategoryAndType(
+                PreclinicalUtils.PRECLINICAL_ANESTHETIC,
+                PreclinicalUtils.PRECLINICAL_ANESTHETIC_INGREDIENT,
+            )
+            .then((names) => (this.names = names));
     }
-
 
     toggleFormAI(creation: boolean): void {
-        if(this.toggleForm==false){
+        if (this.toggleForm == false) {
             this.toggleForm = true;
-        }else if(this.toggleForm==true){
+        } else if (this.toggleForm == true) {
             this.toggleForm = false;
             this.event.emit(null);
-        }else{
+        } else {
             this.toggleForm = false;
             this.event.emit(null);
         }
         this.createAIMode = creation;
     }
 
-    loadIngredientAttributesForSelect(ingredientSelected:AnestheticIngredient) {
+    loadIngredientAttributesForSelect(
+        ingredientSelected: AnestheticIngredient,
+    ) {
         this.ingredient = ingredientSelected;
 
-        if(this.units){
+        if (this.units) {
             for (const unit of this.units) {
-                if(ingredientSelected.concentrationUnit){
+                if (ingredientSelected.concentrationUnit) {
                     if (ingredientSelected.concentrationUnit.id == unit.id) {
                         this.ingredient.concentrationUnit = unit;
                     }
                 }
-                }
+            }
         }
-        if(this.names){
-                for (const name of this.names) {
-                    if(ingredientSelected.name){
-                        if (ingredientSelected.name.id == name.id) {
-                            this.ingredient.name = name;
-                        }
+        if (this.names) {
+            for (const name of this.names) {
+                if (ingredientSelected.name) {
+                    if (ingredientSelected.name.id == name.id) {
+                        this.ingredient.name = name;
                     }
                 }
+            }
         }
     }
 
-    cancelIngredient(){
+    cancelIngredient() {
         this.toggleFormAI(false);
     }
 
@@ -145,7 +169,7 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
         if (!this.ingredient) {
             return;
         }
-        if(this.anesthetic.ingredients === undefined){
+        if (this.anesthetic.ingredients === undefined) {
             this.anesthetic.ingredients = [];
         }
         this.anesthetic.ingredients.push(this.ingredient);
@@ -157,8 +181,9 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
     }
 
     updateIngredient(): void {
-        this.ingredientsService.updateAnestheticIngredient(this.anesthetic.id, this.ingredient)
-            .subscribe(() =>{
+        this.ingredientsService
+            .updateAnestheticIngredient(this.anesthetic.id, this.ingredient)
+            .subscribe(() => {
                 if (this.event.observers.length > 0) {
                     this.event.emit(this.ingredient);
                 }
@@ -167,12 +192,16 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
         this.ingredient = new AnestheticIngredient();
     }
 
-    canUpdateIngredient(): boolean{
-        return !this.createAIMode && this.keycloakService.isUserAdminOrExpert && this.mode != 'view';
+    canUpdateIngredient(): boolean {
+        return (
+            !this.createAIMode &&
+            this.keycloakService.isUserAdminOrExpert &&
+            this.mode != "view"
+        );
     }
 
-    canAddIngredient(): boolean{
-        return this.createAIMode && this.mode != 'view';
+    canAddIngredient(): boolean {
+        return this.createAIMode && this.mode != "view";
     }
 
     //params should be anesthetic&ingredient or unit&concentration
@@ -183,17 +212,22 @@ export class AnestheticIngredientFormComponent extends EntityComponent<Anestheti
         if (params && params[1]) reftype = params[1];
 
         const currentStep: Step = this.breadcrumbsService.currentStep;
-        this.router.navigate(['/preclinical-reference/create'], { queryParams: { category: category, reftype: reftype} }).then(() => {
-            currentStep.waitFor(this.breadcrumbsService.currentStep).subscribe(entity => {
-                if (reftype == 'ingredient'){
-                    this.names.push(entity as Reference);
-                    this.entity.name = entity as Reference;
-                } else if (reftype == 'concentration'){
-                    this.units.push(entity as Reference);
-                    this.entity.concentrationUnit = entity as Reference;
-                }
+        this.router
+            .navigate(["/preclinical-reference/create"], {
+                queryParams: { category: category, reftype: reftype },
+            })
+            .then(() => {
+                currentStep
+                    .waitFor(this.breadcrumbsService.currentStep)
+                    .subscribe((entity) => {
+                        if (reftype == "ingredient") {
+                            this.names.push(entity as Reference);
+                            this.entity.name = entity as Reference;
+                        } else if (reftype == "concentration") {
+                            this.units.push(entity as Reference);
+                            this.entity.concentrationUnit = entity as Reference;
+                        }
+                    });
             });
-        });
     }
-
 }

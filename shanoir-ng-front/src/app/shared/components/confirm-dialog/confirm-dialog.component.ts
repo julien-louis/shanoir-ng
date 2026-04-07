@@ -12,23 +12,22 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
-import { SuperPromise } from 'src/app/utils/super-promise';
+import { SuperPromise } from "src/app/utils/super-promise";
 
 @Component({
-    selector: 'confirm-dialog',
-    templateUrl: 'confirm-dialog.component.html',
-    styleUrls: ['confirm-dialog.component.css'],
-    standalone: false
+    selector: "confirm-dialog",
+    templateUrl: "confirm-dialog.component.html",
+    styleUrls: ["confirm-dialog.component.css"],
+    standalone: false,
 })
 export class ConfirmDialogComponent {
-
     title: string;
-    mode: 'confirm' | 'choose' | 'info' | 'error';
+    mode: "confirm" | "choose" | "info" | "error";
     private _message: string;
     link: string;
-    buttons: {yes: string, no?: string, cancel?: string};
+    buttons: { yes: string; no?: string; cancel?: string };
     private closePromise: SuperPromise<any> = new SuperPromise();
 
     public get message(): string {
@@ -36,38 +35,61 @@ export class ConfirmDialogComponent {
     }
 
     public set message(value: string) {
-        this._message = value?.split(' ').map(w => w.startsWith('https://') ? '<a target="_blank" href="' + w + '">' + w + '</a>' : w).join(' ');
+        this._message = value
+            ?.split(" ")
+            .map((w) =>
+                w.startsWith("https://")
+                    ? '<a target="_blank" href="' + w + '">' + w + "</a>"
+                    : w,
+            )
+            .join(" ");
     }
 
-    public openConfirm(title: string, message?: string, buttons?: {yes: string, cancel: string}): Promise<boolean> {
+    public openConfirm(
+        title: string,
+        message?: string,
+        buttons?: { yes: string; cancel: string },
+    ): Promise<boolean> {
         this.title = title;
         this.message = message;
         this.buttons = buttons;
-        this.mode = 'confirm';
+        this.mode = "confirm";
         return this.closePromise;
     }
 
-    public openChoose(title: string, message?: string, buttons?: {yes: string, no: string, cancel?: string}): Promise<'yes' | 'no' | false> {
+    public openChoose(
+        title: string,
+        message?: string,
+        buttons?: { yes: string; no: string; cancel?: string },
+    ): Promise<"yes" | "no" | false> {
         this.title = title;
         this.message = message;
         this.buttons = buttons;
-        this.mode = 'choose';
+        this.mode = "choose";
         return this.closePromise;
     }
 
-    public openInfo(title: string, message?: string, button?: string): Promise<boolean> {
+    public openInfo(
+        title: string,
+        message?: string,
+        button?: string,
+    ): Promise<boolean> {
         this.title = title;
         this.message = message;
-        this.buttons = {yes: button, no: null, cancel: null};
-        this.mode = 'info';
+        this.buttons = { yes: button, no: null, cancel: null };
+        this.mode = "info";
         return this.closePromise;
     }
 
-    public openError(title: string, message?: string, link?: string): Promise<boolean> {
+    public openError(
+        title: string,
+        message?: string,
+        link?: string,
+    ): Promise<boolean> {
         this.title = title;
         this.message = message;
         this.link = link;
-        this.mode = 'error';
+        this.mode = "error";
         return this.closePromise;
     }
 

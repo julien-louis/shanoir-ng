@@ -12,27 +12,28 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 
-import { Mode } from '../../../shared/components/entity/entity.component.abstract';
-import { TableComponent } from '../../../shared/components/table/table.component';
-import { ColumnDefinition } from '../../../shared/components/table/column.definition.type';
-import { BrowserPaging } from '../../../shared/components/table/browser-paging.model';
-import { FilterablePageable, Page } from '../../../shared/components/table/pageable.model';
-import{ Channel , EegDataset }from '../eeg/dataset.eeg.model';
-import {UnitOfMeasure} from "../../../enum/unitofmeasure.enum";
+import { Mode } from "../../../shared/components/entity/entity.component.abstract";
+import { TableComponent } from "../../../shared/components/table/table.component";
+import { ColumnDefinition } from "../../../shared/components/table/column.definition.type";
+import { BrowserPaging } from "../../../shared/components/table/browser-paging.model";
+import {
+    FilterablePageable,
+    Page,
+} from "../../../shared/components/table/pageable.model";
+import { Channel, EegDataset } from "../eeg/dataset.eeg.model";
+import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 
 @Component({
-    selector: 'eeg-dataset-details',
-    templateUrl: 'dataset.eeg.component.html',
-    standalone: false
+    selector: "eeg-dataset-details",
+    templateUrl: "dataset.eeg.component.html",
+    standalone: false,
 })
-
-export class EegDatasetComponent implements OnInit  {
-
+export class EegDatasetComponent implements OnInit {
     @Input() protected mode: Mode;
     @Input() public dataset: EegDataset;
-    @ViewChild('channelsTable') table: TableComponent;
+    @ViewChild("channelsTable") table: TableComponent;
 
     public columnDefs: ColumnDefinition[];
 
@@ -40,22 +41,36 @@ export class EegDatasetComponent implements OnInit  {
     private channelPromise: Promise<any>;
 
     ngOnInit(): void {
-
         this.columnDefs = [
-           {headerName: 'Name', field: 'name', type: 'string'},
-            {headerName: 'Resolution', field: 'resolution', type: 'string'},
-            {headerName: 'Units', field: 'referenceUnits', type: 'string'},
-            {headerName: 'Type', field: 'referenceType', type: 'string'},
-            {headerName: 'Position', field: 'position', type: 'string', cellRenderer: (params: any) => {
-                    if (params.data.x == null && params.data.z == null && params.data.y == null) {
-                        return 'N/A'
+            { headerName: "Name", field: "name", type: "string" },
+            { headerName: "Resolution", field: "resolution", type: "string" },
+            { headerName: "Units", field: "referenceUnits", type: "string" },
+            { headerName: "Type", field: "referenceType", type: "string" },
+            {
+                headerName: "Position",
+                field: "position",
+                type: "string",
+                cellRenderer: (params: any) => {
+                    if (
+                        params.data.x == null &&
+                        params.data.z == null &&
+                        params.data.y == null
+                    ) {
+                        return "N/A";
                     } else {
-                        return params.data.x + ' ' + params.data.y + ' ' + params.data.z;
+                        return (
+                            params.data.x +
+                            " " +
+                            params.data.y +
+                            " " +
+                            params.data.z
+                        );
                     }
-            }},
-            {headerName: 'low cutoff', field: 'lowCutoff', type: 'number'},
-            {headerName: 'High cutoff', field: 'highCutoff', type: 'number'},
-            {headerName: 'Notch', field: 'notch', type: 'number'}
+                },
+            },
+            { headerName: "low cutoff", field: "lowCutoff", type: "number" },
+            { headerName: "High cutoff", field: "highCutoff", type: "number" },
+            { headerName: "Notch", field: "notch", type: "number" },
         ];
 
         this.channelPromise = Promise.resolve().then(() => {
@@ -65,7 +80,7 @@ export class EegDatasetComponent implements OnInit  {
         });
     }
 
-   getPage(pageable: FilterablePageable): Promise<Page<Channel>> {
+    getPage(pageable: FilterablePageable): Promise<Page<Channel>> {
         return new Promise((resolve) => {
             this.channelPromise.then(() => {
                 resolve(this.browserPaging.getPage(pageable));

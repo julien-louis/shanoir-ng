@@ -12,81 +12,110 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { SingleDownloadService } from 'src/app/shared/mass-download/single-download.service';
+import { SingleDownloadService } from "src/app/shared/mass-download/single-download.service";
 
-import { EntityService } from '../../../../shared/components/entity/entity.abstract.service';
-import * as PreclinicalUtils from '../../../utils/preclinical.utils';
+import { EntityService } from "../../../../shared/components/entity/entity.abstract.service";
+import * as PreclinicalUtils from "../../../utils/preclinical.utils";
 
-import { ExtraData } from './extradata.model';
+import { ExtraData } from "./extradata.model";
 
 @Injectable()
-export class ExtraDataService extends EntityService<ExtraData>{
-
+export class ExtraDataService extends EntityService<ExtraData> {
     API_URL = PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL;
 
-    constructor(protected http: HttpClient, private downloadService: SingleDownloadService) {
-        super(http)
+    constructor(
+        protected http: HttpClient,
+        private downloadService: SingleDownloadService,
+    ) {
+        super(http);
     }
 
-    getEntityInstance() { return new ExtraData(); }
+    getEntityInstance() {
+        return new ExtraData();
+    }
 
-    getExtraDatas(examId:number): Promise<ExtraData[]>{
+    getExtraDatas(examId: number): Promise<ExtraData[]> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${examId}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}${PreclinicalUtils.PRECLINICAL_ALL_URL}`;
-        return this.http.get<ExtraData[]>(url)
+        return this.http
+            .get<ExtraData[]>(url)
             .toPromise()
-            .then(entities => entities?.map((entity) => this.toRealObject(entity)) || []);
+            .then(
+                (entities) =>
+                    entities?.map((entity) => this.toRealObject(entity)) || [],
+            );
     }
 
-    getExtraData(id:string): Promise<ExtraData> {
-        return this.http.get<ExtraData>(PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL+"/"+id)
+    getExtraData(id: string): Promise<ExtraData> {
+        return this.http
+            .get<ExtraData>(
+                PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL + "/" + id,
+            )
             .toPromise()
             .then((entity) => this.toRealObject(entity));
     }
 
     downloadFile(id: number): Promise<void> {
-        const endpoint = this.API_URL + '/extradata/download/' + id;
-        return this.downloadService.downloadSingleFile(endpoint).toPromise().then(() => null);
+        const endpoint = this.API_URL + "/extradata/download/" + id;
+        return this.downloadService
+            .downloadSingleFile(endpoint)
+            .toPromise()
+            .then(() => null);
     }
 
-    createExtraData(datatype:string,extradata: any): Promise<any> {
+    createExtraData(datatype: string, extradata: any): Promise<any> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/${datatype}`;
-        return this.http.post<ExtraData>(url, JSON.stringify(extradata)).toPromise();
+        return this.http
+            .post<ExtraData>(url, JSON.stringify(extradata))
+            .toPromise();
     }
 
-    postFile(fileToUpload: File,  extraData: ExtraData): Promise<any> {
+    postFile(fileToUpload: File, extraData: ExtraData): Promise<any> {
         const endpoint = this.getUploadUrl(extraData);
         const formData: FormData = new FormData();
-        formData.append('files', fileToUpload, fileToUpload.name);
+        formData.append("files", fileToUpload, fileToUpload.name);
         return firstValueFrom(this.http.post(endpoint, formData));
     }
 
     getUploadUrl(extraData: ExtraData): string {
-        return `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/upload/`+extraData.id;
+        return (
+            `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/upload/` +
+            extraData.id
+        );
     }
 
-   	getDownloadUrl(extraData: ExtraData): string {
-        return `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/download/`+extraData.id;
+    getDownloadUrl(extraData: ExtraData): string {
+        return (
+            `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/download/` +
+            extraData.id
+        );
     }
 
     deleteExtradata(extradata: ExtraData): Promise<void> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/${extradata.id}`;
-        return this.http.delete<void>(url)
-            .toPromise();
+        return this.http.delete<void>(url).toPromise();
     }
 
-    download(extradata:ExtraData): Promise<any>{
+    download(extradata: ExtraData): Promise<any> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/${extradata.id}/download`;
         return firstValueFrom(this.http.get<ExtraData>(url));
     }
 
-    updateExtradata(datatype :string, id: number,extradata : ExtraData): Promise<ExtraData> {
-        const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/`+datatype+`/`+id;
+    updateExtradata(
+        datatype: string,
+        id: number,
+        extradata: ExtraData,
+    ): Promise<ExtraData> {
+        const url =
+            `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/` +
+            datatype +
+            `/` +
+            id;
         return firstValueFrom(
-            this.http.put<ExtraData>(url, JSON.stringify(extradata)).pipe()
+            this.http.put<ExtraData>(url, JSON.stringify(extradata)).pipe(),
         );
     }
 }

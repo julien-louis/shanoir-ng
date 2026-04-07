@@ -12,34 +12,31 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from "@angular/core";
+import { UntypedFormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 
-import { TaskState } from 'src/app/async-tasks/task.model';
-import { EntityService } from 'src/app/shared/components/entity/entity.abstract.service';
-import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.service';
-import { Selection } from 'src/app/studies/study/tree.service';
+import { TaskState } from "src/app/async-tasks/task.model";
+import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
+import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
+import { Selection } from "src/app/studies/study/tree.service";
 
-import { DicomArchiveService } from '../../import/shared/dicom-archive.service';
-import { EntityComponent } from '../../shared/components/entity/entity.component.abstract';
-import { StudyRightsService } from '../../studies/shared/study-rights.service';
-import { StudyUserRight } from '../../studies/shared/study-user-right.enum';
-import { Dataset, DatasetMetadata } from '../shared/dataset.model';
-import { DatasetService } from '../shared/dataset.service';
+import { DicomArchiveService } from "../../import/shared/dicom-archive.service";
+import { EntityComponent } from "../../shared/components/entity/entity.component.abstract";
+import { StudyRightsService } from "../../studies/shared/study-rights.service";
+import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
+import { Dataset, DatasetMetadata } from "../shared/dataset.model";
+import { DatasetService } from "../shared/dataset.service";
 
-import { MrDataset } from './mr/dataset.mr.model';
-
+import { MrDataset } from "./mr/dataset.mr.model";
 
 @Component({
-    selector: 'dataset-detail',
-    templateUrl: 'dataset.component.html',
-    styleUrls: ['dataset.component.css'],
-    standalone: false
+    selector: "dataset-detail",
+    templateUrl: "dataset.component.html",
+    styleUrls: ["dataset.component.css"],
+    standalone: false,
 })
-
 export class DatasetComponent extends EntityComponent<Dataset> {
-
     papayaParams: any;
     hasDownloadRight: boolean = false;
     private hasAdministrateRight: boolean = false;
@@ -48,20 +45,25 @@ export class DatasetComponent extends EntityComponent<Dataset> {
     papayaLoadCallback: () => Promise<any[]>;
 
     constructor(
-            private datasetService: DatasetService,
-            route: ActivatedRoute,
-            private dicomArchiveService: DicomArchiveService,
-            private studyRightsService: StudyRightsService,
-            private downloadService: MassDownloadService) {
+        private datasetService: DatasetService,
+        route: ActivatedRoute,
+        private dicomArchiveService: DicomArchiveService,
+        private studyRightsService: StudyRightsService,
+        private downloadService: MassDownloadService,
+    ) {
         super(route);
     }
 
     protected getRoutingName(): string {
-        return 'dataset';
+        return "dataset";
     }
 
-    get dataset(): Dataset { return this.entity; }
-    set dataset(dataset: Dataset) { this.entity = dataset; }
+    get dataset(): Dataset {
+        return this.entity;
+    }
+    set dataset(dataset: Dataset) {
+        this.entity = dataset;
+    }
 
     getService(): EntityService<Dataset> {
         return this.datasetService;
@@ -69,33 +71,50 @@ export class DatasetComponent extends EntityComponent<Dataset> {
 
     protected getTreeSelection: () => Selection = () => {
         return Selection.fromDataset(this.dataset);
-    }
+    };
 
     initView(): Promise<void> {
         this.dicomArchiveService.clearFileInMemory();
         this.papayaLoadCallback = () => this.loadDicomInMemory();
-        if (!this.dataset.updatedMetadata) this.dataset.updatedMetadata = new DatasetMetadata();
+        if (!this.dataset.updatedMetadata)
+            this.dataset.updatedMetadata = new DatasetMetadata();
         this.isMRS = this.isSpectro(this.dataset);
         if (this.keycloakService.isUserAdmin()) {
             this.hasAdministrateRight = true;
             this.hasDownloadRight = true;
             return;
         } else {
-            return this.studyRightsService.getMyRightsForStudy(this.dataset.study.id).then(rights => {
-                this.hasAdministrateRight = rights.includes(StudyUserRight.CAN_ADMINISTRATE);
-                this.hasDownloadRight = rights.includes(StudyUserRight.CAN_DOWNLOAD);
-            });
+            return this.studyRightsService
+                .getMyRightsForStudy(this.dataset.study.id)
+                .then((rights) => {
+                    this.hasAdministrateRight = rights.includes(
+                        StudyUserRight.CAN_ADMINISTRATE,
+                    );
+                    this.hasDownloadRight = rights.includes(
+                        StudyUserRight.CAN_DOWNLOAD,
+                    );
+                });
         }
     }
 
     private isSpectro(dataset: Dataset): boolean {
-        if (dataset.type != 'Mr') return false;
+        if (dataset.type != "Mr") return false;
         else {
             const mrDataset = dataset as MrDataset;
-            if (mrDataset.updatedMrMetadata && mrDataset.updatedMrMetadata.mrDatasetNature) {
-                return mrDataset.updatedMrMetadata.mrDatasetNature.includes('SPECTRO');
-            } else if (mrDataset.originMrMetadata && mrDataset.originMrMetadata.mrDatasetNature) {
-                return mrDataset.originMrMetadata.mrDatasetNature.includes('SPECTRO');
+            if (
+                mrDataset.updatedMrMetadata &&
+                mrDataset.updatedMrMetadata.mrDatasetNature
+            ) {
+                return mrDataset.updatedMrMetadata.mrDatasetNature.includes(
+                    "SPECTRO",
+                );
+            } else if (
+                mrDataset.originMrMetadata &&
+                mrDataset.originMrMetadata.mrDatasetNature
+            ) {
+                return mrDataset.originMrMetadata.mrDatasetNature.includes(
+                    "SPECTRO",
+                );
             } else {
                 return false;
             }
@@ -103,13 +122,14 @@ export class DatasetComponent extends EntityComponent<Dataset> {
     }
 
     initEdit(): Promise<void> {
-        if (!this.dataset.updatedMetadata) this.dataset.updatedMetadata = new DatasetMetadata();
+        if (!this.dataset.updatedMetadata)
+            this.dataset.updatedMetadata = new DatasetMetadata();
         this.dataset.creationDate = new Date(this.dataset.creationDate);
         return Promise.resolve();
     }
 
     initCreate(): Promise<void> {
-        throw new Error('Cannot create Dataset!');
+        throw new Error("Cannot create Dataset!");
     }
 
     buildForm(): UntypedFormGroup {
@@ -117,20 +137,27 @@ export class DatasetComponent extends EntityComponent<Dataset> {
     }
 
     downloadAll() {
-        this.downloadService.downloadByIds([this.dataset?.id], this.downloadState);
+        this.downloadService.downloadByIds(
+            [this.dataset?.id],
+            this.downloadState,
+        );
     }
 
     public loadDicomInMemory(): Promise<any[]> {
-        return this.datasetService.downloadToBlob(this.id, 'dcm').then(blobReponse => {
-            this.dicomArchiveService.clearFileInMemory();
-            return this.dicomArchiveService.importFromZip(blobReponse.body)
-                .then(() => {
-                    return this.dicomArchiveService.extractFileDirectoryStructure()
-                        .then(response => {
-                            return this.initPapaya(response);
-                        });
-                });
-        });
+        return this.datasetService
+            .downloadToBlob(this.id, "dcm")
+            .then((blobReponse) => {
+                this.dicomArchiveService.clearFileInMemory();
+                return this.dicomArchiveService
+                    .importFromZip(blobReponse.body)
+                    .then(() => {
+                        return this.dicomArchiveService
+                            .extractFileDirectoryStructure()
+                            .then((response) => {
+                                return this.initPapaya(response);
+                            });
+                    });
+            });
     }
 
     private initPapaya(dataFiles: any): Promise<any[]> {
@@ -141,7 +168,7 @@ export class DatasetComponent extends EntityComponent<Dataset> {
         const promiseOfList = Promise.all(buffs);
         return promiseOfList.then((values) => {
             const params: object[] = [];
-            params['binaryImages'] = [values];
+            params["binaryImages"] = [values];
             return params;
         });
     }
@@ -159,11 +186,10 @@ export class DatasetComponent extends EntityComponent<Dataset> {
     }
 
     seeDicomMetadata() {
-        this.router.navigate(['/dataset/details/dicom/' + this.dataset.id]);
+        this.router.navigate(["/dataset/details/dicom/" + this.dataset.id]);
     }
 
     goToList(): void {
-        this.router.navigate(['/solr-search']);
+        this.router.navigate(["/solr-search"]);
     }
-
 }

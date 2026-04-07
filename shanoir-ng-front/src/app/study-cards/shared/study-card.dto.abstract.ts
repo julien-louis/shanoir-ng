@@ -2,28 +2,33 @@
  * Shanoir NG - Import, manage and share neuroimaging data
  * Copyright (C) 2009-2019 Inria - https://www.inria.fr/
  * Contact us on https://project.inria.fr/shanoir/
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { AcquisitionEquipment } from '../../acquisition-equipments/shared/acquisition-equipment.model';
-import { Coil } from '../../coils/shared/coil.model';
-import { Study } from '../../studies/shared/study.model';
+import { AcquisitionEquipment } from "../../acquisition-equipments/shared/acquisition-equipment.model";
+import { Coil } from "../../coils/shared/coil.model";
+import { Study } from "../../studies/shared/study.model";
 
-import { StudyCardDTO } from './study-card.dto.model';
-import { DicomTag, Operation, StudyCard, StudyCardAssignment, StudyCardCondition, StudyCardRule } from './study-card.model';
-
+import { StudyCardDTO } from "./study-card.dto.model";
+import {
+    DicomTag,
+    Operation,
+    StudyCard,
+    StudyCardAssignment,
+    StudyCardCondition,
+    StudyCardRule,
+} from "./study-card.model";
 
 /** This was separated from the rest of the service to prevent a circular dependency warning from angular. */
 export abstract class StudyCardDTOServiceAbstract {
-
     static isCoil(assigmentField: string): boolean {
-        return assigmentField?.toLowerCase().includes('coil');
+        return assigmentField?.toLowerCase().includes("coil");
     }
 
     static mapSyncFields(dto: StudyCardDTO, entity: StudyCard): StudyCard {
@@ -44,9 +49,13 @@ export abstract class StudyCardDTOServiceAbstract {
                 if (ruleDTO.assignments) {
                     rule.assignments = [];
                     for (const assigmentDTO of ruleDTO.assignments) {
-                        const assigment: StudyCardAssignment = new StudyCardAssignment(assigmentDTO.scope);
+                        const assigment: StudyCardAssignment =
+                            new StudyCardAssignment(assigmentDTO.scope);
                         assigment.field = assigmentDTO.field;
-                        if (this.isCoil(assigment.field) && !Number.isNaN(Number(assigmentDTO.value))) {
+                        if (
+                            this.isCoil(assigment.field) &&
+                            !Number.isNaN(Number(assigmentDTO.value))
+                        ) {
                             assigment.value = new Coil();
                             assigment.value.id = +assigmentDTO.value;
                         } else {
@@ -58,12 +67,22 @@ export abstract class StudyCardDTOServiceAbstract {
                 if (ruleDTO.conditions) {
                     rule.conditions = [];
                     for (const conditionDTO of ruleDTO.conditions) {
-                        const condition: StudyCardCondition = new StudyCardCondition(conditionDTO.scope);
-                        if (conditionDTO.dicomTag != undefined) condition.dicomTag = new DicomTag(+conditionDTO.dicomTag, null, null, null);
+                        const condition: StudyCardCondition =
+                            new StudyCardCondition(conditionDTO.scope);
+                        if (conditionDTO.dicomTag != undefined)
+                            condition.dicomTag = new DicomTag(
+                                +conditionDTO.dicomTag,
+                                null,
+                                null,
+                                null,
+                            );
                         condition.shanoirField = conditionDTO.shanoirField;
-                        if (this.isCoil(condition.shanoirField) && !Number.isNaN(Number(conditionDTO.values?.[0]))) {
+                        if (
+                            this.isCoil(condition.shanoirField) &&
+                            !Number.isNaN(Number(conditionDTO.values?.[0]))
+                        ) {
                             condition.values = [];
-                            conditionDTO.values?.forEach(dtoVal => {
+                            conditionDTO.values?.forEach((dtoVal) => {
                                 const value = new Coil();
                                 value.id = +dtoVal;
                                 condition.values.push(value);
@@ -71,7 +90,8 @@ export abstract class StudyCardDTOServiceAbstract {
                         } else {
                             condition.values = conditionDTO.values;
                         }
-                        condition.operation = conditionDTO.operation as Operation;
+                        condition.operation =
+                            conditionDTO.operation as Operation;
                         condition.cardinality = conditionDTO.cardinality;
                         rule.conditions.push(condition);
                     }

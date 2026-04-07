@@ -16,9 +16,7 @@ import { DatasetProcessing } from "src/app/datasets/shared/dataset-processing.mo
 
 import { StatusEnum } from "./execution";
 
-
 export class ExecutionMonitoring extends DatasetProcessing {
-
     identifier: string;
     name: string;
     pipelineIdentifier: string;

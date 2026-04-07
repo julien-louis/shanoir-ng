@@ -12,25 +12,30 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { ImportDataService } from '../../../import/shared/import.data-service';
-import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
-import { slideDown } from '../../../shared/animations/animations';
-import * as AppUtils from '../../../utils/app.utils';
-import { PatientDicom, SerieDicom } from '../../../import/shared/dicom-data.model';
-import { ImportService } from '../../../import/shared/import.service';
+import { ImportDataService } from "../../../import/shared/import.data-service";
+import { BreadcrumbsService } from "../../../breadcrumbs/breadcrumbs.service";
+import { slideDown } from "../../../shared/animations/animations";
+import * as AppUtils from "../../../utils/app.utils";
+import {
+    PatientDicom,
+    SerieDicom,
+} from "../../../import/shared/dicom-data.model";
+import { ImportService } from "../../../import/shared/import.service";
 
 @Component({
-    selector: 'bruker-select-series',
-    templateUrl: 'bruker-select-series.component.html',
-    styleUrls: ['bruker-select-series.component.css', '../../../import/shared/import.step.css'],
+    selector: "bruker-select-series",
+    templateUrl: "bruker-select-series.component.html",
+    styleUrls: [
+        "bruker-select-series.component.css",
+        "../../../import/shared/import.step.css",
+    ],
     animations: [slideDown],
-    standalone: false
+    standalone: false,
 })
 export class BrukerSelectSeriesComponent {
-
     public patients: PatientDicom[];
     private workFolder: string;
     public detailedPatient: any;
@@ -38,34 +43,42 @@ export class BrukerSelectSeriesComponent {
     public papayaLoadingCallback: () => Promise<any[]>;
 
     constructor(
-            private importService: ImportService,
-            private breadcrumbsService: BreadcrumbsService,
-            private router: Router,
-            private importDataService: ImportDataService) {
-
-        if (!this.importDataService.archiveUploaded ) {
-            this.router.navigate(['importsBruker'], {replaceUrl: true});
+        private importService: ImportService,
+        private breadcrumbsService: BreadcrumbsService,
+        private router: Router,
+        private importDataService: ImportDataService,
+    ) {
+        if (!this.importDataService.archiveUploaded) {
+            this.router.navigate(["importsBruker"], { replaceUrl: true });
             return;
         }
-        breadcrumbsService.nameStep('2. Series');
+        breadcrumbsService.nameStep("2. Series");
         this.patients = this.importDataService.archiveUploaded.patients;
         this.workFolder = this.importDataService.archiveUploaded.workFolder;
     }
 
-
     public showSerieDetails(serie: SerieDicom): void {
         this.detailedPatient = null;
-        if (serie && this.detailedSerie && serie.seriesInstanceUID == this.detailedSerie["seriesInstanceUID"]) {
+        if (
+            serie &&
+            this.detailedSerie &&
+            serie.seriesInstanceUID == this.detailedSerie["seriesInstanceUID"]
+        ) {
             this.detailedSerie = null;
         } else {
             this.detailedSerie = serie;
-            if (serie && serie.images) this.papayaLoadingCallback = () => this.initPapaya(serie);
+            if (serie && serie.images)
+                this.papayaLoadingCallback = () => this.initPapaya(serie);
         }
     }
 
     public showPatientDetails(nodeParams: any): void {
         this.detailedSerie = null;
-        if (nodeParams && this.detailedPatient && nodeParams.patientID == this.detailedPatient["patientID"]) {
+        if (
+            nodeParams &&
+            this.detailedPatient &&
+            nodeParams.patientID == this.detailedPatient["patientID"]
+        ) {
             this.detailedPatient = null;
         } else {
             this.detailedPatient = nodeParams;
@@ -74,19 +87,22 @@ export class BrukerSelectSeriesComponent {
 
     private initPapaya(serie: SerieDicom): Promise<any[]> {
         const listOfPromises = serie.images.map((image) => {
-            return this.importService.downloadImage(AppUtils.BACKEND_API_GET_DICOM_URL, this.workFolder + '/' + image.path);
+            return this.importService.downloadImage(
+                AppUtils.BACKEND_API_GET_DICOM_URL,
+                this.workFolder + "/" + image.path,
+            );
         });
         const promiseOfList = Promise.all(listOfPromises);
         return promiseOfList.then((values) => {
             const params: object[] = [];
-            params['binaryImages'] = [values];
+            params["binaryImages"] = [values];
             return params;
         });
     }
 
     onStudyCheckChange(checked: boolean, study) {
         if (study.series) {
-            study.series.forEach(serie => serie.selected = checked)
+            study.series.forEach((serie) => (serie.selected = checked));
         }
         this.onPatientUpdate();
     }
@@ -108,6 +124,6 @@ export class BrukerSelectSeriesComponent {
     }
 
     public next() {
-        this.router.navigate(['imports/preclinical-context']);
+        this.router.navigate(["imports/preclinical-context"]);
     }
 }

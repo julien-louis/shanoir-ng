@@ -11,22 +11,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { Examination } from '../../examinations/shared/examination.model';
-import { Id } from '../../shared/models/id.model';
-import { Tag } from '../../tags/tag.model';
+import { Examination } from "../../examinations/shared/examination.model";
+import { Id } from "../../shared/models/id.model";
+import { Tag } from "../../tags/tag.model";
 import { QualityTag } from "../../study-cards/shared/quality-card.model";
 import { Study } from "../../studies/shared/study.model";
 
-import { ImagedObjectCategory } from './imaged-object-category.enum';
-import { Subject } from './subject.model';
-import { Sex, SubjectType } from './subject.types';
-
+import { ImagedObjectCategory } from "./imaged-object-category.enum";
+import { Subject } from "./subject.model";
+import { Sex, SubjectType } from "./subject.types";
 
 @Injectable()
 export class SubjectDTOService {
-
     /**
      * Convert from DTO to Entity
      * Warning : DO NOT USE THIS IN A LOOP, use toEntityList instead
@@ -42,7 +40,10 @@ export class SubjectDTOService {
      * Convert from a DTO list to an Entity list
      * @param result can be used to get an immediate temporary result without waiting async data
      */
-    public toEntityList(dtos: SubjectDTO[], result?: Subject[]): Promise<Subject[]>{
+    public toEntityList(
+        dtos: SubjectDTO[],
+        result?: Subject[],
+    ): Promise<Subject[]> {
         if (!result) result = [];
         if (dtos) {
             for (const dto of dtos) {
@@ -56,11 +57,13 @@ export class SubjectDTOService {
 
     static mapSyncFields(dto: SubjectDTO, entity: Subject): Subject {
         entity.id = dto.id;
-        entity.examinations = dto.examinations ? dto.examinations.map(examId => {
-            const exam: Examination = new Examination();
-            exam.id = examId.id;
-            return exam;
-        }) : null;
+        entity.examinations = dto.examinations
+            ? dto.examinations.map((examId) => {
+                  const exam: Examination = new Examination();
+                  exam.id = examId.id;
+                  return exam;
+              })
+            : null;
         entity.name = dto.name;
         entity.identifier = dto.identifier;
         entity.birthDate = dto.birthDate ? new Date(dto.birthDate) : null;
@@ -75,7 +78,7 @@ export class SubjectDTOService {
         entity.physicallyInvolved = dto.physicallyInvolved;
         entity.tags = dto.tags;
         entity.qualityTag = dto.qualityTag;
-        entity.study = new Study()
+        entity.study = new Study();
         entity.study.id = dto.studyId;
         return entity;
     }
@@ -90,7 +93,6 @@ export class SubjectDTOService {
 }
 
 export class SubjectDTO {
-
     id: number;
     examinations: Id[];
     name: string;
@@ -108,16 +110,18 @@ export class SubjectDTO {
     physicallyInvolved: boolean;
     tags: Tag[];
     qualityTag: QualityTag;
-    study: {id: number};
+    study: { id: number };
     studyId: number;
 
     constructor(subject: Subject) {
         this.id = subject.id;
-        if (subject.examinations) this.examinations = Id.toIdList(subject.examinations);
+        if (subject.examinations)
+            this.examinations = Id.toIdList(subject.examinations);
         this.name = subject.name;
         this.identifier = subject.identifier;
         this.birthDate = subject.birthDate;
-        this.languageHemisphericDominance = subject.languageHemisphericDominance;
+        this.languageHemisphericDominance =
+            subject.languageHemisphericDominance;
         this.manualHemisphericDominance = subject.manualHemisphericDominance;
         this.imagedObjectCategory = subject.imagedObjectCategory;
         this.sex = subject.sex;
@@ -129,6 +133,6 @@ export class SubjectDTO {
         this.physicallyInvolved = subject.physicallyInvolved;
         this.tags = subject.tags;
         this.qualityTag = subject.qualityTag;
-        this.study = {id: subject.study.id};
+        this.study = { id: subject.study.id };
     }
 }

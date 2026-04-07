@@ -1,42 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { BreadcrumbsService } from 'src/app/breadcrumbs/breadcrumbs.service';
-import { Pipeline } from 'src/app/vip/models/pipeline';
+import { BreadcrumbsService } from "src/app/breadcrumbs/breadcrumbs.service";
+import { Pipeline } from "src/app/vip/models/pipeline";
 
-import { ExecutionDataService } from '../execution.data-service';
+import { ExecutionDataService } from "../execution.data-service";
 
 import { PipelineService } from "./pipeline/pipeline.service";
 
 @Component({
-    selector: 'app-pipelines',
-    templateUrl: './pipelines.component.html',
-    styleUrls: ['./pipelines.component.css'],
-    standalone: false
+    selector: "app-pipelines",
+    templateUrl: "./pipelines.component.html",
+    styleUrls: ["./pipelines.component.css"],
+    standalone: false,
 })
 export class PipelinesComponent implements OnInit {
-
     pipelines: Pipeline[];
     selectedPipeline: Pipeline;
     descriptionLoading: boolean;
 
-    constructor(private breadcrumbsService: BreadcrumbsService, 
-            private pipelineService: PipelineService, 
-            private router: Router, 
-            private processingService: ExecutionDataService) {
+    constructor(
+        private breadcrumbsService: BreadcrumbsService,
+        private pipelineService: PipelineService,
+        private router: Router,
+        private processingService: ExecutionDataService,
+    ) {
         this.pipelines = [];
         this.descriptionLoading = false;
 
         this.breadcrumbsService.currentStepAsMilestone();
-        this.breadcrumbsService.nameStep('1. Processing');
+        this.breadcrumbsService.nameStep("1. Processing");
     }
 
     ngOnInit(): void {
-        this.pipelineService.listPipelines().then(
-            (pipelines: Pipeline[]) => {
-                this.pipelines = pipelines;
-            }
-        )
+        this.pipelineService.listPipelines().then((pipelines: Pipeline[]) => {
+            this.pipelines = pipelines;
+        });
     }
 
     selectPipeline(pipeline: Pipeline) {
@@ -48,12 +47,15 @@ export class PipelinesComponent implements OnInit {
             },
             (error) => {
                 console.error(error);
-            }
-        )
+            },
+        );
     }
 
     isSelectedDatasets(): boolean {
-        return this.processingService.selectedDatasets && this.processingService.selectedDatasets.size > 0;
+        return (
+            this.processingService.selectedDatasets &&
+            this.processingService.selectedDatasets.size > 0
+        );
     }
 
     choosePipeLine() {
@@ -65,10 +67,10 @@ export class PipelinesComponent implements OnInit {
         //         filesParam += 1;
         //     }
         // })
-        this.router.navigate(['execution']);
+        this.router.navigate(["execution"]);
     }
 
     navigateToSolr(): void {
-        this.router.navigate(['/solr-search']);
+        this.router.navigate(["/solr-search"]);
     }
 }

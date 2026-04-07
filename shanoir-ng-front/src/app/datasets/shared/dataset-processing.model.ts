@@ -19,13 +19,12 @@ import { Field } from "../../shared/reflect/field.decorator";
 import { Dataset } from "./dataset.model";
 
 export class DatasetProcessing extends Entity {
-
     @Field() id: number;
     @Field() comment: string;
     @Field() datasetProcessingType: DatasetProcessingType;
     @Field() inputDatasets: Dataset[] = [];
     @Field() outputDatasets: Dataset[] = [];
-	@Field() processingDate: Date;
+    @Field() processingDate: Date;
     @Field() studyId: number;
     @Field() parentId: number;
 }

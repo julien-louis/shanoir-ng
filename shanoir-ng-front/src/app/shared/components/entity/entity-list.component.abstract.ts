@@ -11,30 +11,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Directive, Input, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subject, Subscription } from 'rxjs';
+import { Directive, Input, OnDestroy, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { Subject, Subscription } from "rxjs";
 
-import { TreeService } from 'src/app/studies/study/tree.service';
+import { TreeService } from "src/app/studies/study/tree.service";
 
-import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
-import { capitalizeFirstLetter } from '../../../utils/app.utils';
-import { ServiceLocator } from '../../../utils/locator.service';
-import { KeycloakService } from '../../keycloak/keycloak.service';
-import { ShanoirError } from '../../models/error.model';
-import { ConsoleService } from '../../console/console.service';
-import { WindowService } from '../../services/window.service';
-import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
-import { Page, Pageable } from '../table/pageable.model';
-import { TableComponent } from '../table/table.component';
-import { ColumnDefinition } from '..//table/column.definition.type';
+import { BreadcrumbsService } from "../../../breadcrumbs/breadcrumbs.service";
+import { capitalizeFirstLetter } from "../../../utils/app.utils";
+import { ServiceLocator } from "../../../utils/locator.service";
+import { KeycloakService } from "../../keycloak/keycloak.service";
+import { ShanoirError } from "../../models/error.model";
+import { ConsoleService } from "../../console/console.service";
+import { WindowService } from "../../services/window.service";
+import { ConfirmDialogService } from "../confirm-dialog/confirm-dialog.service";
+import { Page, Pageable } from "../table/pageable.model";
+import { TableComponent } from "../table/table.component";
+import { ColumnDefinition } from "..//table/column.definition.type";
 
-import { Entity, EntityRoutes } from './entity.abstract';
-import { EntityService } from './entity.abstract.service';
+import { Entity, EntityRoutes } from "./entity.abstract";
+import { EntityService } from "./entity.abstract.service";
 
 @Directive()
-export abstract class EntityListComponent<T extends Entity> implements OnInit, OnDestroy {
-
+export abstract class EntityListComponent<T extends Entity>
+    implements OnInit, OnDestroy
+{
     @Input() embedded: boolean = false;
     abstract table: TableComponent;
     columnDefs: ColumnDefinition[];
@@ -47,10 +48,11 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
     protected breadcrumbsService: BreadcrumbsService;
     public windowService: WindowService;
     private treeService: TreeService;
-    public onDelete: Subject<{entity: Entity, error?: ShanoirError}> =  new Subject();
-    public onAdd: Subject<any> =  new Subject<any>();
+    public onDelete: Subject<{ entity: Entity; error?: ShanoirError }> =
+        new Subject();
+    public onAdd: Subject<any> = new Subject<any>();
     protected subscriptions: Subscription[] = [];
-    private selectedId:  number;
+    private selectedId: number;
 
     private edit: boolean = false;
     private view: boolean = true;
@@ -61,14 +63,14 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
     abstract getService(): EntityService<T>;
     getOnDeleteConfirmMessage?(entity: T): string;
 
-    constructor(
-            protected readonly ROUTING_NAME: string) {
-
+    constructor(protected readonly ROUTING_NAME: string) {
         this.entityRoutes = new EntityRoutes(ROUTING_NAME);
         this.router = ServiceLocator.injector.get(Router);
-        this.confirmDialogService = ServiceLocator.injector.get(ConfirmDialogService);
+        this.confirmDialogService =
+            ServiceLocator.injector.get(ConfirmDialogService);
         this.consoleService = ServiceLocator.injector.get(ConsoleService);
-        this.breadcrumbsService = ServiceLocator.injector.get(BreadcrumbsService);
+        this.breadcrumbsService =
+            ServiceLocator.injector.get(BreadcrumbsService);
         this.keycloakService = ServiceLocator.injector.get(KeycloakService);
         this.windowService = ServiceLocator.injector.get(WindowService);
         this.treeService = ServiceLocator.injector.get(TreeService);
@@ -83,7 +85,9 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
     ngOnInit(): void {
         if (!this.embedded) {
             this.breadcrumbsService.markMilestone();
-            this.breadcrumbsService.nameStep(capitalizeFirstLetter(this.ROUTING_NAME) + ' list');
+            this.breadcrumbsService.nameStep(
+                capitalizeFirstLetter(this.ROUTING_NAME) + " list",
+            );
         }
     }
 
@@ -98,20 +102,46 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
 
     protected completeColDefs(): void {
         if (this.edit) {
-            this.columnDefs.push({ headerName: "", type: "button", awesome: "fa-regular fa-edit", action: item => this.goToEdit(item.id), condition: item => this.canEdit(item) });
+            this.columnDefs.push({
+                headerName: "",
+                type: "button",
+                awesome: "fa-regular fa-edit",
+                action: (item) => this.goToEdit(item.id),
+                condition: (item) => this.canEdit(item),
+            });
         }
         if (this.delete) {
-            this.columnDefs.push({ headerName: "", type: "button", awesome: "fa-regular fa-trash-can", action: (item) => this.openDeleteConfirmDialog(item) , condition: item => this.canDelete(item)});
+            this.columnDefs.push({
+                headerName: "",
+                type: "button",
+                awesome: "fa-regular fa-trash-can",
+                action: (item) => this.openDeleteConfirmDialog(item),
+                condition: (item) => this.canDelete(item),
+            });
         }
-        if (this.showId && this.keycloakService.isUserAdmin && !this.columnDefs.find(col => col.field == 'id')) {
-            this.columnDefs.unshift({ headerName: 'Id', field: 'id', type: 'number', width: '30px'});
+        if (
+            this.showId &&
+            this.keycloakService.isUserAdmin &&
+            !this.columnDefs.find((col) => col.field == "id")
+        ) {
+            this.columnDefs.unshift({
+                headerName: "Id",
+                field: "id",
+                type: "number",
+                width: "30px",
+            });
         }
     }
 
     private completeCustomActions(): void {
         if (this.new) {
             this.customActionDefs.push({
-                title: "New",awesome: "fa-solid fa-plus", action: () => this.router.navigate([this.entityRoutes.getRouteToCreate()])
+                title: "New",
+                awesome: "fa-solid fa-plus",
+                action: () =>
+                    this.router.navigate([
+                        this.entityRoutes.getRouteToCreate(),
+                    ]),
             });
         }
     }
@@ -125,36 +155,57 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
     }
 
     protected openDeleteConfirmDialog = (entity: T) => {
-        const dialogTitle : string = 'Delete ' + this.ROUTING_NAME;
-        const dialogMsg : string = 'Are you sure you want to finally delete the ' + this.ROUTING_NAME
-            + (entity['name'] ? ' "' + entity['name'] + '"' : ' with id n° ' + entity.id) + ' ?';
+        const dialogTitle: string = "Delete " + this.ROUTING_NAME;
+        const dialogMsg: string =
+            "Are you sure you want to finally delete the " +
+            this.ROUTING_NAME +
+            (entity["name"]
+                ? ' "' + entity["name"] + '"'
+                : " with id n° " + entity.id) +
+            " ?";
 
         let deleteConfirmMsg: string;
         if (this.getOnDeleteConfirmMessage) {
             deleteConfirmMsg = this.getOnDeleteConfirmMessage(entity);
         } else {
-            deleteConfirmMsg = '';
+            deleteConfirmMsg = "";
         }
-            this.confirmDialogService.confirm(
-                dialogTitle,
-                dialogMsg + deleteConfirmMsg
-            ).then(res => {
+        this.confirmDialogService
+            .confirm(dialogTitle, dialogMsg + deleteConfirmMsg)
+            .then((res) => {
                 if (res) {
-                    this.getService().delete(entity.id).then(() => {
-                        this.onDelete.next({entity: entity});
-                        setTimeout(() => {
-                            this.table.refresh().then(() => {
-                                if (this.ROUTING_NAME == 'examination') {
-                                    this.consoleService.log('info', 'The ' + this.ROUTING_NAME + ' n°' + entity.id + ' has sucessfully started to delete. Check the job page to see its progress.');
-                                } else {
-                                    this.consoleService.log('info', 'The ' + this.ROUTING_NAME + ' n°' + entity.id + ' sucessfully deleted');
-                                }
-                            });
-                        }, 1000);
-                        this.treeService.updateTree();
-                    });
+                    this.getService()
+                        .delete(entity.id)
+                        .then(() => {
+                            this.onDelete.next({ entity: entity });
+                            setTimeout(() => {
+                                this.table.refresh().then(() => {
+                                    if (this.ROUTING_NAME == "examination") {
+                                        this.consoleService.log(
+                                            "info",
+                                            "The " +
+                                                this.ROUTING_NAME +
+                                                " n°" +
+                                                entity.id +
+                                                " has sucessfully started to delete. Check the job page to see its progress.",
+                                        );
+                                    } else {
+                                        this.consoleService.log(
+                                            "info",
+                                            "The " +
+                                                this.ROUTING_NAME +
+                                                " n°" +
+                                                entity.id +
+                                                " sucessfully deleted",
+                                        );
+                                    }
+                                });
+                            }, 1000);
+                            this.treeService.updateTree();
+                        });
                 }
-            }).catch(reason => {
+            })
+            .catch((reason) => {
                 if (!reason) {
                     return;
                 }
@@ -167,22 +218,28 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
                 }
                 throw Error(reason);
             });
-    }
+    };
 
     private dealWithDeleteError(error: ShanoirError, entity: any) {
-        let warn = 'The ' + this.ROUTING_NAME + (entity['name'] ? ' ' + entity['name'] : '') + ' with id ' + entity.id + ' is linked to other entities, it was not deleted.';
-        if (error.message){
-            warn = warn + ' ' + error.message;
+        let warn =
+            "The " +
+            this.ROUTING_NAME +
+            (entity["name"] ? " " + entity["name"] : "") +
+            " with id " +
+            entity.id +
+            " is linked to other entities, it was not deleted.";
+        if (error.message) {
+            warn = warn + " " + error.message;
         }
-        this.consoleService.log('warn', warn, [error.details]);
-        this.onDelete.next({error: error, entity: entity});
+        this.consoleService.log("warn", warn, [error.details]);
+        this.onDelete.next({ error: error, entity: entity });
     }
 
     /**
      * Can be overriden to set options
      */
     protected getOptions(): any {
-        return { };
+        return {};
     }
 
     /**
@@ -222,14 +279,18 @@ export abstract class EntityListComponent<T extends Entity> implements OnInit, O
     }
 
     getRowRoute(item): string {
-        if (item.visibleByDefault && item.locked && !this.keycloakService.isUserAdmin()) {
+        if (
+            item.visibleByDefault &&
+            item.locked &&
+            !this.keycloakService.isUserAdmin()
+        ) {
             return null;
         }
         return this.entityRoutes.getRouteToView(item.id);
     }
 
     ngOnDestroy() {
-        for(const subscribtion of this.subscriptions) {
+        for (const subscribtion of this.subscriptions) {
             subscribtion.unsubscribe();
         }
     }

@@ -11,19 +11,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Field } from '../../shared/reflect/field.decorator';
-import { Examination } from '../../examinations/shared/examination.model';
-import { Entity } from '../../shared/components/entity/entity.abstract';
+import { Field } from "../../shared/reflect/field.decorator";
+import { Examination } from "../../examinations/shared/examination.model";
+import { Entity } from "../../shared/components/entity/entity.abstract";
 import { Tag } from "../../tags/tag.model";
 import { QualityTag } from "../../study-cards/shared/quality-card.model";
 import { SimpleStudy, Study } from "../../studies/shared/study.model";
 
-import { ImagedObjectCategory } from './imaged-object-category.enum';
-import { Sex, SubjectType } from './subject.types';
-
+import { ImagedObjectCategory } from "./imaged-object-category.enum";
+import { Sex, SubjectType } from "./subject.types";
 
 export class Subject extends Entity {
-
     @Field() id: number;
     @Field() examinations: Examination[];
     @Field() name: string;
@@ -44,12 +42,17 @@ export class Subject extends Entity {
     @Field() study: Study;
     @Field() studyId: number;
 
-    public static makeSubject(id: number, name: string, identifier: string, study: SimpleStudy): Subject {
+    public static makeSubject(
+        id: number,
+        name: string,
+        identifier: string,
+        study: SimpleStudy,
+    ): Subject {
         const subject = new Subject();
         subject.id = id;
         subject.name = name;
         subject.identifier = identifier;
-        subject.study = new Study()
+        subject.study = new Study();
         subject.study.id = study.id;
         return subject;
     }

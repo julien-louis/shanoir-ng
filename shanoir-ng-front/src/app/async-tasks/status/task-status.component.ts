@@ -11,43 +11,66 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import {
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    SimpleChanges,
+} from "@angular/core";
+import { Subscription } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 
-import { BrowserPaging } from 'src/app/shared/components/table/browser-paging.model';
-import { ColumnDefinition } from 'src/app/shared/components/table/column.definition.type';
-import { FilterablePageable, Page } from 'src/app/shared/components/table/pageable.model';
-import { MassDownloadService } from 'src/app/shared/mass-download/mass-download.service';
-import { QualityCardComponent } from 'src/app/study-cards/quality-card/quality-card.component';
+import { BrowserPaging } from "src/app/shared/components/table/browser-paging.model";
+import { ColumnDefinition } from "src/app/shared/components/table/column.definition.type";
+import {
+    FilterablePageable,
+    Page,
+} from "src/app/shared/components/table/pageable.model";
+import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
+import { QualityCardComponent } from "src/app/study-cards/quality-card/quality-card.component";
 
-import { NotificationsService } from '../../shared/notifications/notifications.service';
-import {Task} from '../task.model';
-import {TaskService} from "../task.service";
-import {KeycloakService} from "../../shared/keycloak/keycloak.service";
-import {ConsoleService} from "../../shared/console/console.service";
+import { NotificationsService } from "../../shared/notifications/notifications.service";
+import { Task } from "../task.model";
+import { TaskService } from "../task.service";
+import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { ConsoleService } from "../../shared/console/console.service";
 
 @Component({
-    selector: 'task-status',
-    templateUrl: 'task-status.component.html',
-    styleUrls: ['task-status.component.css'],
-    standalone: false
+    selector: "task-status",
+    templateUrl: "task-status.component.html",
+    styleUrls: ["task-status.component.css"],
+    standalone: false,
 })
 export class TaskStatusComponent implements OnDestroy, OnChanges {
-
     importTs: number;
     protected subscriptions: Subscription[] = [];
     @Input() task: Task;
     private tableRefresh: () => void;
 
     reportColumns: ColumnDefinition[] = [
-        {headerName: 'Subject Name', field: 'subjectName', width: '20%'},
-        {headerName: 'Examination Comment', field: 'examinationComment', width: '25%'},
-        {headerName: 'Examination Date', field: 'examinationDate', type: 'date', width: '100px'},
-        {headerName: 'Details', field: 'message', wrap: true}
+        { headerName: "Subject Name", field: "subjectName", width: "20%" },
+        {
+            headerName: "Examination Comment",
+            field: "examinationComment",
+            width: "25%",
+        },
+        {
+            headerName: "Examination Date",
+            field: "examinationDate",
+            type: "date",
+            width: "100px",
+        },
+        { headerName: "Details", field: "message", wrap: true },
     ];
     report: BrowserPaging<any>;
-    reportActions: any = [{title: "Download as csv", awesome: "fa-solid fa-download", action: () => this.downloadReport()}];
+    reportActions: any = [
+        {
+            title: "Download as csv",
+            awesome: "fa-solid fa-download",
+            action: () => this.downloadReport(),
+        },
+    ];
     browserCompatible: boolean = !!(window as any).showDirectoryPicker;
     loading: boolean = false;
 
@@ -57,7 +80,7 @@ export class TaskStatusComponent implements OnDestroy, OnChanges {
         private downloadService: MassDownloadService,
         private http: HttpClient,
         private keycloakService: KeycloakService,
-        private consoleService: ConsoleService
+        private consoleService: ConsoleService,
     ) {}
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -71,15 +94,22 @@ export class TaskStatusComponent implements OnDestroy, OnChanges {
                     reportArray = null;
                 }
                 if (reportArray && Array.isArray(reportArray)) {
-                    this.report = new BrowserPaging(reportArray, this.reportColumns);
+                    this.report = new BrowserPaging(
+                        reportArray,
+                        this.reportColumns,
+                    );
                     if (this.tableRefresh) this.tableRefresh();
                 }
             }
 
             this.subscriptions.push(
-                this.notificationsService.getNotifications().subscribe(tasks => {
-                    this.task = tasks.find(task => task.id == this.task.id);
-                })
+                this.notificationsService
+                    .getNotifications()
+                    .subscribe((tasks) => {
+                        this.task = tasks.find(
+                            (task) => task.id == this.task.id,
+                        );
+                    }),
             );
         }
     }
@@ -104,7 +134,9 @@ export class TaskStatusComponent implements OnDestroy, OnChanges {
 
     retry() {
         this.loading = true;
-        this.downloadService.retry(this.task).finally(() => this.loading = false);
+        this.downloadService
+            .retry(this.task)
+            .finally(() => (this.loading = false));
     }
 
     downloadStats(event: MouseEvent) {

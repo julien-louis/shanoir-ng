@@ -11,34 +11,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {Component, forwardRef, Input} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import { Component, forwardRef, Input } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import {Mode} from '../../../shared/components/entity/entity.component.abstract';
-import {UnitOfMeasure} from "../../../enum/unitofmeasure.enum";
+import { Mode } from "../../../shared/components/entity/entity.component.abstract";
+import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 
-import {MrProtocol} from './mr-protocol.model';
-
+import { MrProtocol } from "./mr-protocol.model";
 
 @Component({
-    selector: 'mr-protocol',
-    templateUrl: 'mr-protocol.component.html',
+    selector: "mr-protocol",
+    templateUrl: "mr-protocol.component.html",
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => MrProtocolComponent),
             multi: true,
-        }
+        },
     ],
-    standalone: false
+    standalone: false,
 })
 export class MrProtocolComponent implements ControlValueAccessor {
-
     public protocol: MrProtocol;
     @Input() private mode: Mode;
     protected disabled: boolean = false;
-    protected propagateChange: (any) => void = () => { return; };
-    protected propagateTouched = () => { return; };
+    protected propagateChange: (any) => void = () => {
+        return;
+    };
+    protected propagateTouched = () => {
+        return;
+    };
 
     writeValue(obj: any): void {
         this.protocol = obj;
@@ -60,5 +62,4 @@ export class MrProtocolComponent implements ControlValueAccessor {
     getUnit(key: string) {
         return UnitOfMeasure.getLabelByKey(key);
     }
-
 }

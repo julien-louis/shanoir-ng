@@ -11,10 +11,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import {DatasetProcessingType} from "../../enum/dataset-processing-type.enum";
+import { DatasetProcessingType } from "../../enum/dataset-processing-type.enum";
 
 export class Execution {
-
     /* local ID for angular, remove it before creatin it. */
     id: number;
 
@@ -68,6 +67,14 @@ export class Execution {
     /**
      * Executable location
      */
-     executable: string;
+    executable: string;
 }
-export type StatusEnum = 'Initializing' | 'Ready' | 'Running' | 'Finished' | 'InitializationFailed' | 'ExecutionFailed' | 'Unknown' | 'Killed';
+export type StatusEnum =
+    | "Initializing"
+    | "Ready"
+    | "Running"
+    | "Finished"
+    | "InitializationFailed"
+    | "ExecutionFailed"
+    | "Unknown"
+    | "Killed";

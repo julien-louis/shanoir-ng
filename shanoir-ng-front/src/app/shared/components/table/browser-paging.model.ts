@@ -12,18 +12,24 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Pageable, Page, Sort, FilterablePageable, Filter } from './pageable.model';
-import { TableComponent } from './table.component';
-import { ColumnDefinition } from './column.definition.type';
+import {
+    Pageable,
+    Page,
+    Sort,
+    FilterablePageable,
+    Filter,
+} from "./pageable.model";
+import { TableComponent } from "./table.component";
+import { ColumnDefinition } from "./column.definition.type";
 
 export class BrowserPaging<T> {
-
     private lastSort: Sort;
 
     constructor(
-            public items: T[],
-            public columnDefs: ColumnDefinition[]) {
-        if (!this.items) throw Error('items cannot be null !');
+        public items: T[],
+        public columnDefs: ColumnDefinition[],
+    ) {
+        if (!this.items) throw Error("items cannot be null !");
     }
 
     public setItems(items: T[]) {
@@ -35,8 +41,12 @@ export class BrowserPaging<T> {
     }
 
     public getPage(pageable: FilterablePageable): Page<T> {
-        if ((!this.lastSort || !this.lastSort.equals(pageable.sort))
-                && pageable.sort && pageable.sort.orders && pageable.sort.orders.length > 0 ) {
+        if (
+            (!this.lastSort || !this.lastSort.equals(pageable.sort)) &&
+            pageable.sort &&
+            pageable.sort.orders &&
+            pageable.sort.orders.length > 0
+        ) {
             this.lastSort = pageable.sort;
             this.items = this.sortItems(this.items, pageable); // SORT
         }
@@ -49,13 +59,13 @@ export class BrowserPaging<T> {
         page.size = pageable.pageSize;
         page.numberOfElements = filtered.length;
         page.totalElements = this.items.length;
-        page.totalPages = Math.ceil(page.numberOfElements/page.size);
+        page.totalPages = Math.ceil(page.numberOfElements / page.size);
         return page;
     }
 
     private slice(items: T[], pageable: Pageable): T[] {
         if (items.length == 0) return items;
-        const start: number = (pageable.pageNumber-1) * pageable.pageSize;
+        const start: number = (pageable.pageNumber - 1) * pageable.pageSize;
         const end: number = +start + +pageable.pageSize;
         return items.slice(start, end);
     }
@@ -68,15 +78,23 @@ export class BrowserPaging<T> {
                 break;
             }
         }
-        if (!col) throw Error('cannot find a corresponding column to sort');
+        if (!col) throw Error("cannot find a corresponding column to sort");
 
-        return this.sortItemsByCol(items, col, pageable.sort.orders[0].direction == 'ASC');
+        return this.sortItemsByCol(
+            items,
+            col,
+            pageable.sort.orders[0].direction == "ASC",
+        );
     }
 
     /**
      * Sort items by col, then by id
      */
-    private sortItemsByCol(items: T[], col: ColumnDefinition, asc: boolean): T[] {
+    private sortItemsByCol(
+        items: T[],
+        col: ColumnDefinition,
+        asc: boolean,
+    ): T[] {
         // Some columns are incompatible with sorting
         if (col.disableSorting || col.type == "button") {
             return;
@@ -100,9 +118,12 @@ export class BrowserPaging<T> {
             let cell2 = TableComponent.getCellValue(n2, col);
             if (col.type == "number") {
                 // Real value for date
-                cell1 = TableComponent.getFieldRawValue(n1, col.field)
-                cell2 = TableComponent.getFieldRawValue(n2, col.field)
-            } else if ((col.type == "date" || col.type == "dateTime") && !col.cellRenderer) {
+                cell1 = TableComponent.getFieldRawValue(n1, col.field);
+                cell2 = TableComponent.getFieldRawValue(n2, col.field);
+            } else if (
+                (col.type == "date" || col.type == "dateTime") &&
+                !col.cellRenderer
+            ) {
                 cell1 = TableComponent.harmonizeToDate(cell1)?.getTime();
                 cell2 = TableComponent.harmonizeToDate(cell2)?.getTime();
             }
@@ -120,12 +141,12 @@ export class BrowserPaging<T> {
 
             if (cell1 == null) {
                 cell1 = negInf;
-            } else if (typeof cell1 == 'string') {
+            } else if (typeof cell1 == "string") {
                 cell1 = cell1.toLowerCase().trim();
             }
             if (cell2 == null) {
                 cell2 = negInf;
-            } else if (typeof cell2 == 'string') {
+            } else if (typeof cell2 == "string") {
                 cell2 = cell2.toLowerCase().trim();
             }
 
@@ -139,16 +160,15 @@ export class BrowserPaging<T> {
         return items;
     }
 
-
     /**
      * Filter items by a search string
      */
     private filter(items: T[], filter: Filter): T[] {
-        if(!filter) return items;
+        if (!filter) return items;
         let searchStr: string = filter.searchStr;
         const searchField: string = filter.searchField;
         if (!searchStr) return items;
-        if (typeof searchStr != 'string') searchStr = searchStr + "";
+        if (typeof searchStr != "string") searchStr = searchStr + "";
         searchStr = searchStr.toLowerCase().trim();
         if (searchStr.length == 0) return items;
         // Inspect every field and save the item if one field matches
@@ -156,11 +176,23 @@ export class BrowserPaging<T> {
         for (const item of items) {
             for (const col of this.columnDefs) {
                 const value: any = TableComponent.getCellValue(item, col);
-                if (value && typeof value != 'boolean' && col["type"] != "button") {
-                    let valueStr: string = TableComponent.getCellValue(item, col);
-                    if (!searchField || searchField == "" || col.field == searchField) {
+                if (
+                    value &&
+                    typeof value != "boolean" &&
+                    col["type"] != "button"
+                ) {
+                    let valueStr: string = TableComponent.getCellValue(
+                        item,
+                        col,
+                    );
+                    if (
+                        !searchField ||
+                        searchField == "" ||
+                        col.field == searchField
+                    ) {
                         if (value && valueStr) {
-                            if (typeof valueStr != 'string') valueStr = valueStr + "";
+                            if (typeof valueStr != "string")
+                                valueStr = valueStr + "";
                             valueStr = valueStr.toLowerCase().trim();
                             if (valueStr.indexOf(searchStr) >= 0) {
                                 result.push(item);

@@ -11,108 +11,114 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Location } from '@angular/common';
-import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Location } from "@angular/common";
+import { Component, OnDestroy, ViewChild } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Subscription } from "rxjs";
 
-import { Selection, TreeService } from 'src/app/studies/study/tree.service';
+import { Selection, TreeService } from "src/app/studies/study/tree.service";
 
-import { BreadcrumbsService } from '../../../breadcrumbs/breadcrumbs.service';
+import { BreadcrumbsService } from "../../../breadcrumbs/breadcrumbs.service";
 import { BrowserPaging } from "../../../shared/components/table/browser-paging.model";
 import { ColumnDefinition } from "../../../shared/components/table/column.definition.type";
-import { Page, Pageable } from "../../../shared/components/table/pageable.model";
+import {
+    Page,
+    Pageable,
+} from "../../../shared/components/table/pageable.model";
 import { TableComponent } from "../../../shared/components/table/table.component";
-import { DicomService } from '../../../study-cards/shared/dicom.service';
-import { DatasetService } from '../../shared/dataset.service';
+import { DicomService } from "../../../study-cards/shared/dicom.service";
+import { DatasetService } from "../../shared/dataset.service";
 
 import { DicomMetadata } from "./dicom-metadata.model";
 
-
 @Component({
-    selector: 'dicom-metadata',
-    templateUrl: 'metadata.component.html',
-    styleUrls: ['metadata.component.css'],
-    standalone: false
+    selector: "dicom-metadata",
+    templateUrl: "metadata.component.html",
+    styleUrls: ["metadata.component.css"],
+    standalone: false,
 })
-
 export class MetadataComponent implements OnDestroy {
-
     metadata: DicomMetadata[] = [];
     columnDefs: ColumnDefinition[];
     subscriptions: Subscription[] = [];
 
-    @ViewChild('table', { static: false }) table: TableComponent;
+    @ViewChild("table", { static: false }) table: TableComponent;
 
     constructor(
-            private datasetService: DatasetService,
-            private activatedRoute: ActivatedRoute,
-            private dicomService: DicomService,
-            private breadcrumbsService: BreadcrumbsService,
-            private location: Location,
-            private treeService: TreeService) {
-
-        this.subscriptions.push(this.activatedRoute.params.subscribe(
-            params => {
+        private datasetService: DatasetService,
+        private activatedRoute: ActivatedRoute,
+        private dicomService: DicomService,
+        private breadcrumbsService: BreadcrumbsService,
+        private location: Location,
+        private treeService: TreeService,
+    ) {
+        this.subscriptions.push(
+            this.activatedRoute.params.subscribe((params) => {
                 this.treeService.activateTree(this.activatedRoute); // at each routing event
-                breadcrumbsService.nameStep('Dicom metadata');
-                const id = +params['id'];
+                breadcrumbsService.nameStep("Dicom metadata");
+                const id = +params["id"];
                 this.metadata = [];
                 this.loadMetadata(id).then(() => {
-                    this.table.maxResults = this.metadata.length
+                    this.table.maxResults = this.metadata.length;
                     this.table.refresh();
-            })
-        }));
+                });
+            }),
+        );
         this.columnDefs = this.getColumnDefs();
     }
     ngOnDestroy(): void {
-        this.subscriptions.forEach(s => s.unsubscribe());
+        this.subscriptions.forEach((s) => s.unsubscribe());
     }
 
     private loadMetadata(id: number) {
-        this.datasetService.get(id, 'lazy').then(ds => {
-            this.treeService.select(new Selection(id, 'dicomMetadata', [ds.study.id], ds));
+        this.datasetService.get(id, "lazy").then((ds) => {
+            this.treeService.select(
+                new Selection(id, "dicomMetadata", [ds.study.id], ds),
+            );
         });
 
-        return Promise.all([this.datasetService.downloadDicomMetadata(id), this.dicomService.getDicomTags()]).then(([data, tags]) => {
+        return Promise.all([
+            this.datasetService.downloadDicomMetadata(id),
+            this.dicomService.getDicomTags(),
+        ]).then(([data, tags]) => {
             if (!data) {
                 return;
             }
             const metadata = Object.entries(data[0]);
-            metadata.forEach(entry => {
-
+            metadata.forEach((entry) => {
                 const met = new DicomMetadata();
 
-                const group = entry[0].toString().substring(0,4);
+                const group = entry[0].toString().substring(0, 4);
                 const element = entry[0].toString().substring(4);
-                met.tag = group + ',' + element;
+                met.tag = group + "," + element;
 
                 const code = parseInt(entry[0], 16);
-                met.keyword = tags.find(tag => tag.code == code)?.label;
+                met.keyword = tags.find((tag) => tag.code == code)?.label;
 
-                met.value = entry[1]['Value']?.toString()
-                if (met.value == '[object Object]') {
-                    met.value = JSON.stringify(entry[1]['Value'], null, 3);
+                met.value = entry[1]["Value"]?.toString();
+                if (met.value == "[object Object]") {
+                    met.value = JSON.stringify(entry[1]["Value"], null, 3);
                 }
 
-                if(met.value){
+                if (met.value) {
                     this.metadata.push(met);
                 }
-            })
+            });
         });
     }
     getColumnDefs(): ColumnDefinition[] {
         return [
-            {headerName: 'Tag', field: 'tag', width: '100px'},
-            {headerName: 'Keyword', field: 'keyword', width: '200px'},
-            {headerName: 'Value', field: 'value', wrap: true}
+            { headerName: "Tag", field: "tag", width: "100px" },
+            { headerName: "Keyword", field: "keyword", width: "200px" },
+            { headerName: "Value", field: "value", wrap: true },
         ];
     }
 
     getPage = (pageable: Pageable): Promise<Page<DicomMetadata>> => {
-        return Promise.resolve(new BrowserPaging(this.metadata, this.columnDefs).getPage(pageable));
-    }
-
+        return Promise.resolve(
+            new BrowserPaging(this.metadata, this.columnDefs).getPage(pageable),
+        );
+    };
 
     goBack() {
         this.location.back();

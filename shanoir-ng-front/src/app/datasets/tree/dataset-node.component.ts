@@ -11,48 +11,57 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from "@angular/core";
+import { Router } from "@angular/router";
 
-import { TreeNodeAbstractComponent } from 'src/app/shared/components/tree/tree-node.abstract.component';
-import { TreeService } from 'src/app/studies/study/tree.service';
+import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
+import { TreeService } from "src/app/studies/study/tree.service";
 
 import { MassDownloadService } from "../../shared/mass-download/mass-download.service";
-import { DatasetNode, ProcessingNode, UNLOADED } from '../../tree/tree.model';
-import { Dataset } from '../shared/dataset.model';
-import { DatasetService } from '../shared/dataset.service';
-import { DatasetProcessingService } from '../shared/dataset-processing.service';
-
+import { DatasetNode, ProcessingNode, UNLOADED } from "../../tree/tree.model";
+import { Dataset } from "../shared/dataset.model";
+import { DatasetService } from "../shared/dataset.service";
+import { DatasetProcessingService } from "../shared/dataset-processing.service";
 
 @Component({
-    selector: 'dataset-node',
-    templateUrl: 'dataset-node.component.html',
-    standalone: false
+    selector: "dataset-node",
+    templateUrl: "dataset-node.component.html",
+    standalone: false,
 })
-
-export class DatasetNodeComponent extends TreeNodeAbstractComponent<DatasetNode> implements OnChanges {
-
+export class DatasetNodeComponent
+    extends TreeNodeAbstractComponent<DatasetNode>
+    implements OnChanges
+{
     @Input() input: DatasetNode | Dataset;
     @Input() related: boolean = false;
-    detailsPath: string = '/dataset/details/';
+    detailsPath: string = "/dataset/details/";
     @Output() datasetDelete: EventEmitter<void> = new EventEmitter();
 
     constructor(
-            private router: Router,
-            private datasetService: DatasetService,
-            private downloadService: MassDownloadService,
-            protected treeService: TreeService,
-            private processingService: DatasetProcessingService,
-            elementRef: ElementRef) {
+        private router: Router,
+        private datasetService: DatasetService,
+        private downloadService: MassDownloadService,
+        protected treeService: TreeService,
+        private processingService: DatasetProcessingService,
+        elementRef: ElementRef,
+    ) {
         super(elementRef);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['input']) {
+        if (changes["input"]) {
             if (this.input instanceof DatasetNode) {
                 this.node = this.input;
             } else {
-                throw new Error('not implemented yet');
+                throw new Error("not implemented yet");
             }
             this.node.registerOpenPromise(this.contentLoaded);
             this.nodeInit.emit(this.node);
@@ -68,43 +77,56 @@ export class DatasetNodeComponent extends TreeNodeAbstractComponent<DatasetNode>
             return;
         }
         this.loading = true;
-        this.downloadService.downloadByIds([this.node.id], this.downloadState)
-            .then(() => this.loading = false);
+        this.downloadService
+            .downloadByIds([this.node.id], this.downloadState)
+            .then(() => (this.loading = false));
     }
 
-    hasChildren(): boolean | 'unknown' {
+    hasChildren(): boolean | "unknown" {
         if (this.node.inPacs) {
             return true;
         } else {
             if (!this.node.processings) return false;
-            else if (this.node.processings == 'UNLOADED') return 'unknown';
+            else if (this.node.processings == "UNLOADED") return "unknown";
             else return this.node.processings.length > 0;
         }
     }
 
     deleteDataset() {
-        this.datasetService.get(this.node.id).then(entity => {
-            this.datasetService.deleteWithConfirmDialog(this.node.title, entity).then(deleted => {
-                if (deleted) {
-                    this.datasetDelete.emit();
-                }
-            });
-        })
+        this.datasetService.get(this.node.id).then((entity) => {
+            this.datasetService
+                .deleteWithConfirmDialog(this.node.title, entity)
+                .then((deleted) => {
+                    if (deleted) {
+                        this.datasetDelete.emit();
+                    }
+                });
+        });
     }
 
     onProcessingDelete(index: number) {
-        (this.node.processings as ProcessingNode[]).splice(index, 1) ;
+        (this.node.processings as ProcessingNode[]).splice(index, 1);
     }
 
     loadProcessings() {
         if (this.node.processings == UNLOADED) {
             this.loading = true;
-            this.processingService.findByInputDatasetId(this.node.id).then(processings => {
-                this.node.processings = processings.map(p => ProcessingNode.fromProcessing(p, this.node, this.node.canDelete, this.node.canDownload));
-            }).finally(() => {
-                this.loading = false;
-                this.contentLoaded.resolve();
-            });
+            this.processingService
+                .findByInputDatasetId(this.node.id)
+                .then((processings) => {
+                    this.node.processings = processings.map((p) =>
+                        ProcessingNode.fromProcessing(
+                            p,
+                            this.node,
+                            this.node.canDelete,
+                            this.node.canDownload,
+                        ),
+                    );
+                })
+                .finally(() => {
+                    this.loading = false;
+                    this.contentLoaded.resolve();
+                });
         } else {
             this.contentLoaded.resolve();
         }
