@@ -268,12 +268,10 @@ export class SubjectComponent
         );
         this.subscriptions.push(
             subjectForm.get("study")!.valueChanges.subscribe(() => {
-                subjectForm
-                    .get("name")!
-                    .updateValueAndValidity({
-                        onlySelf: true,
-                        emitEvent: false,
-                    });
+                subjectForm.get("name")!.updateValueAndValidity({
+                    onlySelf: true,
+                    emitEvent: false,
+                });
             }),
         );
         if (!this.subject.name && this.subjectNamePrefix) {

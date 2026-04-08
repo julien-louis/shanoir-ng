@@ -16,17 +16,23 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
     Manage ingredients
 </h2>
 
-<div [ngSwitch]="mode">
-    <ng-template [ngSwitchCase]="'edit'" *ngIf="canModify">
-        <button *ngIf="toggleFormAI == false" (click)="toggleIngredientForm()">
-            Add an ingredient
-        </button>
-    </ng-template>
-    <ng-template [ngSwitchCase]="'create'" *ngIf="canModify">
-        <button *ngIf="toggleFormAI == false" (click)="toggleIngredientForm()">
-            Add an ingredient
-        </button>
-    </ng-template>
+<div>
+    @switch (mode) {
+        @case ("edit") {
+            @if (toggleFormAI == false && canModify) {
+                <button (click)="toggleIngredientForm()">
+                    Add an ingredient
+                </button>
+            }
+        }
+        @case ("create") {
+            @if (toggleFormAI == false && canModify) {
+                <button (click)="toggleIngredientForm()">
+                    Add an ingredient
+                </button>
+            }
+        }
+    }
 </div>
 
 <!--  <div>

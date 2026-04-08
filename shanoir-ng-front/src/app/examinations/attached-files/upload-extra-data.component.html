@@ -78,7 +78,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
                 </ol>
             </fieldset>
             <div class="footer command-zone">
-                <span [ngSwitch]="mode">
+                <span>
                     <button
                         i18n="
                             uploadExtraData detail|Back button label@@backButton"
@@ -96,16 +96,6 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
                     >
                         Cancel
                     </button>
-                    <!-- <button i18n="uploadExtraData detail|Cancel button label@@cancelButton" class="Button" (click)="add()">Add</button>
-					<ng-template [ngSwitchCase]="'view'" *ngIf="canModify"> 
-						<button type="submit" i18n="uploadExtraData detail|Edit button label@@editButton" (click)="edit()" class="Button">Edit</button>
-					</ng-template>
-					<ng-template [ngSwitchCase]="'edit'" *ngIf="canModify"> 
-						<button type="submit" i18n="uploadExtraData detail|Update button label@@updateButton" (click)="update()" class="Button" [disabled]="!uploadExtraDataForm.valid">Update<i class="far fa-save"></i></button>
-					</ng-template>
-					<ng-template [ngSwitchCase]="'create'" *ngIf="canModify"> 
-						<button type="submit" i18n="uploadExtraData detail|Create button label@@createButton" (click)="create()" class="Button" [disabled]="!uploadExtraDataForm.valid">Save<i class="far fa-save"></i></button>
-					</ng-template> -->
                 </span>
             </div>
         </div>
