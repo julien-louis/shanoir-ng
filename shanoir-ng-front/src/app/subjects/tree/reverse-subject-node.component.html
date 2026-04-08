@@ -27,7 +27,7 @@ along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
     >
         @if (node.open && node.studies) {
             @for (
-                studyNode of node.studies != "UNLOADED" ? node.studies : [];
+                studyNode of node.studies != "UNLOADED" ? $any(node.studies) : [];
                 track studyNode
             ) {
                 <reverse-study-node

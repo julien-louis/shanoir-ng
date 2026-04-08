@@ -41,6 +41,9 @@ module.exports = tseslint.config(
             ...angular.configs.tsRecommended,
         ],
         processor: angular.processInlineTemplates,
+        languageOptions: {
+            parserOptions: { project: ["./tsconfig.json"] },
+        },
         rules: {
             "@angular-eslint/directive-selector": [
                 "error",
