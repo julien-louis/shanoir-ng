@@ -38,31 +38,30 @@ export class AcquisitionEquipmentService extends EntityService<AcquisitionEquipm
     }
 
     getAllByCenter(centerId: number): Promise<AcquisitionEquipment[]> {
-        return this.http
-            .get<AcquisitionEquipment[]>(
+        return firstValueFrom(
+            this.http.get<AcquisitionEquipment[]>(
                 AppUtils.BACKEND_API_ACQ_EQUIP_URL + "/byCenter/" + centerId,
-            )
-            .toPromise()
+            ),
+        )
             .catch(this.arrayFrom404)
             .then(this.mapEntityList);
     }
 
     getAllByStudy(studyId: number): Promise<AcquisitionEquipment[]> {
-        return this.http
-            .get<AcquisitionEquipment[]>(
+        return firstValueFrom(
+            this.http.get<AcquisitionEquipment[]>(
                 AppUtils.BACKEND_API_ACQ_EQUIP_URL + "/byStudy/" + studyId,
-            )
-            .toPromise()
-            .then(this.mapEntityList);
+            ),
+        ).then(this.mapEntityList);
     }
 
     delete(id: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.http
-                .get<StudyCard[]>(
+            firstValueFrom(
+                this.http.get<StudyCard[]>(
                     AppUtils.BACKEND_API_STUDY_CARD_URL + "/byAcqEq/" + id,
-                )
-                .toPromise()
+                ),
+            )
                 .then((cards) => {
                     if (cards?.length == 1) {
                         throw new ShanoirError({

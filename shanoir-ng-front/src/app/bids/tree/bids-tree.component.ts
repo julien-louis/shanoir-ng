@@ -13,7 +13,7 @@
  */
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Component, ElementRef, Input, OnDestroy, OnInit } from "@angular/core";
-import { Subscription } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 
 import { TreeNodeComponent } from "../../shared/components/tree/tree-node.component";
 import { BidsElement } from "../model/bidsElement.model";
@@ -169,18 +169,17 @@ export class BidsTreeComponent implements OnDestroy, OnInit {
         const endpoint = this.API_URL + "/exportBIDS/studyId/" + this.studyId;
         const params = new HttpParams().set("filePath", item.path);
 
-        this.http
-            .get(endpoint, {
+        firstValueFrom(
+            this.http.get(endpoint, {
                 observe: "response",
                 responseType: "blob",
                 params: params,
-            })
-            .toPromise()
-            .then((response) => {
-                if (response.status == 200) {
-                    this.downloadIntoBrowser(response);
-                }
-            });
+            }),
+        ).then((response) => {
+            if (response.status == 200) {
+                this.downloadIntoBrowser(response);
+            }
+        });
     }
 
     private getFilename(response: HttpResponse<any>): string {

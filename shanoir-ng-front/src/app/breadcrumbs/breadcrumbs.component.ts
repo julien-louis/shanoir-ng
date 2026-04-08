@@ -21,7 +21,7 @@ import {
     OnDestroy,
 } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, Subscription } from "rxjs";
+import { firstValueFrom, Subject, Subscription } from "rxjs";
 import { take } from "rxjs/operators";
 
 import { WaitBurstEnd } from "../utils/wait-burst-end";
@@ -149,43 +149,35 @@ export class BreadcrumbsComponent
         )
             return Promise.resolve();
         this.nbDisplayedSteps++;
-        return this.onViewChecked
-            .pipe(take(1))
-            .toPromise()
-            .then(() => {
-                const componentWidth: number =
-                    this.elementRef.nativeElement.offsetWidth;
-                const listWidth: number =
-                    this.elementRef.nativeElement.scrollWidth;
-                if (listWidth > componentWidth) {
-                    // if overflow, finally reduce
-                    this.nbDisplayedSteps--;
-                    return this.onViewChecked.pipe(take(1)).toPromise();
-                } else {
-                    // else continue
-                    return this.tryToExpand();
-                }
-            });
+        return firstValueFrom(this.onViewChecked.pipe(take(1))).then(() => {
+            const componentWidth: number =
+                this.elementRef.nativeElement.offsetWidth;
+            const listWidth: number = this.elementRef.nativeElement.scrollWidth;
+            if (listWidth > componentWidth) {
+                // if overflow, finally reduce
+                this.nbDisplayedSteps--;
+                return firstValueFrom(this.onViewChecked.pipe(take(1)));
+            } else {
+                // else continue
+                return this.tryToExpand();
+            }
+        });
     }
 
     private reduceUntilFit(): Promise<void> {
         if (this.nbDisplayedSteps <= 0) return Promise.resolve();
         this.nbDisplayedSteps--;
-        return this.onViewChecked
-            .pipe(take(1))
-            .toPromise()
-            .then(() => {
-                const componentWidth: number =
-                    this.elementRef.nativeElement.offsetWidth;
-                const listWidth: number =
-                    this.elementRef.nativeElement.scrollWidth;
-                if (listWidth > componentWidth) {
-                    // if overflow, reduce again
-                    return this.reduceUntilFit();
-                } else {
-                    return Promise.resolve();
-                }
-            });
+        return firstValueFrom(this.onViewChecked.pipe(take(1))).then(() => {
+            const componentWidth: number =
+                this.elementRef.nativeElement.offsetWidth;
+            const listWidth: number = this.elementRef.nativeElement.scrollWidth;
+            if (listWidth > componentWidth) {
+                // if overflow, reduce again
+                return this.reduceUntilFit();
+            } else {
+                return Promise.resolve();
+            }
+        });
     }
 
     @HostListener("document:keypress", ["$event"]) onKeydownHandler(

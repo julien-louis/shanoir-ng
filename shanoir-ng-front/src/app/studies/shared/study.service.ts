@@ -13,7 +13,7 @@
  */
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { Observable, Subscription } from "rxjs";
+import { firstValueFrom, Observable, Subscription } from "rxjs";
 
 import { TaskState } from "src/app/async-tasks/task.model";
 import { SingleDownloadService } from "src/app/shared/mass-download/single-download.service";
@@ -66,129 +66,122 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
         _mode: "eager" | "lazy" = "eager",
         withStorageVolume = false,
     ): Promise<Study> {
-        return this.http
-            .get<any>(
+        return firstValueFrom(
+            this.http.get<any>(
                 this.API_URL +
                     "/" +
                     id +
                     (withStorageVolume ? "?withStorageVolume=true" : ""),
-            )
-            .toPromise()
-            .then(this.mapEntity);
+            ),
+        ).then(this.mapEntity);
     }
 
     getStudiesLight(): Promise<StudyLight[]> {
-        return this.http
-            .get<StudyLight[]>(AppUtils.BACKEND_API_STUDY_STUDIES_LIGHT_URL)
-            .toPromise()
-            .then((typeResult: StudyLight[]) => {
-                return typeResult;
-            });
+        return firstValueFrom(
+            this.http.get<StudyLight[]>(
+                AppUtils.BACKEND_API_STUDY_STUDIES_LIGHT_URL,
+            ),
+        ).then((typeResult: StudyLight[]) => {
+            return typeResult;
+        });
     }
 
     findStudiesByUserId(): Promise<Study[]> {
-        return this.http
-            .get<Study[]>(AppUtils.BACKEND_API_STUDY_URL)
-            .toPromise()
-            .then(
-                (entities) =>
-                    entities?.map((entity) =>
-                        Object.assign(new Study(), entity),
-                    ) || [],
-            );
+        return firstValueFrom(
+            this.http.get<Study[]>(AppUtils.BACKEND_API_STUDY_URL),
+        ).then(
+            (entities) =>
+                entities?.map((entity) => Object.assign(new Study(), entity)) ||
+                [],
+        );
     }
 
     getStudiesNames(): Promise<IdName[]> {
-        return this.http
-            .get<IdName[]>(AppUtils.BACKEND_API_STUDY_ALL_NAMES_URL)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<IdName[]>(AppUtils.BACKEND_API_STUDY_ALL_NAMES_URL),
+        );
     }
 
     getStudyNamesAndCenters(): Promise<Study[]> {
-        return this.http
-            .get<CenterStudyDTO[]>(
+        return firstValueFrom(
+            this.http.get<CenterStudyDTO[]>(
                 AppUtils.BACKEND_API_STUDY_URL + "/namesAndCenters",
-            )
-            .toPromise()
-            .then((dtos) =>
-                dtos.map((dto) => StudyDTOService.centerStudyDTOtoStudy(dto)),
-            );
+            ),
+        ).then((dtos) =>
+            dtos.map((dto) => StudyDTOService.centerStudyDTOtoStudy(dto)),
+        );
     }
 
     getStudiesProfiles(): Promise<Profile[]> {
-        return this.http
-            .get<Profile[]>(AppUtils.BACKEND_API_PROFILE_ALL_PROFILES_URL)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<Profile[]>(
+                AppUtils.BACKEND_API_PROFILE_ALL_PROFILES_URL,
+            ),
+        );
     }
 
     getPublicStudiesData(): Promise<StudyLight[]> {
-        return this.http
-            .get<StudyLight[]>(
+        return firstValueFrom(
+            this.http.get<StudyLight[]>(
                 AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_DATA_URL,
-            )
-            .toPromise()
-            .then((typeResult: StudyLight[]) => {
-                return typeResult;
-            });
+            ),
+        ).then((typeResult: StudyLight[]) => {
+            return typeResult;
+        });
     }
 
     getChallenges(): Promise<IdName[]> {
-        return this.http
-            .get<IdName[]>(AppUtils.BACKEND_API_STUDY_CHALLENGES_URL)
-            .toPromise()
-            .then((typeResult: IdName[]) => {
-                return typeResult;
-            });
+        return firstValueFrom(
+            this.http.get<IdName[]>(AppUtils.BACKEND_API_STUDY_CHALLENGES_URL),
+        ).then((typeResult: IdName[]) => {
+            return typeResult;
+        });
     }
 
     getPublicStudiesConnected(): Promise<IdName[]> {
-        return this.http
-            .get<IdName[]>(
+        return firstValueFrom(
+            this.http.get<IdName[]>(
                 AppUtils.BACKEND_API_STUDY_PUBLIC_STUDIES_CONNECTED_URL,
-            )
-            .toPromise()
-            .then((typeResult: IdName[]) => {
-                return typeResult;
-            });
+            ),
+        ).then((typeResult: IdName[]) => {
+            return typeResult;
+        });
     }
 
     getStudyUserFromStudyId(studyId: number): Promise<StudyUser[]> {
-        return this.http
-            .get<StudyUser[]>(
+        return firstValueFrom(
+            this.http.get<StudyUser[]>(
                 AppUtils.BACKEND_API_STUDY_DELETE_USER + "/" + studyId,
-            )
-            .toPromise()
-            .then((su: StudyUser[]) => {
-                return su;
-            });
+            ),
+        ).then((su: StudyUser[]) => {
+            return su;
+        });
     }
 
     findSubjectsByStudyId(studyId: number): Promise<Subject[]> {
-        return this.http
-            .get<SubjectDTO[]>(
+        return firstValueFrom(
+            this.http.get<SubjectDTO[]>(
                 AppUtils.BACKEND_API_SUBJECT_URL +
                     "/" +
                     studyId +
                     "/allSubjects",
-            )
-            .toPromise()
-            .then(this.mapSubjectList);
+            ),
+        ).then(this.mapSubjectList);
     }
 
     findSubjectsByStudyIdPreclinical(
         studyId: number,
         preclinical: boolean,
     ): Promise<Subject[]> {
-        return this.http
-            .get<SubjectDTO[]>(
+        return firstValueFrom(
+            this.http.get<SubjectDTO[]>(
                 AppUtils.BACKEND_API_SUBJECT_URL +
                     "/" +
                     studyId +
                     "/allSubjects?preclinical=" +
                     preclinical,
-            )
-            .toPromise()
-            .then(this.mapSubjectList);
+            ),
+        ).then(this.mapSubjectList);
     }
 
     private findStudiesIcanAdmin(): Promise<Study[]> {
@@ -225,13 +218,12 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     findDraftStudies(): Promise<Study[]> {
-        return this.http
-            .get<Study[]>(AppUtils.BACKEND_API_STUDY_URL + "/draft")
-            .toPromise()
-            .then((studies) => {
-                this._draftStudies = studies ? studies.length : 0;
-                return studies;
-            });
+        return firstValueFrom(
+            this.http.get<Study[]>(AppUtils.BACKEND_API_STUDY_URL + "/draft"),
+        ).then((studies) => {
+            this._draftStudies = studies ? studies.length : 0;
+            return studies;
+        });
     }
 
     get draftStudies(): number {
@@ -254,9 +246,9 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
         } else if (fileType == "protocol-file") {
             formData.append("file", fileToUpload, fileToUpload.name);
         }
-        const promise: Promise<void> = this.http
-            .post<any>(endpoint, formData)
-            .toPromise();
+        const promise: Promise<void> = firstValueFrom(
+            this.http.post<any>(endpoint, formData),
+        );
         // keep a track on the current uploadings
         if (this.fileUploads.has(studyId)) {
             this.fileUploads.set(
@@ -309,13 +301,14 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     getMyDUA(): Promise<DataUserAgreement[]> {
-        return this.http
-            .get<DataUserAgreement[]>(AppUtils.BACKEND_API_STUDY_URL + "/dua")
-            .toPromise()
-            .then((duas) => {
-                this._duasToSign = duas ? duas.length : 0;
-                return duas;
-            });
+        return firstValueFrom(
+            this.http.get<DataUserAgreement[]>(
+                AppUtils.BACKEND_API_STUDY_URL + "/dua",
+            ),
+        ).then((duas) => {
+            this._duasToSign = duas ? duas.length : 0;
+            return duas;
+        });
     }
 
     get duasToSign(): number {
@@ -323,35 +316,36 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     acceptDUA(duaId: number): Promise<void> {
-        return this.http
-            .put<any>(AppUtils.BACKEND_API_STUDY_URL + "/dua/" + duaId, null)
-            .toPromise()
-            .then(() => {
-                this.getMyDUA();
-            });
+        return firstValueFrom(
+            this.http.put<any>(
+                AppUtils.BACKEND_API_STUDY_URL + "/dua/" + duaId,
+                null,
+            ),
+        ).then(() => {
+            this.getMyDUA();
+        });
     }
 
     hasDUAByStudyId(studyId: number): Promise<boolean> {
-        return this.http
-            .get<boolean>(
+        return firstValueFrom(
+            this.http.get<boolean>(
                 AppUtils.BACKEND_API_STUDY_URL + "/dua/study/" + studyId,
-            )
-            .toPromise()
-            .then((dua) => {
-                return dua;
-            });
+            ),
+        ).then((dua) => {
+            return dua;
+        });
     }
 
     deleteUserFromStudy(studyId: number, userId: number): Promise<void> {
-        return this.http
-            .delete<void>(
+        return firstValueFrom(
+            this.http.delete<void>(
                 AppUtils.BACKEND_API_STUDY_DELETE_USER +
                     "/" +
                     studyId +
                     "/" +
                     userId,
-            )
-            .toPromise();
+            ),
+        );
     }
 
     exportBIDSByStudyId(studyId: number) {
@@ -404,11 +398,11 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     getStudyDetailedStorageVolume(id: number): Promise<StudyStorageVolumeDTO> {
-        return this.http
-            .get<StudyStorageVolumeDTO>(
+        return firstValueFrom(
+            this.http.get<StudyStorageVolumeDTO>(
                 AppUtils.BACKEND_API_STUDY_URL + "/detailedStorageVolume/" + id,
-            )
-            .toPromise();
+            ),
+        );
     }
 
     getStudiesStorageVolume(
@@ -430,13 +424,13 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
             const formData: FormData = new FormData();
             formData.set("studyIds", ids.join(","));
             rets.push(
-                this.http
-                    .post<Map<number, StudyStorageVolumeDTO>>(
+                firstValueFrom(
+                    this.http.post<Map<number, StudyStorageVolumeDTO>>(
                         AppUtils.BACKEND_API_STUDY_URL +
                             "/detailedStorageVolume",
                         formData,
-                    )
-                    .toPromise()
+                    ),
+                )
                     .then((volumes) => {
                         return volumes
                             ? Object.entries(volumes).reduce(
@@ -471,20 +465,19 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
     }
 
     getTagsFromStudyId(studyId: number): Promise<Tag[]> {
-        return this.http
-            .get<any[]>(AppUtils.BACKEND_API_STUDY_URL + "/tags/" + studyId)
-            .toPromise()
-            .then((dtos) =>
-                dtos?.map((dto) => StudyDTOService.tagDTOToTag(dto)),
-            );
+        return firstValueFrom(
+            this.http.get<any[]>(
+                AppUtils.BACKEND_API_STUDY_URL + "/tags/" + studyId,
+            ),
+        ).then((dtos) => dtos?.map((dto) => StudyDTOService.tagDTOToTag(dto)));
     }
 
     getStudiesByRight(right: StudyUserRight): Promise<number[]> {
-        return this.http
-            .get<
-                any[]
-            >(AppUtils.BACKEND_API_STUDY_URL + "/studyUser/right/" + right)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<any[]>(
+                AppUtils.BACKEND_API_STUDY_URL + "/studyUser/right/" + right,
+            ),
+        );
     }
 
     async approveStudyById(id: number): Promise<boolean> {
@@ -502,12 +495,12 @@ export class StudyService extends EntityService<Study> implements OnDestroy {
             return false;
         }
 
-        await this.http
-            .put<any>(
+        await firstValueFrom(
+            this.http.put<any>(
                 AppUtils.BACKEND_API_STUDY_URL + "/approveDraftStudy/" + id,
                 null,
-            )
-            .toPromise();
+            ),
+        );
 
         this.findDraftStudies();
 

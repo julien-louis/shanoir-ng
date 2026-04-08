@@ -14,6 +14,7 @@
 
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 
 import { EntityService } from "../../../shared/components/entity/entity.abstract.service";
 import * as PreclinicalUtils from "../../utils/preclinical.utils";
@@ -40,13 +41,10 @@ export class ContrastAgentService extends EntityService<ContrastAgent> {
             "/" +
             PreclinicalUtils.PRECLINICAL_CONTRASTAGENT_DATA +
             PreclinicalUtils.PRECLINICAL_ALL_URL;
-        return this.http
-            .get<ContrastAgent[]>(url)
-            .toPromise()
-            .then(
-                (entities) =>
-                    entities?.map((entity) => this.toRealObject(entity)) || [],
-            );
+        return firstValueFrom(this.http.get<ContrastAgent[]>(url)).then(
+            (entities) =>
+                entities?.map((entity) => this.toRealObject(entity)) || [],
+        );
     }
 
     getContrastAgent(protocolId: number): Promise<ContrastAgent> {
@@ -56,10 +54,9 @@ export class ContrastAgentService extends EntityService<ContrastAgent> {
             protocolId +
             "/" +
             PreclinicalUtils.PRECLINICAL_CONTRASTAGENT_DATA;
-        return this.http
-            .get<ContrastAgent>(url)
-            .toPromise()
-            .then((entity) => this.toRealObject(entity));
+        return firstValueFrom(this.http.get<ContrastAgent>(url)).then(
+            (entity) => this.toRealObject(entity),
+        );
     }
 
     updateConstrastAgent(
@@ -74,10 +71,9 @@ export class ContrastAgentService extends EntityService<ContrastAgent> {
             PreclinicalUtils.PRECLINICAL_CONTRASTAGENT_DATA +
             "/" +
             agent.id;
-        return this.http
-            .put<ContrastAgent>(url, JSON.stringify(agent))
-            .toPromise()
-            .then((entity) => this.toRealObject(entity));
+        return firstValueFrom(
+            this.http.put<ContrastAgent>(url, JSON.stringify(agent)),
+        ).then((entity) => this.toRealObject(entity));
     }
 
     createConstrastAgent(
@@ -90,10 +86,9 @@ export class ContrastAgentService extends EntityService<ContrastAgent> {
             protocolId +
             "/" +
             PreclinicalUtils.PRECLINICAL_CONTRASTAGENT_DATA;
-        return this.http
-            .post<ContrastAgent>(url, JSON.stringify(agent))
-            .toPromise()
-            .then((entity) => this.toRealObject(entity));
+        return firstValueFrom(
+            this.http.post<ContrastAgent>(url, JSON.stringify(agent)),
+        ).then((entity) => this.toRealObject(entity));
     }
 
     deletConstrastAgent(protocolId: number, id: number): Promise<void> {
@@ -105,6 +100,6 @@ export class ContrastAgentService extends EntityService<ContrastAgent> {
             PreclinicalUtils.PRECLINICAL_CONTRASTAGENT_DATA +
             "/" +
             id;
-        return this.http.delete<void>(url).toPromise();
+        return firstValueFrom(this.http.delete<void>(url));
     }
 }

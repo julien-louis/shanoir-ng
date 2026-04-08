@@ -13,7 +13,7 @@
  */
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { Subscription } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 
 import { ServiceLocator } from "../../../utils/locator.service";
 import { ConsoleService } from "../../console/console.service";
@@ -39,18 +39,15 @@ export abstract class EntityService<T extends Entity> implements OnDestroy {
     }
 
     getAll(): Promise<T[]> {
-        return this.http
-            .get<any[]>(this.API_URL)
-            .toPromise()
-            .then(this.mapEntityList);
+        return firstValueFrom(this.http.get<any[]>(this.API_URL)).then(
+            this.mapEntityList,
+        );
     }
 
     getAllAdvanced(): { quick: Promise<T[]>; complete: Promise<T[]> } {
         const res = { quick: null, complete: null };
         res.complete = new Promise((resolve, reject) => {
-            res.quick = this.http
-                .get<any[]>(this.API_URL)
-                .toPromise()
+            res.quick = firstValueFrom(this.http.get<any[]>(this.API_URL))
                 .then((all) => {
                     const quickRes: T[] = [];
                     const mapPromise = this.mapEntityList(all, quickRes);
@@ -64,7 +61,7 @@ export abstract class EntityService<T extends Entity> implements OnDestroy {
     }
 
     delete(id: number): Promise<void> {
-        return this.http.delete<void>(this.API_URL + "/" + id).toPromise();
+        return firstValueFrom(this.http.delete<void>(this.API_URL + "/" + id));
     }
 
     deleteWithConfirmDialog(
@@ -148,23 +145,21 @@ export abstract class EntityService<T extends Entity> implements OnDestroy {
     }
 
     get(id: number | bigint, mode: "eager" | "lazy" = "eager"): Promise<T> {
-        return this.http
-            .get<any>(this.API_URL + "/" + id)
-            .toPromise()
-            .then((entity) => this.mapEntity(entity, null, mode));
+        return firstValueFrom(this.http.get<any>(this.API_URL + "/" + id)).then(
+            (entity) => this.mapEntity(entity, null, mode),
+        );
     }
 
     create(entity: T): Promise<T> {
-        return this.http
-            .post<any>(this.API_URL, this.stringify(entity))
-            .toPromise()
-            .then(this.mapEntity);
+        return firstValueFrom(
+            this.http.post<any>(this.API_URL, this.stringify(entity)),
+        ).then(this.mapEntity);
     }
 
     update(id: number, entity: T): Promise<void> {
-        return this.http
-            .put<any>(this.API_URL + "/" + id, this.stringify(entity))
-            .toPromise();
+        return firstValueFrom(
+            this.http.put<any>(this.API_URL + "/" + id, this.stringify(entity)),
+        );
     }
 
     protected mapEntity = (

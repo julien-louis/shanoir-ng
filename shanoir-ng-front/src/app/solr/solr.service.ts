@@ -14,6 +14,7 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import {
     Order,
@@ -41,13 +42,13 @@ export class SolrService {
 
     public indexAll() {
         if (this.keycloakService.isUserAdmin()) {
-            return this.http
-                .post<void>(
+            return firstValueFrom(
+                this.http.post<void>(
                     AppUtils.BACKEND_API_SOLR_INDEX_URL,
                     {},
                     { reportProgress: true, observe: "events" },
-                )
-                .toPromise();
+                ),
+            );
         }
     }
 
@@ -55,19 +56,18 @@ export class SolrService {
         solrReq: SolrRequest,
         pageable: Pageable,
     ): Promise<SolrResultPage> {
-        return this.http
-            .post<SolrResultPage>(
+        return firstValueFrom(
+            this.http.post<SolrResultPage>(
                 AppUtils.BACKEND_API_SOLR_URL,
                 this.stringifySolrRequest(solrReq),
                 { params: pageable.toParams() },
-            )
-            .toPromise()
-            .then((solrResPage) => {
-                solrResPage.content?.forEach(
-                    (doc) => (doc.id = parseInt(doc.id as unknown as string)),
-                );
-                return solrResPage;
-            });
+            ),
+        ).then((solrResPage) => {
+            solrResPage.content?.forEach(
+                (doc) => (doc.id = parseInt(doc.id as unknown as string)),
+            );
+            return solrResPage;
+        });
     }
 
     public getFacet(
@@ -83,48 +83,45 @@ export class SolrService {
         );
         mainRequest.facetPaging = new Map();
         mainRequest.facetPaging.set(facetName, pageable);
-        return this.http
-            .post<SolrResultPage>(
+        return firstValueFrom(
+            this.http.post<SolrResultPage>(
                 AppUtils.BACKEND_API_SOLR_URL,
                 this.stringifySolrRequest(mainRequest),
                 { params: fakePageable.toParams() },
-            )
-            .toPromise()
-            .then((solrResPage) => {
-                solrResPage.content?.forEach(
-                    (doc) => (doc.id = parseInt(doc.id as unknown as string)),
-                );
-                if (solrResPage.facetResultPages?.[0]) {
-                    return solrResPage.facetResultPages[0];
-                } else {
-                    const reconstructed: FacetResultPage =
-                        new FacetResultPage();
-                    reconstructed.number = pageable.pageNumber;
-                    reconstructed.size = 0;
-                    reconstructed.numberOfElements = 0;
-                    return reconstructed;
-                }
-            });
+            ),
+        ).then((solrResPage) => {
+            solrResPage.content?.forEach(
+                (doc) => (doc.id = parseInt(doc.id as unknown as string)),
+            );
+            if (solrResPage.facetResultPages?.[0]) {
+                return solrResPage.facetResultPages[0];
+            } else {
+                const reconstructed: FacetResultPage = new FacetResultPage();
+                reconstructed.number = pageable.pageNumber;
+                reconstructed.size = 0;
+                reconstructed.numberOfElements = 0;
+                return reconstructed;
+            }
+        });
     }
 
     public getByDatasetIds(
         datasetIds: number[],
         pageable: Pageable,
     ): Promise<Page<SolrDocument>> {
-        return this.http
-            .post<Page<SolrDocument>>(
+        return firstValueFrom(
+            this.http.post<Page<SolrDocument>>(
                 AppUtils.BACKEND_API_SOLR_URL + "/byIds",
                 JSON.stringify(datasetIds),
                 { params: pageable.toParams() },
-            )
-            .toPromise()
-            .then((page) => {
-                if (page)
-                    page.content.forEach(
-                        (solrDoc) => (solrDoc.id = parseInt(solrDoc.datasetId)),
-                    );
-                return page;
-            });
+            ),
+        ).then((page) => {
+            if (page)
+                page.content.forEach(
+                    (solrDoc) => (solrDoc.id = parseInt(solrDoc.datasetId)),
+                );
+            return page;
+        });
     }
 
     private stringifySolrRequest(solrRequest: SolrRequest): string {

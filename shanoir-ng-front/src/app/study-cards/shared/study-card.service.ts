@@ -13,6 +13,7 @@
  */
 
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import * as AppUtils from "../../utils/app.utils";
@@ -34,10 +35,9 @@ export class StudyCardService extends EntityService<StudyCard> {
     }
 
     getAllForStudy(studyId: number): Promise<StudyCard[]> {
-        return this.http
-            .get<any[]>(this.API_URL + "/byStudy/" + studyId)
-            .toPromise()
-            .then(this.mapEntityList);
+        return firstValueFrom(
+            this.http.get<any[]>(this.API_URL + "/byStudy/" + studyId),
+        ).then(this.mapEntityList);
     }
 
     protected mapEntity = (
@@ -65,15 +65,14 @@ export class StudyCardService extends EntityService<StudyCard> {
         studyCardId: number,
         datasetAcquisitionIds: number[],
     ): Promise<any> {
-        return this.http
-            .post<any[]>(
+        return firstValueFrom(
+            this.http.post<any[]>(
                 this.API_URL + "/apply",
                 JSON.stringify({
                     studyCardId: studyCardId,
                     datasetAcquisitionIds: datasetAcquisitionIds,
                 }),
-            )
-            .toPromise()
-            .then();
+            ),
+        );
     }
 }

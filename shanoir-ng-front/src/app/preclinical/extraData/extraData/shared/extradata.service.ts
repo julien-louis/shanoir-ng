@@ -40,37 +40,32 @@ export class ExtraDataService extends EntityService<ExtraData> {
 
     getExtraDatas(examId: number): Promise<ExtraData[]> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${examId}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}${PreclinicalUtils.PRECLINICAL_ALL_URL}`;
-        return this.http
-            .get<ExtraData[]>(url)
-            .toPromise()
-            .then(
-                (entities) =>
-                    entities?.map((entity) => this.toRealObject(entity)) || [],
-            );
+        return firstValueFrom(this.http.get<ExtraData[]>(url)).then(
+            (entities) =>
+                entities?.map((entity) => this.toRealObject(entity)) || [],
+        );
     }
 
     getExtraData(id: string): Promise<ExtraData> {
-        return this.http
-            .get<ExtraData>(
+        return firstValueFrom(
+            this.http.get<ExtraData>(
                 PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL + "/" + id,
-            )
-            .toPromise()
-            .then((entity) => this.toRealObject(entity));
+            ),
+        ).then((entity) => this.toRealObject(entity));
     }
 
     downloadFile(id: number): Promise<void> {
         const endpoint = this.API_URL + "/extradata/download/" + id;
-        return this.downloadService
-            .downloadSingleFile(endpoint)
-            .toPromise()
-            .then(() => null);
+        return firstValueFrom(
+            this.downloadService.downloadSingleFile(endpoint),
+        ).then(() => null);
     }
 
     createExtraData(datatype: string, extradata: any): Promise<any> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/${datatype}`;
-        return this.http
-            .post<ExtraData>(url, JSON.stringify(extradata))
-            .toPromise();
+        return firstValueFrom(
+            this.http.post<ExtraData>(url, JSON.stringify(extradata)),
+        );
     }
 
     postFile(fileToUpload: File, extraData: ExtraData): Promise<any> {
@@ -96,7 +91,7 @@ export class ExtraDataService extends EntityService<ExtraData> {
 
     deleteExtradata(extradata: ExtraData): Promise<void> {
         const url = `${PreclinicalUtils.PRECLINICAL_API_EXAMINATION_URL}/${extradata.examinationId}/${PreclinicalUtils.PRECLINICAL_EXTRA_DATA}/${extradata.id}`;
-        return this.http.delete<void>(url).toPromise();
+        return firstValueFrom(this.http.delete<void>(url));
     }
 
     download(extradata: ExtraData): Promise<any> {

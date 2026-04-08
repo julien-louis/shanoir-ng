@@ -13,6 +13,7 @@
  */
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import * as AppUtils from "../../utils/app.utils";
@@ -43,50 +44,41 @@ export class DatasetProcessingService extends EntityService<DatasetProcessing> {
         studyId: number,
         subjectId: number,
     ): Promise<DatasetProcessing[]> {
-        return this.http
-            .get<DatasetProcessingInDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetProcessingInDTO[]>(
                 this.API_URL + "/study/" + studyId + "/subject/" + subjectId,
-            )
-            .toPromise()
-            .then((dtos) => this.mapEntityList(dtos));
+            ),
+        ).then((dtos) => this.mapEntityList(dtos));
     }
 
     findByInputDatasetId(datasetId: number): Promise<DatasetProcessing[]> {
-        return this.http
-            .get<DatasetProcessingInDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetProcessingInDTO[]>(
                 this.API_URL + "/inputDataset/" + datasetId,
-            )
-            .toPromise()
-            .then((dtos) => this.mapEntityList(dtos));
+            ),
+        ).then((dtos) => this.mapEntityList(dtos));
     }
 
     getInputDatasets(datasetProcessingId: number): Promise<Dataset[]> {
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 this.API_URL + "/" + datasetProcessingId + "/inputDatasets/",
-            )
-            .toPromise()
-            .then((dtos) =>
-                this.datasetDTOService.toEntityList(dtos, [], "lazy"),
-            );
+            ),
+        ).then((dtos) => this.datasetDTOService.toEntityList(dtos, [], "lazy"));
     }
 
     getOutputDatasets(datasetProcessingId: number): Promise<Dataset[]> {
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 this.API_URL + "/" + datasetProcessingId + "/outputDatasets/",
-            )
-            .toPromise()
-            .then((dtos) =>
-                this.datasetDTOService.toEntityList(dtos, [], "lazy"),
-            );
+            ),
+        ).then((dtos) => this.datasetDTOService.toEntityList(dtos, [], "lazy"));
     }
 
     get(id: number): Promise<DatasetProcessing> {
-        return this.http
-            .get<any>(this.API_URL + "/" + id)
-            .toPromise()
-            .then(this.mapEntity);
+        return firstValueFrom(this.http.get<any>(this.API_URL + "/" + id)).then(
+            this.mapEntity,
+        );
     }
 
     getEntityInstance() {

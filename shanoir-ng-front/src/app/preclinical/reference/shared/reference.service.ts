@@ -13,7 +13,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 
 import { EntityService } from "../../../shared/components/entity/entity.abstract.service";
@@ -34,11 +34,11 @@ export class ReferenceService extends EntityService<Reference> {
     }
 
     getCategories(): Promise<string[]> {
-        return this.http
-            .get<string[]>(
+        return firstValueFrom(
+            this.http.get<string[]>(
                 PreclinicalUtils.PRECLINICAL_API_REFERENCES_CATEGORIES_ALL_URL,
-            )
-            .toPromise()
+            ),
+        )
             .then((response) => response)
             .catch((error) => {
                 console.error(
@@ -50,14 +50,14 @@ export class ReferenceService extends EntityService<Reference> {
     }
 
     getTypesByCategory(category: string): Promise<string[]> {
-        return this.http
-            .get<string[]>(
+        return firstValueFrom(
+            this.http.get<string[]>(
                 PreclinicalUtils.PRECLINICAL_API_REFERENCES_URL +
                     "/category/" +
                     category +
                     "/types",
-            )
-            .toPromise()
+            ),
+        )
             .then((response) => response)
             .catch((error) => {
                 console.error(
@@ -69,13 +69,13 @@ export class ReferenceService extends EntityService<Reference> {
     }
 
     getReferencesByCategory(category: string): Promise<Reference[]> {
-        return this.http
-            .get<Reference[]>(
+        return firstValueFrom(
+            this.http.get<Reference[]>(
                 PreclinicalUtils.PRECLINICAL_API_REFERENCES_URL +
                     "/category/" +
                     category,
-            )
-            .toPromise()
+            ),
+        )
             .then((response) => response)
             .catch((error) => {
                 console.error("Error while getting references", error);
@@ -87,15 +87,15 @@ export class ReferenceService extends EntityService<Reference> {
         category: string,
         reftype: string,
     ): Promise<Reference[]> {
-        return this.http
-            .get<Reference[]>(
+        return firstValueFrom(
+            this.http.get<Reference[]>(
                 PreclinicalUtils.PRECLINICAL_API_REFERENCES_URL +
                     "/category/" +
                     category +
                     "/" +
                     reftype,
-            )
-            .toPromise()
+            ),
+        )
             .then((response) => response)
             .catch((error) => {
                 console.error("Error while getting references", error);

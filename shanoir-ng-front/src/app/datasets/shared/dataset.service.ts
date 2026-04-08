@@ -78,20 +78,20 @@ export class DatasetService extends EntityService<Dataset> {
         ServiceLocator.injector.get(ErrorHandler);
 
     deleteAll(ids: number[]) {
-        return this.http
-            .request<void>("delete", this.API_URL + "/delete", {
+        return firstValueFrom(
+            this.http.request<void>("delete", this.API_URL + "/delete", {
                 body: JSON.stringify(ids),
-            })
-            .toPromise();
+            }),
+        );
     }
 
     getBidsStructure(studyId: number): Promise<BidsElement> {
         if (!studyId) throw Error("study id is required");
-        return this.http
-            .get<BidsElement>(
+        return firstValueFrom(
+            this.http.get<BidsElement>(
                 AppUtils.BACKEND_API_BIDS_STRUCTURE_URL + "/studyId/" + studyId,
-            )
-            .toPromise();
+            ),
+        );
     }
 
     refreshBidsStructure(
@@ -99,15 +99,15 @@ export class DatasetService extends EntityService<Dataset> {
         studyName: string,
     ): Promise<BidsElement> {
         if (!studyId) throw Error("study id is required");
-        return this.http
-            .get<BidsElement>(
+        return firstValueFrom(
+            this.http.get<BidsElement>(
                 AppUtils.BACKEND_API_BIDS_REFRESH_URL +
                     "/studyId/" +
                     studyId +
                     "/studyName/" +
                     studyName,
-            )
-            .toPromise();
+            ),
+        );
     }
 
     getEntityInstance(entity: Dataset) {
@@ -115,11 +115,11 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     getPage(pageable: Pageable): Promise<Page<Dataset>> {
-        return this.http
-            .get<Page<Dataset>>(AppUtils.BACKEND_API_DATASET_URL, {
+        return firstValueFrom(
+            this.http.get<Page<Dataset>>(AppUtils.BACKEND_API_DATASET_URL, {
                 params: pageable.toParams(),
-            })
-            .toPromise()
+            }),
+        )
             .then((page: Page<Dataset>) => {
                 if (page && page.content) {
                     page.content = page.content.map((ds) =>
@@ -132,38 +132,33 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     getByExaminationId(examinationId: number): Promise<Dataset[]> {
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 AppUtils.BACKEND_API_DATASET_URL +
                     "/examination/" +
                     examinationId,
-            )
-            .toPromise()
-            .then((dtos) =>
-                this.datasetDTOService.toEntityList(dtos, null, "lazy"),
-            );
+            ),
+        ).then((dtos) =>
+            this.datasetDTOService.toEntityList(dtos, null, "lazy"),
+        );
     }
 
     getByAcquisitionId(acquisitionId: number): Promise<Dataset[]> {
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 AppUtils.BACKEND_API_DATASET_URL +
                     "/acquisition/" +
                     acquisitionId,
-            )
-            .toPromise()
-            .then((dtos) => this.datasetDTOService.toEntityList(dtos));
+            ),
+        ).then((dtos) => this.datasetDTOService.toEntityList(dtos));
     }
 
     getByStudyId(studyId: number): Promise<Dataset[]> {
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 AppUtils.BACKEND_API_DATASET_URL + "/study/" + studyId,
-            )
-            .toPromise()
-            .then((dtos) =>
-                this.datasetDTOService.toEntityList(dtos, [], "lazy"),
-            );
+            ),
+        ).then((dtos) => this.datasetDTOService.toEntityList(dtos, [], "lazy"));
     }
 
     getByStudyIdAndSubjectId(
@@ -173,26 +168,26 @@ export class DatasetService extends EntityService<Dataset> {
         if (!subjectId) {
             return this.getByStudyId(studyId);
         }
-        return this.http
-            .get<DatasetDTO[]>(
+        return firstValueFrom(
+            this.http.get<DatasetDTO[]>(
                 AppUtils.BACKEND_API_DATASET_URL +
                     "/find/subject/" +
                     subjectId +
                     "/study/" +
                     studyId,
-            )
-            .toPromise()
-            .then((dtos) => this.datasetDTOService.toEntityList(dtos));
+            ),
+        ).then((dtos) => this.datasetDTOService.toEntityList(dtos));
     }
 
     getByIds(ids: Set<number>): Promise<DatasetLight[]> {
         const formData: FormData = new FormData();
         formData.set("datasetIds", Array.from(ids).join(","));
-        return this.http
-            .post<
-                DatasetLight[]
-            >(AppUtils.BACKEND_API_DATASET_URL + "/allById", formData)
-            .toPromise();
+        return firstValueFrom(
+            this.http.post<DatasetLight[]>(
+                AppUtils.BACKEND_API_DATASET_URL + "/allById",
+                formData,
+            ),
+        );
     }
 
     public downloadDatasets(
@@ -227,37 +222,39 @@ export class DatasetService extends EntityService<Dataset> {
             .set("studyNameOutRegExp", studyNameOutRegExp)
             .set("subjectNameInRegExp", subjectNameInRegExp)
             .set("subjectNameOutRegExp", subjectNameOutRegExp);
-        return this.http
-            .get(AppUtils.BACKEND_API_DATASET_URL + "/downloadStatistics", {
-                observe: "response",
-                responseType: "blob",
-                params: params,
-            })
-            .toPromise()
-            .then((response) => {
-                if (response.status != 204) {
-                    this.consoleService.log(
-                        "error",
-                        "Error during creation of statistics.",
-                    );
-                } else {
-                    this.consoleService.log(
-                        "info",
-                        "Statistics are being prepared, check the Jobs page to see its progress.",
-                    );
-                }
-            });
+        return firstValueFrom(
+            this.http.get(
+                AppUtils.BACKEND_API_DATASET_URL + "/downloadStatistics",
+                {
+                    observe: "response",
+                    responseType: "blob",
+                    params: params,
+                },
+            ),
+        ).then((response) => {
+            if (response.status != 204) {
+                this.consoleService.log(
+                    "error",
+                    "Error during creation of statistics.",
+                );
+            } else {
+                this.consoleService.log(
+                    "info",
+                    "Statistics are being prepared, check the Jobs page to see its progress.",
+                );
+            }
+        });
     }
 
     downloadDicomMetadata(datasetId: number): Promise<any> {
-        return this.http
-            .get(
+        return firstValueFrom(
+            this.http.get(
                 AppUtils.BACKEND_API_DATASET_URL +
                     "/dicom-metadata/" +
                     datasetId,
                 { responseType: "json" },
-            )
-            .toPromise();
+            ),
+        );
     }
 
     downloadToBlob(
@@ -266,8 +263,8 @@ export class DatasetService extends EntityService<Dataset> {
         converterId: number = null,
     ): Promise<HttpResponse<Blob>> {
         if (!id) throw Error("Cannot download a dataset without an id");
-        return this.http
-            .get(
+        return firstValueFrom(
+            this.http.get(
                 AppUtils.BACKEND_API_DATASET_URL +
                     "/download/" +
                     id +
@@ -275,8 +272,8 @@ export class DatasetService extends EntityService<Dataset> {
                     format +
                     (converterId ? "&converterId=" + converterId : ""),
                 { observe: "response", responseType: "blob" },
-            )
-            .toPromise();
+            ),
+        );
     }
 
     getDownloadData(
@@ -322,8 +319,10 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     getOverallStatistics(): Promise<OverallStatistics> {
-        return this.http
-            .get<OverallStatistics>(AppUtils.BACKEND_API_OVERALL_STATISTICS_URL)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<OverallStatistics>(
+                AppUtils.BACKEND_API_OVERALL_STATISTICS_URL,
+            ),
+        );
     }
 }

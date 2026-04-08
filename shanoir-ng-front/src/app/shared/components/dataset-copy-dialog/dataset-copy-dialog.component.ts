@@ -14,6 +14,7 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Component } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { StudyService } from "src/app/studies/shared/study.service";
 
@@ -144,13 +145,13 @@ export class DatasetCopyDialogComponent {
                     "subjectIds",
                     Array.from(this.subjectIds).join(","),
                 );
-                return this.http
-                    .post<string>(
+                return firstValueFrom(
+                    this.http.post<string>(
                         AppUtils.BACKEND_API_STUDY_URL + "/copyDatasets",
                         formData,
                         { responseType: "text" as "json" },
-                    )
-                    .toPromise()
+                    ),
+                )
                     .then(() => {
                         this.close();
                         this.consoleService.log(

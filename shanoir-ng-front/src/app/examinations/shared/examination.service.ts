@@ -13,7 +13,7 @@
  */
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { TaskState } from "src/app/async-tasks/task.model";
 import { SingleDownloadService } from "src/app/shared/mass-download/single-download.service";
@@ -54,12 +54,12 @@ export class ExaminationService extends EntityService<Examination> {
             subjectId +
             "/study/" +
             studyId;
-        return this.http.get<SubjectExamination[]>(url).toPromise();
+        return firstValueFrom(this.http.get<SubjectExamination[]>(url));
     }
 
     findExaminationIdsByStudy(studyId: number): Promise<number[]> {
         const url = AppUtils.BACKEND_API_EXAMINATION_URL + "/study/" + studyId;
-        return this.http.get<number[]>(url).toPromise();
+        return firstValueFrom(this.http.get<number[]>(url));
     }
 
     getPage(
@@ -71,15 +71,14 @@ export class ExaminationService extends EntityService<Examination> {
         const params = { params: pageable.toParams() };
         params["params"]["searchStr"] = searchStr;
         params["params"]["searchField"] = searchField;
-        return this.http
-            .get<Page<Examination>>(
+        return firstValueFrom(
+            this.http.get<Page<Examination>>(
                 !preclinical
                     ? AppUtils.BACKEND_API_EXAMINATION_URL
                     : AppUtils.BACKEND_API_EXAMINATION_PRECLINICAL_URL + "/1",
                 params,
-            )
-            .toPromise()
-            .then(this.mapPage);
+            ),
+        ).then(this.mapPage);
     }
 
     protected mapEntity = (entity: ExaminationDTO): Promise<Examination> => {
@@ -95,7 +94,7 @@ export class ExaminationService extends EntityService<Examination> {
         const endpoint = this.API_URL + "/extra-data-upload/" + examId;
         const formData: FormData = new FormData();
         formData.append("file", fileToUpload, fileToUpload.name);
-        return this.http.post<any>(endpoint, formData).toPromise();
+        return firstValueFrom(this.http.post<any>(endpoint, formData));
     }
 
     downloadFile(

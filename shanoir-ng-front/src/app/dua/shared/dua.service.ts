@@ -13,6 +13,7 @@
  */
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 
 import { StudyService } from "src/app/studies/shared/study.service";
 
@@ -33,22 +34,26 @@ export class DuaService {
 
     create(entity: DuaDocument, email: string): Promise<string> {
         const arg: any = { duaDraft: entity, email: email };
-        return this.http
-            .post(this.API_URL, this.stringify(arg), { responseType: "text" })
-            .toPromise();
+        return firstValueFrom(
+            this.http.post(this.API_URL, this.stringify(arg), {
+                responseType: "text",
+            }),
+        );
     }
 
     update(entity: DuaDocument): Promise<void> {
-        return this.http
-            .put<any>(this.API_URL + "/" + entity.id, this.stringify(entity))
-            .toPromise();
+        return firstValueFrom(
+            this.http.put<any>(
+                this.API_URL + "/" + entity.id,
+                this.stringify(entity),
+            ),
+        );
     }
 
     get(id: string): Promise<DuaDocument> {
-        return this.http
-            .get<any>(this.API_URL + "/" + id)
-            .toPromise()
-            .then((entity) => this.toRealObject(entity));
+        return firstValueFrom(this.http.get<any>(this.API_URL + "/" + id)).then(
+            (entity) => this.toRealObject(entity),
+        );
     }
 
     private stringify(entity: DuaDocument): string {

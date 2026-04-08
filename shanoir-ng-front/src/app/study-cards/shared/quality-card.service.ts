@@ -14,6 +14,7 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import * as AppUtils from "../../utils/app.utils";
@@ -46,10 +47,9 @@ export class QualityCardService extends EntityService<QualityCard> {
     }
 
     getAllForStudy(studyId: number): Promise<QualityCard[]> {
-        return this.http
-            .get<any[]>(this.API_URL + "/byStudy/" + studyId)
-            .toPromise()
-            .then(this.mapEntityList);
+        return firstValueFrom(
+            this.http.get<any[]>(this.API_URL + "/byStudy/" + studyId),
+        ).then(this.mapEntityList);
     }
 
     protected mapEntity = (
@@ -74,9 +74,9 @@ export class QualityCardService extends EntityService<QualityCard> {
     }
 
     applyOnStudy(qualityCardId: number): Promise<any> {
-        return this.http
-            .get<any[]>(this.API_URL + "/apply/" + qualityCardId)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<any[]>(this.API_URL + "/apply/" + qualityCardId),
+        );
     }
 
     testOnStudy(
@@ -84,21 +84,33 @@ export class QualityCardService extends EntityService<QualityCard> {
         start?: number,
         stop?: number,
     ): Promise<any> {
-        return this.http
-            .get<
-                any[]
-            >(this.API_URL + "/test/" + qualityCardId + (start != null && start != undefined && stop != null && stop != undefined ? "/" + (start - 1) + "/" + stop : ""))
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<any[]>(
+                this.API_URL +
+                    "/test/" +
+                    qualityCardId +
+                    (start != null &&
+                    start != undefined &&
+                    stop != null &&
+                    stop != undefined
+                        ? "/" + (start - 1) + "/" + stop
+                        : ""),
+            ),
+        );
     }
 
     testOnExamination(
         qualityCardId: number,
         examinationId: number,
     ): Promise<any> {
-        return this.http
-            .get<
-                any[]
-            >(this.API_URL + "/test/" + qualityCardId + "/exam/" + examinationId)
-            .toPromise();
+        return firstValueFrom(
+            this.http.get<any[]>(
+                this.API_URL +
+                    "/test/" +
+                    qualityCardId +
+                    "/exam/" +
+                    examinationId,
+            ),
+        );
     }
 }

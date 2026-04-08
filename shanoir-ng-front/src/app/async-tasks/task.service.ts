@@ -14,6 +14,7 @@
 
 import { Injectable, Injector } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 
 import { EntityService } from "../shared/components/entity/entity.abstract.service";
 import * as AppUtils from "../utils/app.utils";
@@ -37,10 +38,9 @@ export class TaskService extends EntityService<Task> {
     }
 
     getTasks(): Promise<Task[]> {
-        return this.http
-            .get<Task[]>(this.API_URL)
-            .toPromise()
-            .then(this.mapEntityList);
+        return firstValueFrom(this.http.get<Task[]>(this.API_URL)).then(
+            this.mapEntityList,
+        );
     }
 
     public toRealObject(entity: any): Task {
@@ -59,19 +59,21 @@ export class TaskService extends EntityService<Task> {
 
     public downloadStats(item: Task) {
         const endpoint = AppUtils.BACKEND_API_DATASET_MS_URL + item.route;
-        this.http
-            .get(endpoint, { observe: "response", responseType: "blob" })
-            .toPromise()
-            .then((response: HttpResponse<Blob>) => {
-                if (response.status == 200 || response.status == 204) {
-                    AppUtils.browserDownloadFileFromResponse(response);
-                } else {
-                    this.consoleService.log(
-                        "error",
-                        "Statistics file not found or deleted (after 6 hours).",
-                    );
-                }
-            });
+        firstValueFrom(
+            this.http.get(endpoint, {
+                observe: "response",
+                responseType: "blob",
+            }),
+        ).then((response: HttpResponse<Blob>) => {
+            if (response.status == 200 || response.status == 204) {
+                AppUtils.browserDownloadFileFromResponse(response);
+            } else {
+                this.consoleService.log(
+                    "error",
+                    "Statistics file not found or deleted (after 6 hours).",
+                );
+            }
+        });
     }
 
     public downloadProcessingOutputs(item: Task) {

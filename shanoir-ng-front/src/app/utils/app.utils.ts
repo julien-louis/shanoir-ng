@@ -21,7 +21,7 @@ import {
     HttpProgressEvent,
     HttpResponse,
 } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 import { last, map, mergeMap, shareReplay } from "rxjs/operators";
 
 import { TaskState, TaskStatus } from "../async-tasks/task.model";
@@ -295,18 +295,19 @@ export function browserDownloadFileFromResponse(response: HttpResponse<any>) {
 
 export function downloadBlob(url: string, params?: HttpParams): Promise<Blob> {
     const http: HttpClient = ServiceLocator.injector.get(HttpClient);
-    return http
-        .get(url, {
-            reportProgress: true,
-            responseType: "blob",
-            params: params,
-        })
-        .pipe(
-            map((response) => {
-                return response;
-            }),
-        )
-        .toPromise();
+    return firstValueFrom(
+        http
+            .get(url, {
+                reportProgress: true,
+                responseType: "blob",
+                params: params,
+            })
+            .pipe(
+                map((response) => {
+                    return response;
+                }),
+            ),
+    );
 }
 
 export function downloadWithStatusGET(
