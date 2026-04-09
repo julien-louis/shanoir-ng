@@ -23,10 +23,11 @@ import {
     PipeTransform,
     SimpleChanges,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
 
 import { arraysEqual, isDarkColor, objectsEqual } from "../../utils/app.utils";
 import { Option } from "../select/select.component";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "multi-select",
@@ -39,7 +40,7 @@ import { Option } from "../select/select.component";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [FormsModule, AccountRequestComponent],
 })
 export class MultiSelectComponent implements ControlValueAccessor, OnChanges {
     @Output() userChange = new EventEmitter();

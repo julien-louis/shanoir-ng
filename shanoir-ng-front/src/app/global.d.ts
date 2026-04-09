@@ -12,15 +12,10 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Pipe, PipeTransform } from "@angular/core";
-
-import * as AppUtils from "../../utils/app.utils";
-
-@Pipe({ name: "size", })
-export class SizePipe implements PipeTransform {
-    transform(sizeInBytes: number): string {
-        if (sizeInBytes) {
-            return AppUtils.getSizeStr(sizeInBytes);
-        }
+declare global {
+    interface Navigator {
+        msSaveBlob?: (blob: any, defaultName?: string) => boolean;
     }
 }
+
+export {};

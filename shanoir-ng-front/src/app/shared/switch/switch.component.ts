@@ -22,6 +22,7 @@ import {
     forwardRef,
 } from "@angular/core";
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "toggle-switch",
@@ -34,7 +35,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [AccountRequestComponent],
 })
 export class ToggleSwitchComponent implements ControlValueAccessor {
     @HostBinding("class.on") toggle: boolean = null;

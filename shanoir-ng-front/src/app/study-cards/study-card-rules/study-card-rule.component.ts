@@ -38,12 +38,18 @@ import {
     ShanoirMetadataField,
     StudyCardActionComponent,
 } from "./action/action.component";
+import { StudyCardConditionComponent } from "./condition/condition.component";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "study-card-rule",
     templateUrl: "study-card-rule.component.html",
     styleUrls: ["study-card-rule.component.css"],
-    standalone: false,
+    imports: [
+        StudyCardConditionComponent,
+        StudyCardActionComponent,
+        AccountRequestComponent,
+    ],
 })
 export class StudyCardRuleComponent implements OnChanges {
     @Input() mode: Mode;

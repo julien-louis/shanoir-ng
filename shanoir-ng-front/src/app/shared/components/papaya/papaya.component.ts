@@ -21,6 +21,7 @@ import {
     OnDestroy,
     OnChanges,
 } from "@angular/core";
+import { AccountRequestComponent } from "../../../users/account-request/account-request.component";
 
 declare let papaya: any;
 declare let papayaContainers: any[];
@@ -29,7 +30,7 @@ declare let papayaContainers: any[];
     selector: "papaya",
     templateUrl: "papaya.component.html",
     styleUrls: ["papaya.component.css"],
-    standalone: false,
+    imports: [AccountRequestComponent],
 })
 export class PapayaComponent implements OnInit, OnDestroy, OnChanges {
     @Input() params: any[];

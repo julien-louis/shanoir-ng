@@ -20,7 +20,6 @@ import { LoaderService } from "./loader.service";
     selector: "loader",
     templateUrl: "./loader.component.html",
     styleUrls: ["./loader.component.css"],
-    standalone: false,
 })
 export class LoaderComponent {
     constructor(public loaderService: LoaderService) {}

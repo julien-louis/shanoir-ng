@@ -19,7 +19,6 @@ import { DicomTag } from "../../shared/study-card.model";
 @Pipe({
     name: "dicomTagLabel",
     pure: false,
-    standalone: false,
 })
 export class DicomTagPipe implements PipeTransform {
     transform(tag: DicomTag): string {

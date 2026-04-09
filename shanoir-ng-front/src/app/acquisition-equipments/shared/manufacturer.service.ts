@@ -13,19 +13,18 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import { ConsoleService } from "../../shared/console/console.service";
 import * as AppUtils from "../../utils/app.utils";
-import { ServiceLocator } from "../../utils/locator.service";
 
 import { Manufacturer } from "./manufacturer.model";
 
 @Injectable()
 export class ManufacturerService extends EntityService<Manufacturer> {
     API_URL = AppUtils.BACKEND_API_MANUF_URL;
-    protected consoleService = ServiceLocator.injector.get(ConsoleService);
+    protected consoleService = inject(ConsoleService);
 
     constructor(protected http: HttpClient) {
         super(http);

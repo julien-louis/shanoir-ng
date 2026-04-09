@@ -19,7 +19,8 @@ import {
     Output,
     EventEmitter,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "auto-ajust-input",
@@ -32,7 +33,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [FormsModule, AccountRequestComponent],
 })
 export class AutoAdjustInputComponent implements ControlValueAccessor {
     model: any;

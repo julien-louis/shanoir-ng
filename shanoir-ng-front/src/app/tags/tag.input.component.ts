@@ -22,7 +22,7 @@ import {
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { Option } from "../shared/select/select.component";
+import { Option, SelectBoxComponent } from "../shared/select/select.component";
 import { isDarkColor } from "../utils/app.utils";
 
 import { Tag } from "./tag.model";
@@ -39,7 +39,7 @@ export type Mode = "view" | "edit" | "create";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [SelectBoxComponent],
 })
 export class TagInputComponent implements ControlValueAccessor, OnChanges {
     tags: Tag[];

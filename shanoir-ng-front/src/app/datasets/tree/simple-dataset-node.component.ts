@@ -20,7 +20,7 @@ import {
     Output,
     SimpleChanges,
 } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
 import { TreeService } from "src/app/studies/study/tree.service";
@@ -29,11 +29,25 @@ import { MassDownloadService } from "../../shared/mass-download/mass-download.se
 import { DatasetNode, ProcessingNode, UNLOADED } from "../../tree/tree.model";
 import { Dataset } from "../shared/dataset.model";
 import { DatasetService } from "../shared/dataset.service";
+import { TreeNodeComponent } from "../../shared/components/tree/tree-node.component";
+import { FormsModule } from "@angular/forms";
+import { DropdownMenuComponent } from "../../shared/components/dropdown-menu/dropdown-menu.component";
+import { MenuItemComponent } from "../../shared/components/dropdown-menu/menu-item/menu-item.component";
+import { MetadataNodeComponent } from "./metadata-node.component";
+import { ProcessingNodeComponent } from "./processing-node.component";
 
 @Component({
     selector: "simple-dataset-node",
     templateUrl: "dataset-node.component.html",
-    standalone: false,
+    imports: [
+        TreeNodeComponent,
+        FormsModule,
+        DropdownMenuComponent,
+        RouterLink,
+        MenuItemComponent,
+        MetadataNodeComponent,
+        ProcessingNodeComponent,
+    ],
 })
 export class SimpleDatasetNodeComponent
     extends TreeNodeAbstractComponent<DatasetNode>

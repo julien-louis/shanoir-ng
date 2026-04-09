@@ -19,13 +19,15 @@ import { UserService } from "../shared/user.service";
 
 import { AccessRequest } from "./access-request.model";
 import { AccessRequestService } from "./access-request.service";
+import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: "accessRequestList",
     templateUrl: "access-request-list.component.html",
     styleUrls: ["access-request-list.component.css"],
     animations: [disapearUp],
-    standalone: false,
+    imports: [FormsModule, RouterLink],
 })
 export class AccessRequestListComponent {
     accessRequests: AccessRequest[] = [];

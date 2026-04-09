@@ -13,18 +13,19 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
+import { FormsModule } from "@angular/forms";
 
 import { StudyService } from "src/app/studies/shared/study.service";
 
 import { StudyRightsService } from "../../../studies/shared/study-rights.service";
 import { StudyUserRight } from "../../../studies/shared/study-user-right.enum";
 import * as AppUtils from "../../../utils/app.utils";
-import { ServiceLocator } from "../../../utils/locator.service";
 import { ConsoleService } from "../../console/console.service";
 import { KeycloakService } from "../../keycloak/keycloak.service";
 import { IdName } from "../../models/id-name.model";
+import { SelectBoxComponent } from "../../select/select.component";
 
 export type InputDataset = {
     datasetId: number;
@@ -37,7 +38,7 @@ export type InputDataset = {
     selector: "user-action-dialog",
     templateUrl: "dataset-copy-dialog.component.html",
     styleUrls: ["dataset-copy-dialog.component.css"],
-    standalone: false,
+    imports: [SelectBoxComponent, FormsModule],
 })
 export class DatasetCopyDialogComponent {
     protected studies: IdName[];
@@ -51,7 +52,7 @@ export class DatasetCopyDialogComponent {
     protected canCopy: boolean = true;
     protected centerIds: number[] = [];
     protected subjectIds: number[] = [];
-    protected consoleService = ServiceLocator.injector.get(ConsoleService);
+    protected consoleService = inject(ConsoleService);
 
     constructor(
         private http: HttpClient,

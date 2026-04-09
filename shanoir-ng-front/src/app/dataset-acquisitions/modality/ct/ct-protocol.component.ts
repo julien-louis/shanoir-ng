@@ -29,7 +29,6 @@ import { CtProtocol } from "./ct-protocol.model";
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class CtProtocolComponent implements ControlValueAccessor {
     public protocol: CtProtocol;

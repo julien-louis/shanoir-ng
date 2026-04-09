@@ -22,8 +22,8 @@ describe("PipelineComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [PipelineComponent],
-        }).compileComponents();
+    imports: [PipelineComponent],
+}).compileComponents();
     });
 
     beforeEach(() => {

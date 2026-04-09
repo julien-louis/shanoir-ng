@@ -29,7 +29,6 @@ import { MrProtocol } from "./mr-protocol.model";
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class MrProtocolComponent implements ControlValueAccessor {
     public protocol: MrProtocol;

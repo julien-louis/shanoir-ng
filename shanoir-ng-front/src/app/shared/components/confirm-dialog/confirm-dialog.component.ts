@@ -20,7 +20,6 @@ import { SuperPromise } from "src/app/utils/super-promise";
     selector: "confirm-dialog",
     templateUrl: "confirm-dialog.component.html",
     styleUrls: ["confirm-dialog.component.css"],
-    standalone: false,
 })
 export class ConfirmDialogComponent {
     title: string;

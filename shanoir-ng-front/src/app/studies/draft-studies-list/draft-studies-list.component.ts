@@ -17,12 +17,14 @@ import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
 import { Study } from "../shared/study.model";
 import { StudyService } from "../shared/study.service";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: "draft-studies-list",
     templateUrl: "draft-studies-list.component.html",
     styleUrls: ["draft-studies-list.component.css"],
-    standalone: false,
+    imports: [FormsModule, RouterLink],
 })
 export class DraftStudiesListComponent {
     draftStudies: Study[] = [];

@@ -28,7 +28,7 @@ import { AnimalSubject } from "../shared/animalSubject.model";
     selector: "animalSubject-list",
     templateUrl: "animalSubject-list.component.html",
     styleUrls: ["animalSubject-list.component.css"],
-    standalone: false,
+    imports: [TableComponent],
 })
 export class AnimalSubjectsListComponent extends BrowserPaginEntityListComponent<AnimalSubject> {
     @ViewChild("preclinicalSubjectsTable", { static: false })

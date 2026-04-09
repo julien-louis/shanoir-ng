@@ -19,11 +19,12 @@ import {
     Instrument,
     VariableAssessment,
 } from "../instrument-assessment/instrument.model";
+import { TreeNodeComponent } from "../../shared/components/tree/tree-node.component";
 
 @Component({
     selector: "instrument-assessment-detail",
     templateUrl: "instrument-assessment.component.html",
-    standalone: false,
+    imports: [TreeNodeComponent],
 })
 export class InstrumentAssessmentComponent {
     @Input() instrumentBasedAssesment: InstrumentBasedAssessment;

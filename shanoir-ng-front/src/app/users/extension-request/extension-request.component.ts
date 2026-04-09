@@ -19,11 +19,7 @@ import {
     OnInit,
     Output,
 } from "@angular/core";
-import {
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    Validators,
-} from "@angular/forms";
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
 
@@ -31,12 +27,19 @@ import * as AppUtils from "../../utils/app.utils";
 import { UserService } from "../shared/user.service";
 
 import { ExtensionRequestInfo } from "./extension-request-info.model";
+import { HeaderComponent } from "../../shared/header/header.component";
+import { DatepickerComponent } from "../../shared/date-picker/date-picker.component";
 
 @Component({
     selector: "extensionRequest",
     templateUrl: "extension-request.component.html",
     styleUrls: ["extension-request.component.css"],
-    standalone: false,
+    imports: [
+        HeaderComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        DatepickerComponent,
+    ],
 })
 export class ExtensionRequestComponent implements OnInit, OnDestroy {
     @Output() closing = new EventEmitter();

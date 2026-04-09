@@ -19,7 +19,7 @@ import {
     Output,
     ViewChild,
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
 
 import { ConfirmDialogService } from "../shared/components/confirm-dialog/confirm-dialog.service";
 import { AbstractInput } from "../shared/form/input.abstract";
@@ -39,7 +39,7 @@ export type Mode = "view" | "edit" | "create";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [FormsModule],
 })
 export class TagCreatorComponent extends AbstractInput<Tag[]> {
     @ViewChild("input", { static: false }) input: any;

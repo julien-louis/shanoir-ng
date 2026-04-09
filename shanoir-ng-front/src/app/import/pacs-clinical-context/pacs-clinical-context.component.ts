@@ -19,6 +19,9 @@ import {
 } from "../../shared/animations/animations";
 import { BasicClinicalContextComponent } from "../basic-clinical-context/basic-clinical-context.component";
 import { ImportJob } from "../shared/dicom-data.model";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { SelectBoxComponent } from "../../shared/select/select.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "pacs-clinical-context",
@@ -28,7 +31,11 @@ import { ImportJob } from "../shared/dicom-data.model";
         "../shared/import.step.css",
     ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false,
+    imports: [
+        TooltipComponent,
+        SelectBoxComponent,
+        FormsModule,
+    ],
 })
 export class PacsClinicalContextComponent extends BasicClinicalContextComponent {
     getNextUrl(): string {

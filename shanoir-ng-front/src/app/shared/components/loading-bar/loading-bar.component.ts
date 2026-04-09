@@ -14,13 +14,10 @@
 
 import { Component, HostBinding, Input } from "@angular/core";
 
-import { getSizeStr } from "src/app/utils/app.utils";
-
 @Component({
     selector: "progress-bar",
     templateUrl: "loading-bar.component.html",
     styleUrls: ["loading-bar.component.css"],
-    standalone: false,
 })
 export class LoadingBarComponent {
     @Input() progress: number = 0;
@@ -51,6 +48,6 @@ export class LoadingBarComponent {
     }
 
     getSizeStr(size: number): string {
-        return getSizeStr(size);
+        return this.getSizeStr(size);
     }
 }

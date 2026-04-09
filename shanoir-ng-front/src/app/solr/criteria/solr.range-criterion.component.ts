@@ -15,6 +15,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { slideDown } from "../../shared/animations/animations";
 import { Range } from "../../shared/models/range.model";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "solr-range-criterion",
@@ -24,7 +25,7 @@ import { Range } from "../../shared/models/range.model";
         "solr.range-criterion.component.css",
     ],
     animations: [slideDown],
-    standalone: false,
+    imports: [FormsModule],
 })
 export class SolrRangeCriterionComponent {
     @Input() range: Range = new Range(null, null);

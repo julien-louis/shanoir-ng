@@ -12,14 +12,13 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import { Page, Pageable } from "../../shared/components/table/pageable.model";
 import * as AppUtils from "../../utils/app.utils";
-import { ServiceLocator } from "../../utils/locator.service";
 
 import {
     DatasetAcquisitionDatasetsDTO,
@@ -33,10 +32,10 @@ import { DatasetAcquisitionUtils } from "./dataset-acquisition.utils";
 @Injectable()
 export class DatasetAcquisitionService extends EntityService<DatasetAcquisition> {
     protected dsAcqDtoService: DatasetAcquisitionDTOService =
-        ServiceLocator.injector.get(DatasetAcquisitionDTOService);
+        inject(DatasetAcquisitionDTOService);
 
     protected bcService: BreadcrumbsService =
-        ServiceLocator.injector.get(BreadcrumbsService);
+        inject(BreadcrumbsService);
 
     API_URL = AppUtils.BACKEND_API_DATASET_ACQUISITION_URL;
 

@@ -19,13 +19,19 @@ import { UserService } from "../users/shared/user.service";
 import { DatasetService } from "../datasets/shared/dataset.service";
 import * as AppUtils from "../utils/app.utils";
 import { isDarkColor } from "../utils/app.utils";
+import { AccountRequestComponent } from "../users/account-request/account-request.component";
+import { SlicePipe, TitleCasePipe } from "@angular/common";
 
 @Component({
     selector: "app-welcome",
     templateUrl: "./welcome.component.html",
     styleUrls: ["./welcome.component.css"],
     encapsulation: ViewEncapsulation.None,
-    standalone: false,
+    imports: [
+        AccountRequestComponent,
+        SlicePipe,
+        TitleCasePipe,
+    ],
 })
 export class WelcomeComponent implements OnInit {
     public githubLogoUrl: string = ImagesUrlUtil.GITHUB_WHITE_LOGO_PATH;

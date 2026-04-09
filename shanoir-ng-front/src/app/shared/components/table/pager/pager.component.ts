@@ -25,7 +25,6 @@ import {
     selector: "shanoir-pager",
     templateUrl: "pager.component.html",
     styleUrls: ["pager.component.css"],
-    standalone: false,
 })
 export class PagerComponent implements OnChanges {
     @Input() currentPage: number;

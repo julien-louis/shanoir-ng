@@ -29,7 +29,7 @@ import { CenterService } from "../shared/center.service";
     selector: "center-list",
     templateUrl: "center-list.component.html",
     styleUrls: ["center-list.component.css"],
-    standalone: false,
+    imports: [TableComponent],
 })
 export class CenterListComponent extends BrowserPaginEntityListComponent<Center> {
     @ViewChild("table", { static: false }) table: TableComponent;

@@ -11,7 +11,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component, OnDestroy } from "@angular/core";
+import { Component, inject, OnDestroy } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 import { UnitOfMeasure } from "../../enum/unitofmeasure.enum";
 import { Examination } from "../../examinations/shared/examination.model";
@@ -24,7 +25,6 @@ import {
 import { IdName } from "../../shared/models/id-name.model";
 import { ImagedObjectCategory } from "../../subjects/shared/imaged-object-category.enum";
 import { SimpleSubject, Subject } from "../../subjects/shared/subject.model";
-import { ServiceLocator } from "../../utils/locator.service";
 import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
 import {
     ImportJob,
@@ -32,6 +32,8 @@ import {
     SerieDicom,
     StudyDicom,
 } from "../shared/dicom-data.model";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { SelectBoxComponent } from "../../shared/select/select.component";
 
 @Component({
     selector: "pre-clinical-context",
@@ -41,7 +43,11 @@ import {
         "../shared/import.step.css",
     ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false,
+    imports: [
+        TooltipComponent,
+        SelectBoxComponent,
+        FormsModule,
+    ],
 })
 export class PreClinicalContextComponent
     extends AbstractClinicalContextComponent
@@ -49,7 +55,7 @@ export class PreClinicalContextComponent
 {
     private animalSubject: AnimalSubject = new AnimalSubject();
     private animalSubjectService: AnimalSubjectService =
-        ServiceLocator.injector.get(AnimalSubjectService);
+        inject(AnimalSubjectService);
     patient: PatientDicom;
 
     postConstructor() {

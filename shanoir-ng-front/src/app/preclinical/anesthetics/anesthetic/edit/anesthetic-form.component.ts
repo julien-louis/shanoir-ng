@@ -13,7 +13,7 @@
  */
 
 import { Component, ViewChild } from "@angular/core";
-import { UntypedFormGroup, Validators } from "@angular/forms";
+import { UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { slideDown } from "../../../../shared/animations/animations";
@@ -34,13 +34,23 @@ import { AnestheticIngredientService } from "../../ingredients/shared/anesthetic
 import { Anesthetic } from "../shared/anesthetic.model";
 import { AnestheticService } from "../shared/anesthetic.service";
 import { EntityService } from "../../../../shared/components/entity/entity.abstract.service";
+import { FormFooterComponent } from "../../../../shared/components/form-footer/form-footer.component";
+import { SelectBoxComponent } from "../../../../shared/select/select.component";
+import { AnestheticIngredientFormComponent } from "../../ingredients/edit/anestheticIngredient-form.component";
 
 @Component({
     selector: "anesthetic-form",
     templateUrl: "anesthetic-form.component.html",
     styleUrls: ["anesthetic-form.component.css"],
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        FormFooterComponent,
+        SelectBoxComponent,
+        AnestheticIngredientFormComponent,
+        TableComponent,
+    ],
 })
 export class AnestheticFormComponent extends EntityComponent<Anesthetic> {
     @ViewChild("ingredientsTable", { static: false }) table: TableComponent;

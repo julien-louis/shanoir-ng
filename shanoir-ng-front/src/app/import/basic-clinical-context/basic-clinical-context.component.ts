@@ -32,6 +32,9 @@ import {
     SerieDicom,
     StudyDicom,
 } from "../shared/dicom-data.model";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { SelectBoxComponent } from "../../shared/select/select.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "clinical-context",
@@ -41,7 +44,11 @@ import {
         "../shared/import.step.css",
     ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false,
+    imports: [
+        TooltipComponent,
+        SelectBoxComponent,
+        FormsModule,
+    ],
 })
 export class BasicClinicalContextComponent extends AbstractClinicalContextComponent {
     patient: PatientDicom;

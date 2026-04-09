@@ -25,12 +25,13 @@ import { ColumnDefinition } from "../../shared/components/table/column.definitio
 import { ExecutionMonitoring } from "../models/execution-monitoring.model";
 
 import { ExecutionMonitoringService } from "./execution-monitoring.service";
+import { TableComponent as TableComponent_1 } from "../../shared/components/table/table.component";
 
 @Component({
     selector: "app-execution-monitorings",
     templateUrl: "./execution-monitorings.component.html",
     styleUrls: ["./execution-monitorings.component.css"],
-    standalone: false,
+    imports: [TableComponent_1],
 })
 export class ExecutionMonitoringsComponent
     extends EntityListComponent<ExecutionMonitoring>

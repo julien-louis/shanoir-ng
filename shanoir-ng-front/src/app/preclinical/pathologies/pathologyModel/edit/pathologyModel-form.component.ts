@@ -13,7 +13,7 @@
  */
 
 import { Component } from "@angular/core";
-import { Validators, UntypedFormGroup } from "@angular/forms";
+import { Validators, UntypedFormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
@@ -25,12 +25,19 @@ import { PathologyService } from "../../pathology/shared/pathology.service";
 import { slideDown } from "../../../../shared/animations/animations";
 import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
 import { Step } from "../../../../breadcrumbs/breadcrumbs.service";
+import { FormFooterComponent } from "../../../../shared/components/form-footer/form-footer.component";
+import { SelectBoxComponent } from "../../../../shared/select/select.component";
 
 @Component({
     selector: "pathologyModel-form",
     templateUrl: "pathologyModel-form.component.html",
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        FormFooterComponent,
+        SelectBoxComponent,
+    ],
 })
 export class PathologyModelFormComponent extends EntityComponent<PathologyModel> {
     pathologies: Pathology[];

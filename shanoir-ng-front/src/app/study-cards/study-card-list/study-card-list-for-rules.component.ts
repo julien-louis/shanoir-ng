@@ -21,12 +21,13 @@ import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/ac
 import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
 
 import { StudyCardListComponent } from "./study-card-list.component";
+import { TableComponent } from "../../shared/components/table/table.component";
 
 @Component({
     selector: "study-card-list-for-rules",
     templateUrl: "study-card-list-for-rules.component.html",
     styleUrls: ["study-card-list.component.css"],
-    standalone: false,
+    imports: [TableComponent],
 })
 export class StudyCardForRulesListComponent
     extends StudyCardListComponent

@@ -19,7 +19,6 @@ import { ImagesUrlUtil } from "../utils/images-url.util";
     selector: "header",
     templateUrl: "header.component.html",
     styleUrls: ["header.component.css"],
-    standalone: false,
 })
 export class HeaderComponent {
     shanoirLogoUrl: string = ImagesUrlUtil.SHANOIR_WHITE_LOGO_PATH;

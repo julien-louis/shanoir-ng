@@ -17,8 +17,8 @@ import {
     EventEmitter,
     ViewChild,
 } from "@angular/core";
-import { FormArray, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { FormArray, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { Observable, race } from "rxjs";
 import { map, take } from "rxjs/operators";
 
@@ -52,13 +52,27 @@ import { StudyCardRule } from "../shared/study-card.model";
 import { StudyCardRulesComponent } from "../study-card-rules/study-card-rules.component";
 import * as AppUtils from "../../utils/app.utils";
 import { TestQualityCardOptionsComponent } from "../test-quality-card-options/test-quality-card-options.component";
+import { FormFooterComponent } from "../../shared/components/form-footer/form-footer.component";
+import { SelectBoxComponent } from "../../shared/select/select.component";
+import { CheckboxComponent } from "../../shared/checkbox/checkbox.component";
+import { LoadingBarComponent } from "../../shared/components/loading-bar/loading-bar.component";
 
 @Component({
     selector: "quality-card",
     templateUrl: "quality-card.component.html",
     styleUrls: ["quality-card.component.css"],
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        FormFooterComponent,
+        RouterLink,
+        SelectBoxComponent,
+        CheckboxComponent,
+        StudyCardRulesComponent,
+        LoadingBarComponent,
+        TableComponent,
+    ],
 })
 export class QualityCardComponent extends EntityComponent<QualityCard> {
     centers: IdName[] = [];

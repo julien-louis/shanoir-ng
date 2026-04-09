@@ -22,11 +22,7 @@ import {
     Output,
     ViewChild,
 } from "@angular/core";
-import {
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    Validators,
-} from "@angular/forms";
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Subscription } from "rxjs";
 
 import {
@@ -37,7 +33,7 @@ import {
 
 import { DatasetType } from "../../../datasets/shared/dataset-type.model";
 import { Dataset } from "../../../datasets/shared/dataset.model";
-import { Option } from "../../select/select.component";
+import { Option, SelectBoxComponent } from "../../select/select.component";
 import { GlobalService } from "../../services/global.service";
 import {
     DownloadInputIds,
@@ -48,7 +44,11 @@ import {
     selector: "download-setup-alt",
     templateUrl: "download-setup-alt.component.html",
     styleUrls: ["download-setup-alt.component.css"],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        SelectBoxComponent,
+    ],
 })
 export class DownloadSetupAltComponent implements OnInit, OnDestroy {
     @Output() go: EventEmitter<{

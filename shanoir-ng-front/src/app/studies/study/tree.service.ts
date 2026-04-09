@@ -137,7 +137,6 @@ export class TreeService {
     }
 
     constructor(
-        protected activatedRoute: ActivatedRoute,
         private studyService: StudyService,
         private datasetService: DatasetService,
         private datasetAcquisitionService: DatasetAcquisitionService,

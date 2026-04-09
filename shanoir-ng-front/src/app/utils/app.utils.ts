@@ -12,7 +12,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-import { Pipe, PipeTransform } from "@angular/core";
+import { inject, Pipe, PipeTransform } from "@angular/core";
 import {
     HttpClient,
     HttpEvent,
@@ -25,8 +25,6 @@ import { firstValueFrom, Observable } from "rxjs";
 import { last, map, mergeMap, shareReplay } from "rxjs/operators";
 
 import { TaskState, TaskStatus } from "../async-tasks/task.model";
-
-import { ServiceLocator } from "./locator.service";
 
 // Base urls
 const url = window.location;
@@ -294,7 +292,7 @@ export function browserDownloadFileFromResponse(response: HttpResponse<any>) {
 }
 
 export function downloadBlob(url: string, params?: HttpParams): Promise<Blob> {
-    const http: HttpClient = ServiceLocator.injector.get(HttpClient);
+    const http: HttpClient = inject(HttpClient);
     return firstValueFrom(
         http
             .get(url, {
@@ -315,7 +313,7 @@ export function downloadWithStatusGET(
     params?: HttpParams,
     state?: TaskState,
 ): Observable<TaskState> {
-    const http: HttpClient = ServiceLocator.injector.get(HttpClient);
+    const http: HttpClient = inject(HttpClient);
     const obs: Observable<HttpEvent<Blob>> = http
         .get(url, {
             reportProgress: true,
@@ -346,7 +344,7 @@ export function downloadWithStatusPOST(
     formData: FormData,
     state?: TaskState,
 ): Observable<TaskState> {
-    const http: HttpClient = ServiceLocator.injector.get(HttpClient);
+    const http: HttpClient = inject(HttpClient);
     const obs: Observable<HttpEvent<Blob>> = http
         .post(url, formData, {
             reportProgress: true,
@@ -460,10 +458,7 @@ export function findLastIndex<T>(
     return -1;
 }
 
-@Pipe({
-    name: "times",
-    standalone: false,
-})
+@Pipe({ name: "times", })
 export class TimesPipe implements PipeTransform {
     transform(value: number): any {
         const iterable = {};
@@ -477,10 +472,7 @@ export class TimesPipe implements PipeTransform {
     }
 }
 
-@Pipe({
-    name: "getValues",
-    standalone: false,
-})
+@Pipe({ name: "getValues", })
 export class GetValuesPipe implements PipeTransform {
     transform(map: Map<any, any>): any[] {
         const ret = [];
@@ -514,10 +506,7 @@ export function capitalsAndUnderscoresToDisplayable(str: string) {
     );
 }
 
-@Pipe({
-    name: "camel",
-    standalone: false,
-})
+@Pipe({ name: "camel", })
 export class CamelPipe implements PipeTransform {
     transform(value: string): any {
         return capitalsAndUnderscoresToDisplayable(value);

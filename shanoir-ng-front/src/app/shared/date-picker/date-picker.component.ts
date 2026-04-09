@@ -12,12 +12,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
 import { Component, forwardRef, Input } from "@angular/core";
-import {
-    AbstractControl,
-    ControlValueAccessor,
-    NG_VALUE_ACCESSOR,
-    ValidationErrors,
-} from "@angular/forms";
+import { AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR, ValidationErrors, FormsModule } from "@angular/forms";
 
 @Component({
     selector: "datepicker",
@@ -44,7 +39,7 @@ import {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [FormsModule],
 })
 export class DatepickerComponent implements ControlValueAccessor {
     dateString: string = "";

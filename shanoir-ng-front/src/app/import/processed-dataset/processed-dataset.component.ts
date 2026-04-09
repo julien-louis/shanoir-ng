@@ -20,6 +20,7 @@ import { slideDown } from "../../shared/animations/animations";
 import { ImportDataService } from "../shared/import.data-service";
 import { ImportService } from "../shared/import.service";
 import { ProcessedDatasetImportJob } from "../shared/processed-dataset-data.model";
+import { UploaderComponent } from "../../shared/components/uploader/uploader.component";
 
 type Status = "none" | "uploading" | "uploaded" | "error";
 
@@ -28,7 +29,7 @@ type Status = "none" | "uploading" | "uploaded" | "error";
     templateUrl: "processed-dataset.component.html",
     styleUrls: ["processed-dataset.component.css", "../shared/import.step.css"],
     animations: [slideDown],
-    standalone: false,
+    imports: [UploaderComponent],
 })
 export class ImportProcessedDatasetComponent {
     archiveStatus: Status = "none";

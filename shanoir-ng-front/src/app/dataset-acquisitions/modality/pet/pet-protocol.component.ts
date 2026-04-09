@@ -29,7 +29,6 @@ import { PetProtocol } from "./pet-protocol.model";
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class PetProtocolComponent implements ControlValueAccessor {
     public protocol: PetProtocol;

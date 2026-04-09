@@ -18,7 +18,7 @@ import { filter } from "rxjs/operators";
 import { LocationStrategy } from "@angular/common";
 import { Router } from "@angular/router";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class GlobalService implements OnDestroy {
     public onGlobalClick: Observable<Event>;
     public onGlobalMouseUp: Observable<Event>;

@@ -16,6 +16,8 @@ import { Component } from "@angular/core";
 import { BreadcrumbsService } from "../breadcrumbs/breadcrumbs.service";
 import { StudyRightsService } from "../studies/shared/study-rights.service";
 import { findLastIndex } from "../utils/app.utils";
+import { FormsModule } from "@angular/forms";
+import { RouterOutlet } from "@angular/router";
 
 export type ImportMode =
     | "DICOM"
@@ -29,7 +31,7 @@ export type ImportMode =
     selector: "imports",
     templateUrl: "import.component.html",
     styleUrls: ["import.component.css"],
-    standalone: false,
+    imports: [FormsModule, RouterOutlet],
 })
 export class ImportComponent {
     hasOneStudy: boolean = true;

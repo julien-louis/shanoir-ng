@@ -28,7 +28,7 @@ import { UnitOfMeasure } from "../../../enum/unitofmeasure.enum";
 @Component({
     selector: "eeg-dataset-details",
     templateUrl: "dataset.eeg.component.html",
-    standalone: false,
+    imports: [TableComponent],
 })
 export class EegDatasetComponent implements OnInit {
     @Input() protected mode: Mode;

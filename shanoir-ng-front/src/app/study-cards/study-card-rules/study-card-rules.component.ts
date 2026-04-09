@@ -53,6 +53,7 @@ import { QualityCardRule } from "../shared/quality-card.model";
 import { StudyCardRuleComponent } from "./study-card-rule.component";
 import { ShanoirMetadataField } from "./action/action.component";
 import { QualityCardRuleComponent } from "./quality-card-rule.component";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "study-card-rules",
@@ -65,7 +66,11 @@ import { QualityCardRuleComponent } from "./quality-card-rule.component";
             useExisting: forwardRef(() => StudyCardRulesComponent),
         },
     ],
-    standalone: false,
+    imports: [
+        StudyCardRuleComponent,
+        QualityCardRuleComponent,
+        AccountRequestComponent,
+    ],
 })
 export class StudyCardRulesComponent
     implements OnChanges, ControlValueAccessor

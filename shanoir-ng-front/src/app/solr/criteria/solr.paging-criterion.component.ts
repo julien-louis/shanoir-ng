@@ -20,7 +20,7 @@ import {
     Output,
     SimpleChanges,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
 import shajs from "sha.js";
 import { Router } from "@angular/router";
 
@@ -32,6 +32,8 @@ import {
 } from "../solr.document.model";
 import { Page } from "../../shared/components/table/pageable.model";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { NgTemplateOutlet } from "@angular/common";
+import { CheckboxComponent } from "../../shared/checkbox/checkbox.component";
 
 @Component({
     selector: "solr-paging-criterion",
@@ -48,7 +50,11 @@ import { KeycloakService } from "../../shared/keycloak/keycloak.service";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        FormsModule,
+        NgTemplateOutlet,
+        CheckboxComponent,
+    ],
 })
 export class SolrPagingCriterionComponent
     implements ControlValueAccessor, OnChanges

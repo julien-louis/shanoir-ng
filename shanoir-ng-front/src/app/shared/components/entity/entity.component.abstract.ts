@@ -16,6 +16,7 @@ import {
     Directive,
     ElementRef,
     HostListener,
+    inject,
     Input,
     OnChanges,
     OnDestroy,
@@ -41,7 +42,6 @@ import {
     BreadcrumbsService,
     Step,
 } from "../../../breadcrumbs/breadcrumbs.service";
-import { ServiceLocator } from "../../../utils/locator.service";
 import { ConsoleService } from "../../console/console.service";
 import { KeycloakService } from "../../keycloak/keycloak.service";
 import { ShanoirError } from "../../models/error.model";
@@ -103,17 +103,15 @@ export abstract class EntityComponent<T extends Entity>
     protected fetchEntity: () => Promise<any>; // optional
 
     constructor(protected activatedRoute: ActivatedRoute) {
-        this.confirmDialogService =
-            ServiceLocator.injector.get(ConfirmDialogService);
+        this.confirmDialogService = inject(ConfirmDialogService);
         this.entityRoutes = new EntityRoutes(this.getRoutingName());
-        this.router = ServiceLocator.injector.get(Router);
-        this.location = ServiceLocator.injector.get(Location);
-        this.keycloakService = ServiceLocator.injector.get(KeycloakService);
-        this.formBuilder = ServiceLocator.injector.get(UntypedFormBuilder);
-        this.consoleService = ServiceLocator.injector.get(ConsoleService);
-        this.breadcrumbsService =
-            ServiceLocator.injector.get(BreadcrumbsService);
-        this.treeService = ServiceLocator.injector.get(TreeService);
+        this.router = inject(Router);
+        this.location = inject(Location);
+        this.keycloakService = inject(KeycloakService);
+        this.formBuilder = inject(UntypedFormBuilder);
+        this.consoleService = inject(ConsoleService);
+        this.breadcrumbsService =inject(BreadcrumbsService);
+        this.treeService = inject(TreeService);
 
         this.mode = this.activatedRoute.snapshot.data["mode"];
 

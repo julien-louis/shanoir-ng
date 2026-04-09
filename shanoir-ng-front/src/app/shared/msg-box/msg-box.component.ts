@@ -23,7 +23,6 @@ import { MsgBoxService } from "./msg-box.service";
     templateUrl: "./msg-box.component.html",
     styleUrls: ["./msg-box.component.css"],
     animations: [slideLeft],
-    standalone: false,
 })
 export class MsgBoxComponent {
     constructor(private msgboxService: MsgBoxService) {}

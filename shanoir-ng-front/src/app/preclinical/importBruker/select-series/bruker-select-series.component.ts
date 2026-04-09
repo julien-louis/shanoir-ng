@@ -24,6 +24,10 @@ import {
     SerieDicom,
 } from "../../../import/shared/dicom-data.model";
 import { ImportService } from "../../../import/shared/import.service";
+import { TreeNodeComponent } from "../../../shared/components/tree/tree-node.component";
+import { FormsModule } from "@angular/forms";
+import { PapayaComponent } from "../../../shared/components/papaya/papaya.component";
+import { LocalDateFormatPipe } from "../../../shared/localLanguage/localDateFormat.pipe";
 
 @Component({
     selector: "bruker-select-series",
@@ -33,7 +37,12 @@ import { ImportService } from "../../../import/shared/import.service";
         "../../../import/shared/import.step.css",
     ],
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        TreeNodeComponent,
+        FormsModule,
+        PapayaComponent,
+        LocalDateFormatPipe,
+    ],
 })
 export class BrukerSelectSeriesComponent {
     public patients: PatientDicom[];

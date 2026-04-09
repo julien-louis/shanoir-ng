@@ -32,7 +32,6 @@ import {
     templateUrl: "menu-item.component.html",
     styleUrls: ["menu-item.component.css"],
     animations: [menuSlideRight],
-    standalone: false,
 })
 export class MenuItemComponent implements AfterViewInit {
     @Input() label: string;

@@ -38,6 +38,8 @@ import { ExecutionDataService } from "../../vip/execution.data-service";
 import { DatasetService } from "../../datasets/shared/dataset.service";
 import { RightsError } from "../../shared/models/error.model";
 import { environment } from "../../../environments/environment";
+import { DoubleAwesomeComponent } from "../../shared/double-awesome/double-awesome.component";
+import { StudyNodeComponent } from "../tree/study-node.component";
 
 import { TreeService } from "./tree.service";
 
@@ -45,7 +47,10 @@ import { TreeService } from "./tree.service";
     selector: "study-tree",
     templateUrl: "study-tree.component.html",
     styleUrls: ["study-tree.component.css"],
-    standalone: false,
+    imports: [
+        DoubleAwesomeComponent,
+        StudyNodeComponent,
+    ],
 })
 export class StudyTreeComponent implements OnDestroy {
     _selectedDatasetNodes: DatasetNode[] = [];

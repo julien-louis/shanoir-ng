@@ -19,7 +19,7 @@ import {
     EventEmitter,
     OnChanges,
 } from "@angular/core";
-import { UntypedFormGroup, Validators } from "@angular/forms";
+import { UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
@@ -38,7 +38,7 @@ import { Step } from "../../../../breadcrumbs/breadcrumbs.service";
     selector: "anesthetic-ingredient-form",
     templateUrl: "anestheticIngredient-form.component.html",
     animations: [slideDown],
-    standalone: false,
+    imports: [FormsModule, ReactiveFormsModule],
 })
 export class AnestheticIngredientFormComponent
     extends EntityComponent<AnestheticIngredient>

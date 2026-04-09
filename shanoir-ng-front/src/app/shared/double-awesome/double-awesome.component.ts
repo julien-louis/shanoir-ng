@@ -18,7 +18,6 @@ import { Component, Input } from "@angular/core";
     selector: "double-awesome",
     templateUrl: "./double-awesome.component.html",
     styleUrls: ["./double-awesome.component.css"],
-    standalone: false,
 })
 export class DoubleAwesomeComponent {
     @Input() main: string;

@@ -17,7 +17,7 @@ import {
     HttpParams,
     HttpResponse,
 } from "@angular/common/http";
-import { ErrorHandler, Injectable } from "@angular/core";
+import { ErrorHandler, inject, Injectable } from "@angular/core";
 import { firstValueFrom, Observable } from "rxjs";
 
 import { TaskState } from "src/app/async-tasks/task.model";
@@ -26,7 +26,6 @@ import { BidsElement } from "../../bids/model/bidsElement.model";
 import { EntityService } from "../../shared/components/entity/entity.abstract.service";
 import { Page, Pageable } from "../../shared/components/table/pageable.model";
 import * as AppUtils from "../../utils/app.utils";
-import { ServiceLocator } from "../../utils/locator.service";
 import { MrDataset } from "../dataset/mr/dataset.mr.model";
 import { IdName } from "../../shared/models/id-name.model";
 
@@ -72,10 +71,10 @@ export class DatasetService extends EntityService<Dataset> {
     }
 
     private datasetDTOService: DatasetDTOService =
-        ServiceLocator.injector.get(DatasetDTOService);
+        inject(DatasetDTOService);
 
     private errorService: ErrorHandler =
-        ServiceLocator.injector.get(ErrorHandler);
+        inject(ErrorHandler);
 
     deleteAll(ids: number[]) {
         return firstValueFrom(

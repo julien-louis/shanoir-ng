@@ -22,22 +22,22 @@ import {
     Output,
     ViewChild,
 } from "@angular/core";
-import {
-    AbstractControl,
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    Validators,
-} from "@angular/forms";
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { Interval } from "../shared/quality-card.service";
 import { GlobalService } from "../../shared/services/global.service";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "test-quality-card-options",
     templateUrl: "test-quality-card-options.component.html",
     styleUrls: ["test-quality-card-options.component.css"],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        AccountRequestComponent,
+    ],
 })
 export class TestQualityCardOptionsComponent implements OnInit {
     @Input() nbExaminations: number;

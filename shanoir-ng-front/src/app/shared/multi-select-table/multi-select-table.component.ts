@@ -31,7 +31,8 @@ import { BrowserPaging } from "../components/table/browser-paging.model";
 import { ColumnDefinition } from "../components/table/column.definition.type";
 import { FilterablePageable, Page } from "../components/table/pageable.model";
 import { TableComponent } from "../components/table/table.component";
-import { Option } from "../select/select.component";
+import { Option, SelectBoxComponent } from "../select/select.component";
+import { AccountRequestComponent } from "../../users/account-request/account-request.component";
 
 @Component({
     selector: "multi-select-table",
@@ -44,7 +45,11 @@ import { Option } from "../select/select.component";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        SelectBoxComponent,
+        TableComponent,
+        AccountRequestComponent,
+    ],
 })
 export class MultiSelectTableComponent
     implements ControlValueAccessor, OnChanges

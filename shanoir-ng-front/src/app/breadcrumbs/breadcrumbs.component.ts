@@ -13,12 +13,9 @@
  */
 
 import {
-    AfterViewChecked,
-    AfterViewInit,
     Component,
     ElementRef,
-    HostListener,
-    OnDestroy,
+    HostListener
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, Subscription } from "rxjs";
@@ -32,10 +29,8 @@ import { BreadcrumbsService, Step } from "./breadcrumbs.service";
     selector: "breadcrumbs",
     templateUrl: "breadcrumbs.component.html",
     styleUrls: ["breadcrumbs.component.css"],
-    standalone: false,
 })
 export class BreadcrumbsComponent
-    implements AfterViewInit, OnDestroy, AfterViewChecked
 {
     private _nbDisplayedSteps: number = 0;
     private subscriptions: Subscription[] = [];

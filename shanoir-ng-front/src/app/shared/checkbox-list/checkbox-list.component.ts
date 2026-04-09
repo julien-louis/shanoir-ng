@@ -20,9 +20,10 @@ import {
     SimpleChanges,
     ChangeDetectorRef,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
 
 import { FacetResultPage } from "../../solr/solr.document.model";
+import { SlicePipe } from "@angular/common";
 
 @Component({
     selector: "checkbox-list",
@@ -35,7 +36,7 @@ import { FacetResultPage } from "../../solr/solr.document.model";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [FormsModule, SlicePipe],
 })
 export class CheckboxListComponent implements ControlValueAccessor, OnChanges {
     onChange: (any) => void = () => {

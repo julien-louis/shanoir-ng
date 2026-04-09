@@ -24,7 +24,7 @@ import {
     Output,
     SimpleChanges,
 } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { fromEvent, Subscription } from "rxjs";
 import shajs from "sha.js";
 
@@ -48,6 +48,15 @@ import {
     Pageable,
     Sort,
 } from "./pageable.model";
+import { VarDirective } from "../../../utils/ng-var.directive";
+import { CheckboxComponent } from "../../checkbox/checkbox.component";
+import { FormsModule } from "@angular/forms";
+import { MultiSelectComponent } from "../../multi-select/multi-select.component";
+import { LoadingBarComponent } from "../loading-bar/loading-bar.component";
+import { TableSearchComponent } from "./search/search.component";
+import { NgTemplateOutlet } from "@angular/common";
+import { PagerComponent } from "./pager/pager.component";
+import { AccountRequestComponent } from "../../../users/account-request/account-request.component";
 
 @Component({
     selector: "shanoir-table",
@@ -55,7 +64,19 @@ import {
     styleUrls: ["table.component.css"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        VarDirective,
+        RouterLink,
+        RouterLinkActive,
+        CheckboxComponent,
+        FormsModule,
+        MultiSelectComponent,
+        LoadingBarComponent,
+        TableSearchComponent,
+        NgTemplateOutlet,
+        PagerComponent,
+        AccountRequestComponent,
+    ],
 })
 export class TableComponent implements OnInit, OnChanges, OnDestroy {
     @Input() getPage: (

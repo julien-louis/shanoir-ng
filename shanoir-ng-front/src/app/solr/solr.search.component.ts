@@ -21,11 +21,7 @@ import {
     ViewChild,
     ViewChildren,
 } from "@angular/core";
-import {
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    ValidationErrors,
-} from "@angular/forms";
+import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
 
@@ -65,6 +61,10 @@ import {
     SolrResultPage,
 } from "./solr.document.model";
 import { SolrService } from "./solr.service";
+import { SolrRangeCriterionComponent } from "./criteria/solr.range-criterion.component";
+import { SolrTextSearchComponent } from "./text-search/solr.text-search.component";
+import { SolrTextSearchModeComponent } from "./text-search/solr.text-search-mode.component";
+import { LoadingBarComponent } from "../shared/components/loading-bar/loading-bar.component";
 
 const TextualFacetNames: string[] = [
     "studyName",
@@ -85,7 +85,17 @@ export type TextualFacet = (typeof TextualFacetNames)[number];
     templateUrl: "solr.search.component.html",
     styleUrls: ["solr.search.component.css"],
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        SolrPagingCriterionComponent,
+        DatepickerComponent,
+        SolrRangeCriterionComponent,
+        SolrTextSearchComponent,
+        SolrTextSearchModeComponent,
+        LoadingBarComponent,
+        TableComponent,
+    ],
 })
 export class SolrSearchComponent implements AfterViewChecked, AfterContentInit {
     progressState: TaskState = new TaskState();

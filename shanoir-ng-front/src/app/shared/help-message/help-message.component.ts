@@ -20,7 +20,6 @@ import { BreadcrumbsService } from "../../breadcrumbs/breadcrumbs.service";
     selector: "help-message",
     templateUrl: "help-message.component.html",
     styleUrls: ["help-message.component.css"],
-    standalone: false,
 })
 export class HelpMessageComponent implements OnInit {
     @Input() help: "institution" | "equipment";

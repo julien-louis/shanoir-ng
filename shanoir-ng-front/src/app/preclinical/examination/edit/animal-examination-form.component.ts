@@ -13,7 +13,7 @@
  */
 
 import { Component } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 
 import { ExaminationComponent } from "src/app/examinations/examination/examination.component";
 import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
@@ -34,12 +34,33 @@ import { ExtraDataService } from "../../extraData/extraData/shared/extradata.ser
 import { PhysiologicalDataFile } from "../../extraData/physiologicalData/shared/physiologicalDataFile.model";
 import * as PreclinicalUtils from "../../utils/preclinical.utils";
 import { AnimalExaminationService } from "../shared/animal-examination.service";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { NgClass } from "@angular/common";
+import { FormFooterComponent } from "../../../shared/components/form-footer/form-footer.component";
+import { SelectBoxComponent } from "../../../shared/select/select.component";
+import { DatepickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { ExaminationAnestheticFormComponent } from "../../anesthetics/examination_anesthetic/edit/examinationAnesthetic-form.component";
+import { PhysiologicalDataFormComponent } from "../../extraData/physiologicalData/add/physiologicalData-form.component";
+import { BloodGasDataFormComponent } from "../../extraData/bloodGasData/add/bloodGasData-form.component";
+import { LocalDateFormatPipe } from "../../../shared/localLanguage/localDateFormat.pipe";
 
 @Component({
     selector: "examination-preclinical-form",
     templateUrl: "animal-examination-form.component.html",
     styleUrls: ["animal-examination.component.css"],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NgClass,
+        FormFooterComponent,
+        RouterLink,
+        SelectBoxComponent,
+        DatepickerComponent,
+        ExaminationAnestheticFormComponent,
+        PhysiologicalDataFormComponent,
+        BloodGasDataFormComponent,
+        LocalDateFormatPipe,
+    ],
 })
 export class AnimalExaminationFormComponent extends ExaminationComponent {
     physioDataFile: PhysiologicalDataFile;

@@ -31,12 +31,14 @@ import {
 } from "../../shared/components/table/pageable.model";
 import { TableComponent } from "../../shared/components/table/table.component";
 import { IdName } from "../../shared/models/id-name.model";
-import { Option } from "../../shared/select/select.component";
+import { Option, SelectBoxComponent } from "../../shared/select/select.component";
 import { ImagedObjectCategory } from "../../subjects/shared/imaged-object-category.enum";
 import { Subject } from "../../subjects/shared/subject.model";
 import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
 import { EegImportJob } from "../shared/eeg-data.model";
 import { EegContextData } from "../shared/import.data-service";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "eeg-clinical-context",
@@ -46,7 +48,12 @@ import { EegContextData } from "../shared/import.data-service";
         "../shared/import.step.css",
     ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false,
+    imports: [
+        TooltipComponent,
+        SelectBoxComponent,
+        FormsModule,
+        TableComponent,
+    ],
 })
 export class EegClinicalContextComponent
     extends AbstractClinicalContextComponent

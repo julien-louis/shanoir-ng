@@ -27,7 +27,6 @@ import { ImagesUrlUtil } from "../../utils/images-url.util";
     selector: "upload-file",
     templateUrl: "uploader.component.html",
     styleUrls: ["uploader.component.css"],
-    standalone: false,
 })
 export class UploaderComponent {
     @ViewChild("input", { static: false }) private fileInput: ElementRef;

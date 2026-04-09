@@ -21,6 +21,8 @@ import { slideDown } from "../../../shared/animations/animations";
 import { BreadcrumbsService } from "../../../breadcrumbs/breadcrumbs.service";
 import { ImportDataService } from "../../../import/shared/import.data-service";
 import { ImportBrukerService } from "../importBruker.service";
+import { UploaderComponent } from "../../../shared/components/uploader/uploader.component";
+import { CheckboxComponent } from "../../../shared/checkbox/checkbox.component";
 
 type Status = "none" | "uploading" | "uploaded" | "error";
 
@@ -32,7 +34,7 @@ type Status = "none" | "uploading" | "uploaded" | "error";
         "../../..//import/shared/import.step.css",
     ],
     animations: [slideDown],
-    standalone: false,
+    imports: [UploaderComponent, CheckboxComponent],
 })
 export class BrukerUploadComponent {
     public archiveStatus: Status = "none";

@@ -29,7 +29,6 @@ import { XaProtocol } from "./xa-protocol.model";
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class XaProtocolComponent implements ControlValueAccessor {
     public protocol: XaProtocol;

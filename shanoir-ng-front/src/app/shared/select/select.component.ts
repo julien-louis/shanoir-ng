@@ -27,7 +27,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 import { Subscription } from "rxjs";
 
 import {
@@ -48,7 +49,10 @@ import { GlobalService } from "../services/global.service";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        FormsModule,
+        RouterLink,
+    ],
 })
 export class SelectBoxComponent
     implements ControlValueAccessor, OnDestroy, OnChanges, AfterViewInit

@@ -28,13 +28,16 @@ import {
     FilterablePageable,
     Page,
 } from "../../shared/components/table/pageable.model";
-import { Option } from "../../shared/select/select.component";
+import { Option, SelectBoxComponent } from "../../shared/select/select.component";
 import { StudyCard } from "../shared/study-card.model";
 import { StudyCardService } from "../shared/study-card.service";
 import { StudyRightsService } from "../../studies/shared/study-rights.service";
 import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
 import { ColumnDefinition } from "../../shared/components/table/column.definition.type";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
+import { FormsModule } from "@angular/forms";
+import { TableComponent } from "../../shared/components/table/table.component";
+import { AcquisitionEquipmentPipe } from "../../acquisition-equipments/shared/acquisition-equipment.pipe";
 
 export type Status = "default" | "loading" | "done" | "error";
 @Component({
@@ -42,7 +45,12 @@ export type Status = "default" | "loading" | "done" | "error";
     templateUrl: "apply-study-card-on.component.html",
     styleUrls: ["apply-study-card-on.component.css"],
     animations: [slideRight],
-    standalone: false,
+    imports: [
+        SelectBoxComponent,
+        FormsModule,
+        TableComponent,
+        AcquisitionEquipmentPipe,
+    ],
 })
 export class ApplyStudyCardOnComponent implements OnInit {
     datasetAcquisitions: DatasetAcquisition[];

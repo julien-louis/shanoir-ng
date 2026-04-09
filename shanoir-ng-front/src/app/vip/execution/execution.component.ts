@@ -13,13 +13,8 @@
  */
 
 import { formatDate } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import {
-    UntypedFormControl,
-    UntypedFormGroup,
-    ValidatorFn,
-    Validators,
-} from "@angular/forms";
+import { Component, inject, OnInit } from "@angular/core";
+import { UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 
 import { BreadcrumbsService } from "src/app/breadcrumbs/breadcrumbs.service";
@@ -37,22 +32,29 @@ import { ParameterType } from "src/app/vip/models/parameterType";
 import { Pipeline } from "src/app/vip/models/pipeline";
 
 import { ConsoleService } from "../../shared/console/console.service";
-import { Option } from "../../shared/select/select.component";
-import { ServiceLocator } from "../../utils/locator.service";
+import { Option, SelectBoxComponent } from "../../shared/select/select.component";
 import { ExecutionDataService } from "../execution.data-service";
 import { DatasetParameterDTO } from "../models/dataset-parameter.dto";
 import { ExecutionCandidateDto } from "../models/execution-candidate.dto";
 import { GroupByEnum } from "../models/groupby.enum";
 import { PipelineParameter } from "../models/pipelineParameter";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { CheckboxComponent } from "../../shared/checkbox/checkbox.component";
 
 @Component({
     selector: "app-execution",
     templateUrl: "./execution.component.html",
     styleUrls: ["./execution.component.css"],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        TooltipComponent,
+        CheckboxComponent,
+        SelectBoxComponent,
+    ],
 })
 export class ExecutionComponent implements OnInit {
-    protected consoleService = ServiceLocator.injector.get(ConsoleService);
+    protected consoleService = inject(ConsoleService);
     pipeline: Pipeline;
     executionForm: UntypedFormGroup;
     private selectedDatasets: Set<DatasetLight>;

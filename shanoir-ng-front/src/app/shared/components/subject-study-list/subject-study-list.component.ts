@@ -35,6 +35,7 @@ import { FilterablePageable, Page } from "../table/pageable.model";
 import { TableComponent } from "../table/table.component";
 import { ColumnDefinition } from "../table/column.definition.type";
 import { ConfirmDialogService } from "../confirm-dialog/confirm-dialog.service";
+import { TooltipComponent } from "../tooltip/tooltip.component";
 
 @Component({
     selector: "subject-study-list",
@@ -47,7 +48,7 @@ import { ConfirmDialogService } from "../confirm-dialog/confirm-dialog.service";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [TooltipComponent, TableComponent],
 })
 export class SubjectStudyListComponent
     extends AbstractInput<Subject[]>

@@ -18,7 +18,7 @@ import {
     OnChanges,
     SimpleChanges,
 } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 import { TreeNodeAbstractComponent } from "src/app/shared/components/tree/tree-node.abstract.component";
 import { MassDownloadService } from "src/app/shared/mass-download/mass-download.service";
@@ -38,11 +38,21 @@ import {
 import { StudyRightsService } from "../shared/study-rights.service";
 import { StudyUserRight } from "../shared/study-user-right.enum";
 import { Study } from "../shared/study.model";
+import { TreeNodeComponent } from "../../shared/components/tree/tree-node.component";
+import { DropdownMenuComponent } from "../../shared/components/dropdown-menu/dropdown-menu.component";
+import { MenuItemComponent } from "../../shared/components/dropdown-menu/menu-item/menu-item.component";
+import { ExaminationNodeComponent } from "../../examinations/tree/examination-node.component";
 
 @Component({
     selector: "reverse-study-node",
     templateUrl: "reverse-study-node.component.html",
-    standalone: false,
+    imports: [
+        TreeNodeComponent,
+        DropdownMenuComponent,
+        RouterLink,
+        MenuItemComponent,
+        ExaminationNodeComponent,
+    ],
 })
 export class ReverseStudyNodeComponent
     extends TreeNodeAbstractComponent<ReverseStudyNode>

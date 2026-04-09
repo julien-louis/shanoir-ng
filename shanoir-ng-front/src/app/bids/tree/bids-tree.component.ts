@@ -23,12 +23,18 @@ import { StudyRightsService } from "../../studies/shared/study-rights.service";
 import { StudyUserRight } from "../../studies/shared/study-user-right.enum";
 import { KeycloakService } from "../../shared/keycloak/keycloak.service";
 import { DatasetService } from "../../datasets/shared/dataset.service";
+import { NgTemplateOutlet } from "@angular/common";
+import { NgxJsonViewerModule } from "ngx-json-viewer";
 
 @Component({
     selector: "bids-tree",
     templateUrl: "bids-tree.component.html",
     styleUrls: ["bids-tree.component.css"],
-    standalone: false,
+    imports: [
+        TreeNodeComponent,
+        NgTemplateOutlet,
+        NgxJsonViewerModule,
+    ],
 })
 export class BidsTreeComponent implements OnDestroy, OnInit {
     API_URL = AppUtils.BACKEND_API_BIDS_URL;

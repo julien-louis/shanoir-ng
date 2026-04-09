@@ -33,8 +33,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
             useExisting: forwardRef(() => CheckboxComponent),
             multi: true,
         },
-    ],
-    standalone: false,
+    ]
 })
 export class CheckboxComponent implements ControlValueAccessor {
     @HostBinding("class.on") model: boolean | "indeterminate" = false;

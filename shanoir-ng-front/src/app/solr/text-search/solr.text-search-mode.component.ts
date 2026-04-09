@@ -19,9 +19,10 @@ import {
     SimpleChanges,
     OnChanges,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from "@angular/forms";
 
 import { slideDown } from "../../shared/animations/animations";
+import { ToggleSwitchComponent } from "../../shared/switch/switch.component";
 
 @Component({
     selector: "solr-text-search-mode",
@@ -35,7 +36,7 @@ import { slideDown } from "../../shared/animations/animations";
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [ToggleSwitchComponent, FormsModule],
 })
 export class SolrTextSearchModeComponent
     implements ControlValueAccessor, OnChanges

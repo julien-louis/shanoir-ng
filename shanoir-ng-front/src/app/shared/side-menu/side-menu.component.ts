@@ -25,6 +25,9 @@ import { ConsoleService } from "../console/console.service";
 import { KeycloakService } from "../keycloak/keycloak.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { ImagesUrlUtil } from "../utils/images-url.util";
+import { RouterLink, RouterLinkActive } from "@angular/router";
+import { LoadingBarComponent } from "../components/loading-bar/loading-bar.component";
+import { DatePipe } from "@angular/common";
 
 @Component({
     selector: "side-menu",
@@ -34,7 +37,12 @@ import { ImagesUrlUtil } from "../utils/images-url.util";
         environment.production ? "prod.css" : "dev.css",
     ],
     animations: [slideDown, disapearUp],
-    standalone: false,
+    imports: [
+        RouterLink,
+        RouterLinkActive,
+        LoadingBarComponent,
+        DatePipe,
+    ],
 })
 export class SideMenuComponent {
     public shanoirLogoUrl: string = ImagesUrlUtil.SHANOIR_WHITE_LOGO_PATH;

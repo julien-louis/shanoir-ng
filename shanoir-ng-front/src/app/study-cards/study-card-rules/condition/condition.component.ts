@@ -22,21 +22,13 @@ import {
     Output,
     SimpleChanges,
 } from "@angular/core";
-import {
-    FormArray,
-    FormControl,
-    FormGroup,
-    UntypedFormBuilder,
-    UntypedFormGroup,
-    ValidatorFn,
-    Validators,
-} from "@angular/forms";
+import { FormArray, FormControl, FormGroup, UntypedFormBuilder, UntypedFormGroup, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Subscription } from "rxjs";
 
 import { Coil } from "src/app/coils/shared/coil.model";
 
 import { Mode } from "../../../shared/components/entity/entity.component.abstract";
-import { Option } from "../../../shared/select/select.component";
+import { Option, SelectBoxComponent } from "../../../shared/select/select.component";
 import { DicomService } from "../../shared/dicom.service";
 import {
     ConditionScope,
@@ -47,12 +39,20 @@ import {
     VM,
 } from "../../shared/study-card.model";
 import { ShanoirMetadataField } from "../action/action.component";
+import { AutoAdjustInputComponent } from "../../../shared/auto-ajust-input/auto-ajust-input.component";
+import { DicomTagPipe } from "./dicom-tag.pipe";
 
 @Component({
     selector: "condition",
     templateUrl: "condition.component.html",
     styleUrls: ["condition.component.css"],
-    standalone: false,
+    imports: [
+        SelectBoxComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        AutoAdjustInputComponent,
+        DicomTagPipe,
+    ],
 })
 export class StudyCardConditionComponent
     implements OnInit, OnDestroy, OnChanges

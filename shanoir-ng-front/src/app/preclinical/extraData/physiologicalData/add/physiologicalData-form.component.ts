@@ -13,7 +13,7 @@
  */
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { UntypedFormGroup } from "@angular/forms";
+import { UntypedFormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { EntityService } from "src/app/shared/components/entity/entity.abstract.service";
@@ -24,12 +24,19 @@ import * as PreclinicalUtils from "../../../utils/preclinical.utils";
 import { slideDown } from "../../../../shared/animations/animations";
 import { EntityComponent } from "../../../../shared/components/entity/entity.component.abstract";
 import { ExtraData } from "../../extraData/shared/extradata.model";
+import { FormFooterComponent } from "../../../../shared/components/form-footer/form-footer.component";
+import { UploaderComponent } from "../../../../shared/components/uploader/uploader.component";
 
 @Component({
     selector: "physiological-data-upload-form",
     templateUrl: "physiologicalData-form.component.html",
     animations: [slideDown],
-    standalone: false,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        FormFooterComponent,
+        UploaderComponent,
+    ],
 })
 export class PhysiologicalDataFormComponent extends EntityComponent<PhysiologicalDataFile> {
     @Input() examinationId: number;

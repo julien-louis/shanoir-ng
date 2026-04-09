@@ -28,7 +28,6 @@ import { FileUploadReady } from "./fileUploadReady.model";
 @Component({
     selector: "file-upload",
     template: '<input type="file" [multiple]="multiple" #fileInput>',
-    standalone: false,
 })
 export class FileUploadComponent {
     @Input() url: string;

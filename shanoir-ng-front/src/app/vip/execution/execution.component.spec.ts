@@ -22,8 +22,8 @@ describe("ExecutionComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ExecutionComponent],
-        }).compileComponents();
+    imports: [ExecutionComponent],
+}).compileComponents();
     });
 
     beforeEach(() => {

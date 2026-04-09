@@ -11,7 +11,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see https://www.gnu.org/licenses/gpl-3.0.html
  */
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 import { Step } from "../../breadcrumbs/breadcrumbs.service";
 import { DatasetProcessingPipe } from "../../datasets/dataset-processing/dataset-processing.pipe";
@@ -23,10 +24,11 @@ import {
     preventInitialChildAnimations,
     slideDown,
 } from "../../shared/animations/animations";
-import { ServiceLocator } from "../../utils/locator.service";
 import { AbstractClinicalContextComponent } from "../clinical-context/clinical-context.abstract.component";
 import { ProcessedContextData } from "../shared/import.data-service";
 import { ProcessedDatasetImportJob } from "../shared/processed-dataset-data.model";
+import { TooltipComponent } from "../../shared/components/tooltip/tooltip.component";
+import { SelectBoxComponent } from "../../shared/select/select.component";
 
 @Component({
     selector: "processed-dataset-clinical-context",
@@ -37,7 +39,11 @@ import { ProcessedDatasetImportJob } from "../shared/processed-dataset-data.mode
         "./processed-dataset-clinical-context.component.css",
     ],
     animations: [slideDown, preventInitialChildAnimations],
-    standalone: false,
+    imports: [
+        TooltipComponent,
+        SelectBoxComponent,
+        FormsModule,
+    ],
 })
 export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalContextComponent {
     DatasetType = DatasetType;
@@ -51,9 +57,9 @@ export class ProcessedDatasetClinicalContextComponent extends AbstractClinicalCo
     public datasetProcessings: DatasetProcessing[] = [];
     public useStudyCard: boolean = false;
     private datasetProcessingService: DatasetProcessingService =
-        ServiceLocator.injector.get(DatasetProcessingService);
+        inject(DatasetProcessingService);
     public datasetProcessingLabelPipe: DatasetProcessingPipe =
-        ServiceLocator.injector.get(DatasetProcessingPipe);
+        inject(DatasetProcessingPipe);
 
     getNextUrl(): string {
         return "/imports/processed-dataset";
