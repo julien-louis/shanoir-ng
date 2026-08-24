@@ -34,7 +34,7 @@ jobs:
 
       - name: Commit renamed migrations
         run: |
-          if git diff --quiet; then
+          if git diff --cached --quiet; then
               echo "No migration to rename"
               exit 0
           fi
