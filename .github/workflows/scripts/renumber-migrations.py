@@ -30,8 +30,9 @@ merge_sha = os.environ["MERGE_SHA"]
 
 changed_files = git(
     "diff",
-    "--diff-filter=A",
+    "--diff-filter=AR",
     "--name-only",
+    "--no-renames",
     base_sha,
     merge_sha,
     "--",
